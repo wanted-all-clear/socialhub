@@ -1,5 +1,5 @@
-name: 'Team Lucky-vicky 이슈 생성'
-description: '백엔드 Repo에 이슈를 생성하며, 생성된 이슈는 Jira와 연동됩니다.'
+name: 'All-clear 이슈 생성'
+description: 'SocialHub Repo에 이슈를 생성하며, 생성된 이슈는 Jira와 연동됩니다.'
 labels: [order]
 title: '이슈 이름을 작성해주세요.'
 body:
