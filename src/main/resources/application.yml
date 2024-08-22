@@ -22,5 +22,5 @@ spring:
         id:
           new_generator_mappings: true
       hibernate.format_sql: true
-      dialect: org.hibernate.dialect.MySQLDialect
+      dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     defer-datasource-initialization: true
