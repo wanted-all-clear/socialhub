@@ -1,5 +1,6 @@
-type: title (#이슈번호)
-# [Header]형식 - type: title (#이슈번호)
+[Type] title (#이슈번호)
+# [Header]
+# 형식 - [Type] title (#이슈번호)
 #
 # [Type] 입력 목록
 #  1. Feat: 새로운 기능 추가
