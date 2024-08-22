@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class User extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
     @Column(nullable = false)
     private String userName;
     @Column(nullable = false)
@@ -29,7 +29,9 @@ public class User extends Timestamped {
     private String password;
     private LocalDateTime deletedAt;
     @Column(nullable = false)
-    private Enum<UserStatus> userState;
+    @Enumerated(EnumType.STRING)
+    private UserStatus userStatus;
     @Column(nullable = false)
-    private Enum<UserCertifyStatus> certifyState;
+    @Enumerated(EnumType.STRING)
+    private UserCertifyStatus certifyStatus;
 }
