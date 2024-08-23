@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
+import com.allclear.socialhub.user.dto.UserLoginDto;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.service.UserServiceImpl;
 
@@ -25,33 +26,33 @@ public class UserServiceTest {
 	@InjectMocks
 	private UserServiceImpl service;
 
-	private User user;
+	private UserLoginDto loginDto;
 
 	@BeforeEach
 	public void setUp() {
-		user = mock(User.class);
+		loginDto = mock(UserLoginDto.class);
 	}
 
 	@Test
 	public void 사용자_로그인_테스트() {
-		service.userLogin(user);
+		service.userLogin(loginDto);
 
-		verify(service, times(1)).checkUsername(user.getUsername());
+		verify(service, times(1)).checkUsername(loginDto.getUsername());
 	}
 
 	@Test
 	public void 사용자_아이디_조회_성공_테스트() {
-		given(repo.findByUsername(user.getUsername())).willReturn(user);
-		User result = service.checkUsername(user.getUsername());
+		given(repo.findByUsername(loginDto.getUsername())).willReturn(mock(User.class));
+		User result = service.checkUsername(loginDto.getUsername());
 
-		verify(repo, times(1)).findByUsername(user.getUsername());
+		verify(repo, times(1)).findByUsername(loginDto.getUsername());
 	}
 
 	@Test
 	public void 사용자_아이디_조회_실패_테스트() {
-		Throwable throwable = assertThrows(RuntimeException.class, () -> service.checkUsername(user.getUsername()));
+		Throwable throwable = assertThrows(RuntimeException.class, () -> service.checkUsername(loginDto.getUsername()));
 
-		verify(repo, times(1)).findByUsername(user.getUsername());
+		verify(repo, times(1)).findByUsername(loginDto.getUsername());
 		assertThat(throwable.getMessage()).isEqualTo(ErrorCode.USER_NOT_EXIST.getMessage());
 	}
 }
