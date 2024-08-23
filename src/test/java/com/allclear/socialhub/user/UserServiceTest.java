@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.allclear.socialhub.common.config.WebSecurityConfig;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserLoginDto;
@@ -23,6 +24,9 @@ public class UserServiceTest {
 	@Mock
 	private UserRepository repo;
 
+	@Mock
+	private WebSecurityConfig config;
+
 	@InjectMocks
 	private UserServiceImpl service;
 
@@ -34,22 +38,22 @@ public class UserServiceTest {
 	}
 
 	@Test
-	public void 사용자_로그인_테스트() {
+	public void userLoginTest() {
 		service.userLogin(loginDto);
 
 		verify(service, times(1)).checkUsername(loginDto.getUsername());
 	}
 
 	@Test
-	public void 사용자_아이디_조회_성공_테스트() {
+	public void checkUsernameSuccessTest() {
 		given(repo.findByUsername(loginDto.getUsername())).willReturn(mock(User.class));
-		User result = service.checkUsername(loginDto.getUsername());
+		service.checkUsername(loginDto.getUsername());
 
 		verify(repo, times(1)).findByUsername(loginDto.getUsername());
 	}
 
 	@Test
-	public void 사용자_아이디_조회_실패_테스트() {
+	public void checkUsernameFailTest() {
 		Throwable throwable = assertThrows(RuntimeException.class, () -> service.checkUsername(loginDto.getUsername()));
 
 		verify(repo, times(1)).findByUsername(loginDto.getUsername());
