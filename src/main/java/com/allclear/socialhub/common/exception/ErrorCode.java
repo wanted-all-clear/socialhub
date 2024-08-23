@@ -16,7 +16,7 @@ public enum ErrorCode {
 	// POST
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
 	POST_NOT_OWNER(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
-	POST_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물 타입입니다.");
+	POST_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시물 타입입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
