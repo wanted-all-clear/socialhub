@@ -1,7 +1,10 @@
 package com.allclear.socialhub.post.service;
 
-import org.springframework.stereotype.Service;
+import com.allclear.socialhub.post.dto.PostPaging;
+import org.springframework.data.domain.Pageable;
 
-@Service
 public interface PostService {
+
+    PostPaging getPosts(Pageable pageable);
+
 }
