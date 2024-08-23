@@ -31,7 +31,8 @@ public class Post extends Timestamped {
     private String content;
 
     @Column(nullable = false)
-    private PostType postType;
+    @Enumerated(EnumType.STRING)
+    private PostType type;
 
     @Column(nullable = false)
     private int viewCnt;
@@ -41,4 +42,5 @@ public class Post extends Timestamped {
 
     @Column(nullable = false)
     private int shareCnt;
+    
 }
