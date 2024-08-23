@@ -17,7 +17,7 @@ public interface PostShareRepository extends JpaRepository<PostShare, Long> {
             "AND DATE(ps.createdAt) BETWEEN :start AND :end " +
             "GROUP BY DATE_FORMAT(ps.createdAt, '%Y-%m-%d') " +
             "ORDER BY time ASC")
-    List<StatisticResponse> findStatisticDtoByPostIds(
+    List<StatisticResponse> findDailyStatisticByPostIds(
             @Param("postIds") List<Long> postIds,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end);

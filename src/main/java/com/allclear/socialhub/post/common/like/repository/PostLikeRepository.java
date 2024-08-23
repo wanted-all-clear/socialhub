@@ -17,7 +17,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
             "AND DATE(pl.createdAt) BETWEEN :start AND :end " +
             "GROUP BY DATE_FORMAT(pl.createdAt, '%Y-%m-%d') " +
             "ORDER BY time ASC")
-    List<StatisticResponse> findStatisticDtoByPostIds(
+    List<StatisticResponse> findDailyStatisticByPostIds(
             @Param("postIds") List<Long> postIds,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end);
