@@ -1,7 +1,10 @@
 package com.allclear.socialhub.user.repository;
 
-import com.allclear.socialhub.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.allclear.socialhub.user.domain.User;
+
 public interface UserRepository extends JpaRepository<User, Long> {
+
+	User findByUsername(String username);
 }

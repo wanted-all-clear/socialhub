@@ -32,7 +32,7 @@ public class User extends Timestamped {
 	private Long id;
 
 	@Column(nullable = false)
-	private String userName;
+	private String username;
 
 	@Column(nullable = false)
 	private String email;
@@ -44,7 +44,7 @@ public class User extends Timestamped {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private UserStatus userStatus;
+	private UserStatus status;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
