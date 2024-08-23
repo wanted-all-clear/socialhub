@@ -19,14 +19,14 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-		HttpRequestMethodNotSupportedException ex) {
+			HttpRequestMethodNotSupportedException ex) {
 
 		log.error("handleHttpRequestMethodNotSupportedException", ex);
 
 		final ErrorResponse response
-			= ErrorResponse.create()
-			.httpStatus(HttpStatus.METHOD_NOT_ALLOWED)
-			.message(ex.getMessage());
+				= ErrorResponse.create()
+				.httpStatus(HttpStatus.METHOD_NOT_ALLOWED)
+				.message(ex.getMessage());
 
 		return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
 	}
@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
 		log.error("handleIllegalArgumentException", ex);
 
 		ErrorResponse response = ErrorResponse.create()
-			.message(ex.getMessage())
-			.httpStatus(HttpStatus.BAD_REQUEST);
+				.message(ex.getMessage())
+				.httpStatus(HttpStatus.BAD_REQUEST);
 
 		return ResponseEntity.badRequest().body(response);
 	}
@@ -50,8 +50,8 @@ public class GlobalExceptionHandler {
 
 		ex.printStackTrace();
 		ErrorResponse response = ErrorResponse.create()
-			.message(ex.getMessage())
-			.httpStatus(HttpStatus.BAD_REQUEST);
+				.message(ex.getMessage())
+				.httpStatus(HttpStatus.BAD_REQUEST);
 
 		return ResponseEntity.badRequest().body(response);
 	}
@@ -65,8 +65,8 @@ public class GlobalExceptionHandler {
 		String defaultMsg = message.substring(message.lastIndexOf("[") + 1, message.lastIndexOf("]"));
 
 		ErrorResponse response = ErrorResponse.create()
-			.message(defaultMsg)
-			.httpStatus(HttpStatus.BAD_REQUEST);
+				.message(defaultMsg)
+				.httpStatus(HttpStatus.BAD_REQUEST);
 
 		return ResponseEntity.badRequest().body(response);
 	}
@@ -80,10 +80,10 @@ public class GlobalExceptionHandler {
 		String message = ex.getMessage();
 
 		ErrorResponse response
-			= ErrorResponse
-			.create()
-			.message(message)
-			.httpStatus(errorCode.getHttpStatus());
+				= ErrorResponse
+				.create()
+				.message(message)
+				.httpStatus(errorCode.getHttpStatus());
 
 		return ResponseEntity.badRequest().body(response);
 	}
