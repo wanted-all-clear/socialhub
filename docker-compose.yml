@@ -5,7 +5,7 @@ services:
     container_name: social_hub_mysql
     restart: always
     ports:
-      - ${DB_PORT}:3306
+      - 3305:3306
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
