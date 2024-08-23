@@ -18,20 +18,28 @@ import java.time.LocalDateTime;
 @Builder
 @Table(name = "user")
 public class User extends Timestamped {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
-    private String userName;
+    private String username;
+
     @Column(nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     private LocalDateTime deletedAt;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserStatus userStatus;
+    private UserStatus status;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserCertifyStatus certifyStatus;
+
 }
