@@ -1,4 +1,44 @@
 package com.allclear.socialhub.post.domain;
 
-public class Post {
+import com.allclear.socialhub.common.domain.Timestamped;
+import com.allclear.socialhub.user.domain.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "post")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Post extends Timestamped {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String content;
+
+    @Column(nullable = false)
+    private PostType postType;
+
+    @Column(nullable = false)
+    private int viewCnt;
+
+    @Column(nullable = false)
+    private int likeCnt;
+
+    @Column(nullable = false)
+    private int shareCnt;
 }
