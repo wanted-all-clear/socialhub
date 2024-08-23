@@ -3,7 +3,6 @@ package com.allclear.socialhub.common.exception.handler;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.common.exception.ErrorResponse;
-import com.allclear.socialhub.common.exception.custom.StatisticException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -86,17 +85,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(response);
     }
-
-    @ExceptionHandler(value = {StatisticException.class})
-    public ResponseEntity<ErrorResponse> handleStatisticException(StatisticException ex) {
-
-        log.error("handleStatisticException", ex);
-
-        ErrorResponse response = ErrorResponse.create()
-                .message(ex.getMessage())
-                .httpStatus(HttpStatus.BAD_REQUEST);
-
-        return ResponseEntity.badRequest().body(response);
-    }
-
+    
 }
