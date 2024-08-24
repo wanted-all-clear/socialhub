@@ -1,7 +1,7 @@
 package com.allclear.socialhub.post.repository.querydsl;
 
-import com.allclear.socialhub.post.common.hashtag.domain.QHashTag;
-import com.allclear.socialhub.post.common.hashtag.domain.QPostHashTag;
+import com.allclear.socialhub.post.common.hashtag.domain.QHashtag;
+import com.allclear.socialhub.post.common.hashtag.domain.QPostHashtag;
 import com.allclear.socialhub.post.domain.QPost;
 import com.allclear.socialhub.post.dto.PostListResponse;
 import com.querydsl.core.types.Projections;
@@ -26,8 +26,8 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
     public Page<PostListResponse> getPosts(Pageable pageable) {
 
         QPost post = QPost.post;
-        QHashTag hashtag = QHashTag.hashTag;
-        QPostHashTag postHashtag = QPostHashTag.postHashTag;
+        QHashtag hashtag = QHashtag.hashtag;
+        QPostHashtag postHashtag = QPostHashtag.postHashtag;
 
         List<PostListResponse> postList = queryFactory
                 .select(
