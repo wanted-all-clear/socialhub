@@ -9,18 +9,15 @@ import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    //@Autowired
-    //private BCryptPasswordEncoder passwordEncoder; TODO: jwt 기능 구현되면 주석 해제
+    //private final BCryptPasswordEncoder passwordEncoder; TODO: jwt 기능 구현되면 주석 해제
 
     /**
      * 사용자 회원가입
