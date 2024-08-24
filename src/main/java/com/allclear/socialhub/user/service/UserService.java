@@ -1,8 +1,9 @@
 package com.allclear.socialhub.user.service;
 
-import com.allclear.socialhub.user.domain.User;
-import org.springframework.stereotype.Service;
+import com.allclear.socialhub.user.dto.UserJoinRequest;
 
-@Service
 public interface UserService {
+
+    void joinUser(UserJoinRequest request);
+
 }
