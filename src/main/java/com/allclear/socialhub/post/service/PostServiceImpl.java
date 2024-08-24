@@ -25,7 +25,7 @@ import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
 public class PostServiceImpl implements PostService {
 
     private final UserRepository userRepository;
-    private final HashtagService hashTagService;
+    private final HashtagService hashtagService;
     private final PostRepository postRepository;
     private final PostHashtagRepository postHashtagRepository;
 
@@ -46,14 +46,14 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.save(requestPostDto.toEntity(user));
 
         // 3. 해시태그 등록
-        List<Hashtag> savedHashtags = hashTagService.toEachHashTag(requestPostDto.getHashtagList());
+        List<Hashtag> savedHashtags = hashtagService.toEachHashtag(requestPostDto.getHashtagList());
 
-        for (Hashtag hashTag : savedHashtags) {
-            PostHashtag postHashTag = PostHashtag.builder()
+        for (Hashtag hashtag : savedHashtags) {
+            PostHashtag postHashtag = PostHashtag.builder()
                     .post(post)
-                    .hashTag(hashTag)
+                    .hashtag(hashtag)
                     .build();
-            postHashtagRepository.save(postHashTag);
+            postHashtagRepository.save(postHashtag);
         }
         return PostResponse.fromEntity(post, requestPostDto.getHashtagList());
     }

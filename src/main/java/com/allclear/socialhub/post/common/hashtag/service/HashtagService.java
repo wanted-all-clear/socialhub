@@ -8,6 +8,6 @@ import java.util.List;
 @Service
 public interface HashtagService {
 
-    List<Hashtag> toEachHashTag(List<String> hashtagList);
+    List<Hashtag> toEachHashtag(List<String> hashtagList);
 
 }
