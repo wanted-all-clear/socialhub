@@ -41,6 +41,7 @@ out/
 
 ### docker-compose volume ###
 .db/
+.redis/
 
 ### macOS ###
 # General
