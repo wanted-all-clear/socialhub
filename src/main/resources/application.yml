@@ -25,4 +25,4 @@ spring:
     defer-datasource-initialization: true
   sql:
     init:
-      mode: never
+      mode: never #always 한 번 사용 후 never로

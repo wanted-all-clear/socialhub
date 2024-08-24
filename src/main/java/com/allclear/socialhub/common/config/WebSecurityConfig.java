@@ -1,7 +1,5 @@
 package com.allclear.socialhub.common.config;
 
-import static org.springframework.security.config.Customizer.*;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -26,15 +25,13 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(AbstractHttpConfigurer::disable)
-				.formLogin((auth) -> auth.loginProcessingUrl("api/users/login"))
-				.httpBasic(withDefaults());
-
-		http
-				.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers("/login", "/join").permitAll()
-						.anyRequest().authenticated()
-				);
+				.csrf(AbstractHttpConfigurer::disable);
+		// .formLogin(AbstractHttpConfigurer::disable) // Form login 비활성화
+		// .httpBasic(AbstractHttpConfigurer::disable) // Basic auth 비활성화
+		// .authorizeHttpRequests(authorize -> authorize
+		// 		.requestMatchers("/api/users/login", "/api/users/").permitAll()
+		// 		.anyRequest().authenticated()
+		// );
 
 		// 세션 무상태로 유지
 		http
@@ -43,5 +40,4 @@ public class WebSecurityConfig {
 
 		return http.build();
 	}
-
 }

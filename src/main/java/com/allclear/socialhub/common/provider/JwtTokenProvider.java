@@ -9,11 +9,9 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -61,15 +59,10 @@ public class JwtTokenProvider {
 	 * @return Claims payload
 	 */
 	public Claims extractAllClaims(String token) {
-		try {
-			return Jwts.parser()
-					.verifyWith(this.getSigningKey())
-					.build()
-					.parseSignedClaims(token)
-					.getPayload();
-
-		} catch (JwtException ex) {
-			throw new RuntimeException(ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
-		}
+		return Jwts.parser()
+				.verifyWith(this.getSigningKey())
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 	}
 }

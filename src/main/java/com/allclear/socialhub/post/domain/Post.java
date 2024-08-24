@@ -42,5 +42,5 @@ public class Post extends Timestamped {
 
     @Column(nullable = false)
     private int shareCnt;
-    
+
 }
