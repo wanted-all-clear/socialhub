@@ -13,8 +13,10 @@ import lombok.NoArgsConstructor;
 public class UserJoinRequest {
 
     String username;
+
     @Email(message = "이메일 형식이 아닙니다")
     String email;
+
     String password;
 
 }
