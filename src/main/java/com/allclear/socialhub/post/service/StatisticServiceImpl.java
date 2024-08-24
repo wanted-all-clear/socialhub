@@ -2,12 +2,12 @@ package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.post.common.hashtag.repository.HashTagRepository;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
-import com.allclear.socialhub.post.common.response.StatisticResponse;
+import com.allclear.socialhub.post.common.response.StatisticQueryResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.StatisticType;
 import com.allclear.socialhub.post.domain.StatisticValue;
-import com.allclear.socialhub.post.dto.StatisticDto;
+import com.allclear.socialhub.post.dto.StatisticResponse;
 import com.allclear.socialhub.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,10 +40,10 @@ public class StatisticServiceImpl implements StatisticService {
      * @return List<StatisticDto>
      */
     @Override
-    public List<StatisticDto> getStatisticsDaily(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value) {
+    public List<StatisticResponse> getStatisticsDaily(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value) {
 
         List<Long> postIds = hashTagRepository.getPostByHashtag(hashtag);
-        List<StatisticResponse> responses = new ArrayList<>();
+        List<StatisticQueryResponse> responses = new ArrayList<>();
         if (value.equals(StatisticValue.COUNT)) {
             responses = postRepository.findDailyStatisticByPostIds(postIds, start, end);
         } else if (value.equals(StatisticValue.LIKE_COUNT)) {
@@ -54,12 +54,12 @@ public class StatisticServiceImpl implements StatisticService {
             responses = postViewRepository.findDailyStatisticByPostIds(postIds, start, end);
         }
 
-        List<StatisticDto> daily = getDaily(start, end);
-        for (StatisticDto statisticDto : daily) {
-            String time = statisticDto.getTime();
-            List<StatisticResponse> filteredList = responses.stream().filter(it -> it.getTime().equals(time)).collect(Collectors.toList());
+        List<StatisticResponse> daily = getDaily(start, end);
+        for (StatisticResponse statisticResponse : daily) {
+            String time = statisticResponse.getTime();
+            List<StatisticQueryResponse> filteredList = responses.stream().filter(it -> it.getTime().equals(time)).collect(Collectors.toList());
             if (filteredList.size() > 0) {
-                statisticDto.setValue(filteredList.get(0).getValue());
+                statisticResponse.setValue(filteredList.get(0).getValue());
             }
         }
 
@@ -67,26 +67,38 @@ public class StatisticServiceImpl implements StatisticService {
 
     }
 
-    private List<StatisticDto> getDaily(LocalDate start, LocalDate end) {
+    private List<StatisticResponse> getDaily(LocalDate start, LocalDate end) {
 
-        List<StatisticDto> result = new ArrayList<>();
+        List<StatisticResponse> result = new ArrayList<>();
 
         List<LocalDate> localDates = new ArrayList<>();
         for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             // LocalDate를 문자열로 변환합니다.
             String formattedDate = date.format(formatter);
-            StatisticDto statisticDto = new StatisticDto(formattedDate, 0L);
-            result.add(statisticDto);
+            StatisticResponse statisticResponse = new StatisticResponse(formattedDate, 0L);
+            result.add(statisticResponse);
         }
 
         return result;
 
     }
 
+    /**
+     * 2. 시간대별 통계
+     * 작성자 : 김유현
+     *
+     * @param hashtag
+     * @param type    : 일자별, 시간별
+     * @param start   : start date
+     * @param end     : end date
+     * @param value   : count, like_count, share_count, view_count
+     * @return List<StatisticDto>
+     */
     @Override
-    public void getStatisticsHourly(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value) {
+    public List<StatisticResponse> getStatisticsHourly(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value) {
 
+        return null;
     }
 
 }

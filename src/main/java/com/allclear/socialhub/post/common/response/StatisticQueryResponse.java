@@ -1,9 +1,9 @@
 package com.allclear.socialhub.post.common.response;
 
-public interface StatisticResponse {
+public interface StatisticQueryResponse {
 
     String getTime();
 
-    double getValue();
+    Long getValue();
 
 }

@@ -1,7 +1,7 @@
 package com.allclear.socialhub.post.common.like.repository;
 
 import com.allclear.socialhub.post.common.like.domain.PostLike;
-import com.allclear.socialhub.post.common.response.StatisticResponse;
+import com.allclear.socialhub.post.common.response.StatisticQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +17,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
             "AND DATE(pl.createdAt) BETWEEN :start AND :end " +
             "GROUP BY DATE_FORMAT(pl.createdAt, '%Y-%m-%d') " +
             "ORDER BY time ASC")
-    List<StatisticResponse> findDailyStatisticByPostIds(
+    List<StatisticQueryResponse> findDailyStatisticByPostIds(
             @Param("postIds") List<Long> postIds,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end);

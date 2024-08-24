@@ -5,9 +5,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class StatisticDto {
+public class StatisticResponse {
 
     private String time;
-    private double value;
+    private Long value;
 
 }
+
+
