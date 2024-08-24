@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostHashtag {
+public class PostHashtagtemp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,6 @@ public class PostHashtag {
 
     @ManyToOne
     @JoinColumn(name = "hashtag_id", nullable = false)
-    private Hashtag hashTag;
+    private Hashtag hashtag;
 
 }
