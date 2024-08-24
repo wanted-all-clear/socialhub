@@ -2,6 +2,7 @@ package com.allclear.socialhub.post.dto;
 
 import com.allclear.socialhub.post.domain.StatisticType;
 import com.allclear.socialhub.post.domain.StatisticValue;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,9 +16,11 @@ public class StatisticRequestParam {
     private StatisticType type;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @PastOrPresent
     private LocalDate start;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @PastOrPresent
     private LocalDate end;
 
     private StatisticValue value;

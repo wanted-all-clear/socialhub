@@ -81,38 +81,32 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 날짜 유효성 검증 메소드
+     * 날짜 범위가 유효한지 검증합니다.
      * - 작성자 : 김유현
      *
      * @param type  통계 타입 (일자별, 시간대별)
      * @param start 시작 날짜
      * @param end   종료 날짜
-     * @throws CustomException 날짜 유효성 검증 실패 시 발생
+     * @throws CustomException 날짜 범위 유효성 검증 실패 시 발생
      */
     private void validateDateRange(StatisticType type, LocalDate start, LocalDate end) {
 
-        // end 날짜가 오늘보다 미래일 경우
-        if (DateUtil.getDateDiff(end, LocalDate.now()) < 0) {
-            throw new CustomException(ErrorCode.STATISTICS_INVALID_END_DATE_IN_FUTURE);
-        }
-
-        // start 날짜가 end 날짜보다 미래일 경우
         Long diff = DateUtil.getDateDiff(start, end);
         log.info("start ~ end : " + diff);
         if (diff < 0) {
-            throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_RANGE);
+            throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_RANGE_START_AFTER_END);
         }
 
-        // 통계 타입에 따라 최대 날짜 넘을 경우
+        // 통계 타입에 따라 최대 날짜 범위 초과 여부 검증
         switch (type) {
             case DATE -> {
                 if (diff > 30) {
-                    throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_DURATION_DATE);
+                    throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_RANGE_TOO_LONG_DATE);
                 }
             }
             case HOUR -> {
                 if (diff > 7) {
-                    throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_DURATION_HOUR);
+                    throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_RANGE_TOO_LONG_HOUR);
                 }
             }
         }

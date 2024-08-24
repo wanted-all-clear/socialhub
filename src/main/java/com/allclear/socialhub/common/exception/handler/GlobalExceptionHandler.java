@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
         String errorMessage = switch (fieldName) {
             case "type" -> ErrorCode.STATISTICS_INVALID_TYPE.getMessage();
             case "value" -> ErrorCode.STATISTICS_INVALID_VALUE.getMessage();
-            case "start", "end" -> ErrorCode.STATISTICS_INVALID_DATE_PATTERN.getMessage();
+            case "start", "end" -> ErrorCode.STATISTICS_INVALID_DATE.getMessage();
             default -> fieldError.getDefaultMessage();
         };
 
