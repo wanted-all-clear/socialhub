@@ -6,10 +6,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WebSecurityConfig {
 
-    /**
-     * TODO: jwt 기능 구현되면 주석 해제 예정입니다.
-     * 작성자: 배서진
-     */
+    // TODO: jwt 기능 구현되면 주석 해제 예정
     /*@Bean
     public BCryptPasswordEncoder passwordEncoder() {
 

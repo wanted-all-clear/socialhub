@@ -41,5 +41,6 @@ public class User extends Timestamped {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserCertifyStatus certifyStatus;
+    
 
 }

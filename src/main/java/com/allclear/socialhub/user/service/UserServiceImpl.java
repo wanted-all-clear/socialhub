@@ -3,6 +3,8 @@ package com.allclear.socialhub.user.service;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
+import com.allclear.socialhub.user.dto.UserInfoUpdateRequest;
+import com.allclear.socialhub.user.dto.UserInfoUpdateResponse;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
 import com.allclear.socialhub.user.repository.UserRepository;
@@ -83,11 +85,52 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    /**
+     * 사용자 계정명의 길이를 검사합니다.
+     * 작성자: 배서진
+     *
+     * @param username
+     */
     private void validateUsername(String username) {
 
         if (username.length() < 3 || username.length() > 20) {
             throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
         }
+    }
+
+    /**
+     * @param request 사용자 회원정보 수정한 데이터
+     * @param email   JWT token에서 추출한 이메일
+     * @return Response 객체
+     */
+    @Override
+    public UserInfoUpdateResponse updateUserInfo(UserInfoUpdateRequest request, String email) {
+        // 1. 이메일을 사용해 사용자 검색
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
+
+        // 2. 사용자 입력 정보 유효성 검사
+        validateUsername(request.getUsername());
+        validatePassword(request.getPassword());
+
+        // TODO: 변경 예정
+        //String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+
+        // 3. 사용자 정보 업데이트
+        User updateUser = User.builder()
+                .username(request.getUsername())
+                .password(request.getPassword()) // TODO: encodedPassword
+                .build();
+
+        // 4. 업데이트된 사용자 정보 저장
+        userRepository.save(updateUser);
+
+        // 5. Response 객체를 생성하여 반환
+        return UserInfoUpdateResponse.builder()
+                .username(request.getUsername())
+                .build();
+
     }
 
 }
