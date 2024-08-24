@@ -33,20 +33,20 @@ public class PostServiceImpl implements PostService {
      * 1. 게시물 등록
      * 작성자 : 오예령
      *
-     * @param requestPostDto
-     * @return
+     * @param createRequest
+     * @return 생성된 게시물 PostResponse에 담아 반환
      */
     @Override
-    public PostResponse createPost(Long userId, PostCreateRequest requestPostDto) {
+    public PostResponse createPost(Long userId, PostCreateRequest createRequest) {
         // 1. 유저 검증
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(USER_NOT_EXIST)
         );
         // 2. 게시물 등록
-        Post post = postRepository.save(requestPostDto.toEntity(user));
+        Post post = postRepository.save(createRequest.toEntity(user));
 
         // 3. 해시태그 등록
-        List<Hashtag> savedHashtags = hashtagService.toEachHashtag(requestPostDto.getHashtagList());
+        List<Hashtag> savedHashtags = hashtagService.toEachHashtag(createRequest.getHashtagList());
 
         for (Hashtag hashtag : savedHashtags) {
             PostHashtag postHashtag = PostHashtag.builder()
@@ -55,7 +55,7 @@ public class PostServiceImpl implements PostService {
                     .build();
             postHashtagRepository.save(postHashtag);
         }
-        return PostResponse.fromEntity(post, requestPostDto.getHashtagList());
+        return PostResponse.fromEntity(post, createRequest.getHashtagList());
     }
 
     /**
