@@ -22,7 +22,6 @@ public enum ErrorCode {
     STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
     STATISTICS_INVALID_VALUE(HttpStatus.BAD_REQUEST, "유효하지 않은 value parameter 입니다. expected: ['count', 'view_count', 'like_count', 'share_count']"),
     STATISTICS_INVALID_DATE_PATTERN(HttpStatus.BAD_REQUEST, "유효하지 않은 날짜 형식입니다. expected: 'YYYY-MM-DD'"),
-    STATISTICS_INVALID_DATE_VALUE(HttpStatus.BAD_REQUEST, "잘못된 날짜입니다."),
     STATISTICS_INVALID_DATE_DURATION_DATE(HttpStatus.BAD_REQUEST, "최대 30일까지만 조회할 수 있습니다."),
     STATISTICS_INVALID_DATE_DURATION_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다."),
     STATISTICS_INVALID_END_DATE_IN_FUTURE(HttpStatus.BAD_REQUEST, "end 날짜는 오늘 또는 과거 날짜여야 합니다."),
