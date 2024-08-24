@@ -137,7 +137,7 @@ public class PostServiceImpl implements PostService {
      * 작성자 : 오예령
      *
      * @param userId
-     * @return
+     * @return 해당 회원을 반환
      */
     private User userCheck(Long userId) {
 
@@ -151,7 +151,7 @@ public class PostServiceImpl implements PostService {
      * 작성자 : 오예령
      *
      * @param postId
-     * @return
+     * @return 해당 게시물을 반환
      */
     private Post postCheck(Long postId) {
 
