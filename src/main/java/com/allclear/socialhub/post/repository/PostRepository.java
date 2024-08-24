@@ -22,5 +22,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
             @Param("postIds") List<Long> postIds,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
-            @Param("dateFormatPattern") String dateFormatPattern);h
+            @Param("dateFormatPattern") String dateFormatPattern);
+
 }
