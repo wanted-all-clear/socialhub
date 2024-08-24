@@ -2,10 +2,18 @@ package com.allclear.socialhub.post.common.hashtag.domain;
 
 import com.allclear.socialhub.post.domain.Post;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "post_hashtag")
-public class PostHashTag {
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PostHashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,5 +25,6 @@ public class PostHashTag {
 
     @ManyToOne
     @JoinColumn(name = "hashtag_id", nullable = false)
-    private HashTag hashTag;
+    private Hashtag hashtag;
+
 }

@@ -1,10 +1,18 @@
 package com.allclear.socialhub.post.common.hashtag.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "hashtag")
-public class HashTag {
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Hashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,4 +20,5 @@ public class HashTag {
 
     @Column(nullable = false, length = 20)
     private String content;
+
 }
