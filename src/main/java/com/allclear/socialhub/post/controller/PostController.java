@@ -26,6 +26,7 @@ public class PostController {
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ResponseEntity<PostResponse> creatPost(@RequestBody PostCreateRequest requestDto) {
 
+		// TODO : 유저 받아오는 형식 추후 변경 예정
 		return ResponseEntity.status(201).body(postService.createPost(1L, requestDto));
 	}
 
