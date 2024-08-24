@@ -11,8 +11,6 @@ import java.util.List;
 @Service
 public interface StatisticService {
 
-    List<StatisticResponse> getStatisticsDaily(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value);
-
-    List<StatisticResponse> getStatisticsHourly(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value);
-
+    List<StatisticResponse> getStatistics(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value);
+    
 }

@@ -11,15 +11,16 @@ import java.util.List;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 
-    @Query("SELECT DATE_FORMAT(pl.createdAt, '%Y-%m-%d') AS time, count(*) AS value " +
+    @Query("SELECT DATE_FORMAT(pl.createdAt, :dateFormatPattern) AS time, count(*) AS value " +
             "FROM PostLike AS pl " +
             "WHERE pl.post.id in :postIds " +
             "AND DATE(pl.createdAt) BETWEEN :start AND :end " +
-            "GROUP BY DATE_FORMAT(pl.createdAt, '%Y-%m-%d') " +
+            "GROUP BY DATE_FORMAT(pl.createdAt, :dateFormatPattern) " +
             "ORDER BY time ASC")
-    List<StatisticQueryResponse> findDailyStatisticByPostIds(
+    List<StatisticQueryResponse> findStatisticByPostIds(
             @Param("postIds") List<Long> postIds,
             @Param("start") LocalDate start,
-            @Param("end") LocalDate end);
+            @Param("end") LocalDate end,
+            @Param("dateFormatPattern") String dateFormatPattern);
 
 }

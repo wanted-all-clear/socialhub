@@ -37,13 +37,7 @@ public class StatisticController {
         log.info("type : " + type);
         log.info(start + "~" + end);
         log.info("value : " + value);
-        if (type == StatisticType.DATE) {
-            return statisticService.getStatisticsDaily(hashtag, type, start, end, value);
-
-        } else if (type == StatisticType.HOUR) {
-            return statisticService.getStatisticsHourly(hashtag, type, start, end, value);
-        }
-        return null;
+        return statisticService.getStatistics(hashtag, type, start, end, value);
     }
 
 }
