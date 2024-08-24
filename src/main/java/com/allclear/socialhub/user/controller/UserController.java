@@ -14,27 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController {
 
-    //private final UserServiceImpl userService;
     private final EmailServiceImpl emailService;
-
-    /**
-     * 사용자 회원가입을 처리합니다.
-     * 작성자: 배서진
-     *
-     * @param request 사용자 회원가입 요청 데이터(유효성 검사됨)
-     * @return 성공 메시지 또는 오류 메시지
-     */
-    /*@PostMapping("")
-    public ResponseEntity<String> joinUser(@Valid @RequestBody UserJoinRequest request) {
-
-        try {
-            userService.joinUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
-        } catch (CustomException e) {
-            throw e;
-        }
-    }*/
-
+    
     /**
      * 이메일 인증 요청을 처리합니다.
      * 이메일 인증하기 -> 메일 전송 -> 인증번호 입력 -> 확인(인증 완료)
