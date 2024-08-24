@@ -89,7 +89,7 @@ public class StatisticServiceImpl implements StatisticService {
      * @param end   종료 날짜
      * @throws CustomException 날짜 범위 유효성 검증 실패 시 발생
      */
-    private void validateDateRange(StatisticType type, LocalDate start, LocalDate end) {
+    public void validateDateRange(StatisticType type, LocalDate start, LocalDate end) {
 
         Long diff = DateUtil.getDateDiff(start, end);
         log.info("start ~ end : " + diff);
@@ -124,7 +124,7 @@ public class StatisticServiceImpl implements StatisticService {
      * @param queryDateFormatPattern 날짜 포맷 패턴 (ex. '%Y-%m-%d', '%Y-%m-%d %H:%i')
      * @return List<StatisticQueryResponse> 통계 데이터 리스트
      */
-    private List<StatisticQueryResponse> getQueryResponsesByValue(StatisticValue value, List<Long> postIds, LocalDate start, LocalDate end, String queryDateFormatPattern) {
+    public List<StatisticQueryResponse> getQueryResponsesByValue(StatisticValue value, List<Long> postIds, LocalDate start, LocalDate end, String queryDateFormatPattern) {
 
         switch (value) {
             case COUNT -> {
@@ -154,7 +154,7 @@ public class StatisticServiceImpl implements StatisticService {
      * @param type 통계 유형 (일자별 또는 시간별)
      * @return String 날짜 포맷 패턴
      */
-    private String getQueryDateFormatPattern(StatisticType type) {
+    public String getQueryDateFormatPattern(StatisticType type) {
 
         switch (type) {
             case DATE -> {
@@ -178,7 +178,7 @@ public class StatisticServiceImpl implements StatisticService {
      * @param end   종료 날짜
      * @return List<StatisticResponse> 초기화된 통계 데이터 리스트
      */
-    private List<StatisticResponse> initializeStatistics(StatisticType type, LocalDate start, LocalDate end) {
+    public List<StatisticResponse> initializeStatistics(StatisticType type, LocalDate start, LocalDate end) {
 
         switch (type) {
             case DATE -> {
@@ -201,7 +201,7 @@ public class StatisticServiceImpl implements StatisticService {
      * @param end   종료 날짜
      * @return List<StatisticResponse> 초기화된 일자별 통계 데이터 리스트 ex. [{2024-08-24 : 0}, ...]
      */
-    private List<StatisticResponse> initializeDailyStatistics(LocalDate start, LocalDate end) {
+    public List<StatisticResponse> initializeDailyStatistics(LocalDate start, LocalDate end) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
