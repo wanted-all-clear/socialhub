@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     //@Autowired
-    //private BCryptPasswordEncoder passwordEncoder;
+    //private BCryptPasswordEncoder passwordEncoder; TODO: jwt 기능 구현되면 주석 해제
 
     /**
      * 사용자 회원가입
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(request.getPassword()) //jwt 기능 구현되면 encodedPassword로 사용 예정
+                .password(request.getPassword()) //TODO: jwt 기능 구현되면 encodedPassword로 사용 예정
                 .status(UserStatus.ACTIVE)
                 .certifyStatus(UserCertifyStatus.UNAUTHENTICATED)
                 .build();
