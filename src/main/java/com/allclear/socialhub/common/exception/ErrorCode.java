@@ -13,6 +13,9 @@ public enum ErrorCode {
 	PASSWORD_NOT_VALID(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 	INVALID_PASSWORD_PATTERN(HttpStatus.BAD_REQUEST, "비밀번호는 10자 이상 16자 이하의 길이의 영문자, 숫자, 특수문자(!@#$%^&*)만 사용 가능합니다."),
 
+	// JWT
+	EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다."),
+
 	// POST
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
 	POST_NOT_OWNER(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
