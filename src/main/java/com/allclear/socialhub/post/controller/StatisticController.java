@@ -8,6 +8,7 @@ import com.allclear.socialhub.post.service.StatisticService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,8 +25,8 @@ public class StatisticController {
     private final StatisticService statisticService;
 
     @GetMapping
-    public List<StatisticResponse> getStatistics(@Valid StatisticRequestParam statisticRequest) {
-        
+    public ResponseEntity<List<StatisticResponse>> getStatistics(@Valid StatisticRequestParam statisticRequest) {
+
         // TODO: hashtag = null일 경우 본인계정으로 설정
 
         String hashtag = statisticRequest.getHashtag();
@@ -38,7 +39,7 @@ public class StatisticController {
         log.info("type : " + type);
         log.info(start + "~" + end);
         log.info("value : " + value);
-        return statisticService.getStatistics(hashtag, type, start, end, value);
+        return ResponseEntity.ok(statisticService.getStatistics(hashtag, type, start, end, value));
     }
 
 }
