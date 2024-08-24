@@ -2,6 +2,7 @@ package com.allclear.socialhub.user;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,10 +24,11 @@ public class UserControllerTest {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
-	public String username;
-	public String password;
-	public String email;
+	private String username;
+	private String password;
+	private String email;
 
+	@BeforeEach
 	public void setUp() {
 		username = "user1";
 		password = "abcd1234..";
@@ -35,9 +37,6 @@ public class UserControllerTest {
 
 	@Test
 	public void 사용자_로그인_테스트() {
-		username = "user1";
-		password = "abcd1234..";
-		email = "user1@test.com";
 		UserLoginRequest login = new UserLoginRequest(username, password);
 
 		HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(login);

@@ -38,6 +38,7 @@ public class UserController {
 
 	@PostMapping("/login")
 	public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request) {
+		System.out.println("#################" + request.getUsername());
 		User user = userService.userLogin(request);
 		String jwtToken = jwtTokenProvider.createToken(user);
 
