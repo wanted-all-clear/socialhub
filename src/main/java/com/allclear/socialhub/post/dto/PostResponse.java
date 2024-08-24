@@ -26,14 +26,14 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PostResponse fromEntity(Post post, List<String> hashTagList) {
+    public static PostResponse fromEntity(Post post, List<String> hashtagList) {
 
         return PostResponse.builder()
                 .postId(post.getId())
                 .userId(post.getUser().getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .hashtagList(hashTagList)
+                .hashtagList(hashtagList)
                 .viewCnt(post.getViewCnt())
                 .likeCnt(post.getLikeCnt())
                 .shareCnt(post.getShareCnt())
