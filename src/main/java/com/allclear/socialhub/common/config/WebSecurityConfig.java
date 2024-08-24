@@ -25,13 +25,13 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(AbstractHttpConfigurer::disable);
-		// .formLogin(AbstractHttpConfigurer::disable) // Form login 비활성화
-		// .httpBasic(AbstractHttpConfigurer::disable) // Basic auth 비활성화
-		// .authorizeHttpRequests(authorize -> authorize
-		// 		.requestMatchers("/api/users/login", "/api/users/").permitAll()
-		// 		.anyRequest().authenticated()
-		// );
+				.csrf(AbstractHttpConfigurer::disable)
+				.formLogin(AbstractHttpConfigurer::disable) // Form login 비활성화
+				.httpBasic(AbstractHttpConfigurer::disable) // Basic auth 비활성화
+				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers("/api/users/login", "/api/users/").permitAll()
+						.anyRequest().authenticated()
+				);
 
 		// 세션 무상태로 유지
 		http
