@@ -3,7 +3,7 @@ package com.allclear.socialhub.post.service;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.common.util.DateUtil;
-import com.allclear.socialhub.post.common.hashtag.repository.HashTagRepository;
+import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.response.StatisticQueryResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StatisticServiceImpl implements StatisticService {
 
-    private final HashTagRepository hashTagRepository;
+    private final HashtagRepository hashtagRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostShareRepository postShareRepository;
@@ -56,7 +56,7 @@ public class StatisticServiceImpl implements StatisticService {
         String queryDateFormatPattern = getQueryDateFormatPattern(type);
 
         // 2. hashtag 테이블에서 해시태그 가진 게시물 리스트
-        List<Long> postIds = hashTagRepository.getPostByHashtag(hashtag);
+        List<Long> postIds = hashtagRepository.getPostByHashtag(hashtag);
 
         // 3. start ~ end 날짜로 일자별 혹은 시간대별 개수를 가져오는 쿼리 날린 결과
         List<StatisticQueryResponse> queryResponses = getQueryResponsesByValue(value, postIds, start, end, queryDateFormatPattern);
