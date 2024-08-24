@@ -1,5 +1,8 @@
 package com.allclear.socialhub.post.service;
 
+import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.common.exception.ErrorCode;
+import com.allclear.socialhub.common.util.DateUtil;
 import com.allclear.socialhub.post.common.hashtag.repository.HashTagRepository;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.response.StatisticQueryResponse;
@@ -10,6 +13,7 @@ import com.allclear.socialhub.post.domain.StatisticValue;
 import com.allclear.socialhub.post.dto.StatisticResponse;
 import com.allclear.socialhub.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StatisticServiceImpl implements StatisticService {
 
     private final HashTagRepository hashTagRepository;
@@ -43,6 +48,9 @@ public class StatisticServiceImpl implements StatisticService {
      */
     @Override
     public List<StatisticResponse> getStatistics(String hashtag, StatisticType type, LocalDate start, LocalDate end, StatisticValue value) {
+
+        // 0. 날짜 검증
+        validateDateRange(type, start, end);
 
         // 1. 일자별 혹은 시간대별 날짜 포맷 패턴 설정
         String queryDateFormatPattern = getQueryDateFormatPattern(type);
@@ -73,7 +81,46 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 1-1. 통계 값에 따라 쿼리 결과를 가져옵니다.
+     * 날짜 유효성 검증 메소드
+     * - 작성자 : 김유현
+     *
+     * @param type  통계 타입 (일자별, 시간대별)
+     * @param start 시작 날짜
+     * @param end   종료 날짜
+     * @throws CustomException 날짜 유효성 검증 실패 시 발생
+     */
+    private void validateDateRange(StatisticType type, LocalDate start, LocalDate end) {
+
+        // end 날짜가 오늘보다 미래일 경우
+        if (DateUtil.getDateDiff(end, LocalDate.now()) < 0) {
+            throw new CustomException(ErrorCode.STATISTICS_INVALID_END_DATE_IN_FUTURE);
+        }
+
+        // start 날짜가 end 날짜보다 미래일 경우
+        Long diff = DateUtil.getDateDiff(start, end);
+        log.info("start ~ end : " + diff);
+        if (diff < 0) {
+            throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_RANGE);
+        }
+
+        // 통계 타입에 따라 최대 날짜 넘을 경우
+        switch (type) {
+            case DATE -> {
+                if (diff > 30) {
+                    throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_DURATION_DATE);
+                }
+            }
+            case HOUR -> {
+                if (diff > 7) {
+                    throw new CustomException(ErrorCode.STATISTICS_INVALID_DATE_DURATION_HOUR);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 통계 값에 따라 쿼리 결과를 가져옵니다.
      * 작성자 : 김효진, 김유현
      *
      * @param value                  통계 값 (COUNT, LIKE_COUNT, VIEW_COUNT, SHARE_COUNT)
@@ -107,7 +154,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 1-2. 통계 유형에 따른 날짜 포맷 패턴을 반환합니다.
+     * 통계 유형에 따른 날짜 포맷 패턴을 반환합니다.
      * 작성자 : 김유현
      *
      * @param type 통계 유형 (일자별 또는 시간별)
@@ -129,7 +176,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 1-3. 통계 유형에 따라 일자별 또는 시간별 데이터를 초기화합니다.
+     * 통계 유형에 따라 일자별 또는 시간별 데이터를 초기화합니다.
      * 작성자 : 김유현
      *
      * @param type  통계 유형 (일자별 또는 시간별)
@@ -153,7 +200,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 1-4. 주어진 기간에 대해 일자별 통계를 초기화합니다.
+     * 주어진 기간에 대해 일자별 통계를 초기화합니다.
      * 작성자 : 김효진
      *
      * @param start 시작 날짜
@@ -179,7 +226,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 1-5. 주어진 기간에 대해 시간별 통계를 초기화합니다.
+     * 주어진 기간에 대해 시간별 통계를 초기화합니다.
      * 작성자 : 김유현
      *
      * @param start 시작 날짜
