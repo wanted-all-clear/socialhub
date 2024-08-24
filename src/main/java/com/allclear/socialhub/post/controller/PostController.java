@@ -3,6 +3,7 @@ package com.allclear.socialhub.post.controller;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
+import com.allclear.socialhub.post.dto.PostUpdateRequest;
 import com.allclear.socialhub.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class PostController {
 
     private final PostService postService;
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @PostMapping
     public ResponseEntity<PostResponse> creatPost(@RequestBody PostCreateRequest requestDto) {
 
         // TODO : 유저 받아오는 형식 추후 변경 예정
@@ -29,6 +30,13 @@ public class PostController {
 
         return ResponseEntity.status(200).body(postService.getPosts(pageable));
 
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostResponse> updatePost(@RequestBody PostUpdateRequest updateRequest,
+                                                   @PathVariable Long postId) {
+
+        return ResponseEntity.status(200).body(postService.updatePost(1L, postId, updateRequest));
     }
 
 }
