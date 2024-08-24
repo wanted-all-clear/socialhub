@@ -11,15 +11,16 @@ import java.util.List;
 
 public interface PostViewRepository extends JpaRepository<PostView, Long> {
 
-    @Query("SELECT DATE_FORMAT(pv.createdAt, '%Y-%m-%d') AS time, count(*) AS value " +
+    @Query("SELECT DATE_FORMAT(pv.createdAt, :dateFormatPattern) AS time, count(*) AS value " +
             "FROM PostView AS pv " +
             "WHERE pv.post.id in :postIds " +
             "AND DATE(pv.createdAt) BETWEEN :start AND :end " +
-            "GROUP BY DATE_FORMAT(pv.createdAt, '%Y-%m-%d') " +
+            "GROUP BY DATE_FORMAT(pv.createdAt, :dateFormatPattern) " +
             "ORDER BY time ASC")
-    List<StatisticQueryResponse> findDailyStatisticByPostIds(
+    List<StatisticQueryResponse> findStatisticByPostIds(
             @Param("postIds") List<Long> postIds,
             @Param("start") LocalDate start,
-            @Param("end") LocalDate end);
+            @Param("end") LocalDate end,
+            @Param("dateFormatPattern") String dateFormatPattern);
 
 }
