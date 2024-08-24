@@ -46,7 +46,7 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
                 )
                 .from(post)
                 .leftJoin(postHashtag).on(postHashtag.post.id.eq(post.id))
-                .leftJoin(hashtag).on(hashtag.id.eq(postHashtag.hashTag.id))
+                .leftJoin(hashtag).on(hashtag.id.eq(postHashtag.hashtag.id))
                 .groupBy(post.id)
                 .orderBy(post.id.desc())
                 .offset(pageable.getOffset())
@@ -57,7 +57,7 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
                     List<String> hashtagList = queryFactory
                             .select(hashtag.content)
                             .from(postHashtag)
-                            .join(hashtag).on(hashtag.id.eq(postHashtag.hashTag.id))
+                            .join(hashtag).on(hashtag.id.eq(postHashtag.hashtag.id))
                             .where(postHashtag.post.id.eq(postListResponse.getPostId()))
                             .fetch();
                     postListResponse.setHashtagList(hashtagList);
