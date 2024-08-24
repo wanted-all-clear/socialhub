@@ -1,19 +1,16 @@
 package com.allclear.socialhub.user.controller;
 
+import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.user.dto.UserEmailRequest;
+import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.service.EmailServiceImpl;
+import com.allclear.socialhub.user.service.UserServiceImpl;
 import com.allclear.socialhub.user.type.EmailType;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.allclear.socialhub.common.exception.CustomException;
-import com.allclear.socialhub.user.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
@@ -21,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final EmailServiceImpl emailService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     /**
      * 이메일 인증 요청을 처리합니다.
