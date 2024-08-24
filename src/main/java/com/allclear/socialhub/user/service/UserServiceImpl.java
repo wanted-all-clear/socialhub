@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     //private BCryptPasswordEncoder passwordEncoder;
 
     /**
-     * 1. 사용자 회원가입
+     * 사용자 회원가입
      * 작성자: 배서진
      *
      * @param request 사용자 회원가입 요청 데이터(이메일, 계정명, 비밀번호)
