@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void joinUser(UserJoinRequest request) {
 
+        validateUsername(request.getUsername());
         validatePassword(request.getPassword());
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(request.getPassword()) //TODO: jwt 기능 구현되면 encodedPassword로 사용 예정
+                .password(request.getPassword()) //TODO: jwt 기능 구현되면 주석해제, encodedPassword로 사용 예정
                 .status(UserStatus.ACTIVE)
                 .certifyStatus(UserCertifyStatus.UNAUTHENTICATED)
                 .build();
@@ -83,6 +84,13 @@ public class UserServiceImpl implements UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD_PATTERN);
         }
 
+    }
+
+    private void validateUsername(String username) {
+
+        if (username.length() < 3 || username.length() > 20) {
+            throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
+        }
     }
 
 }
