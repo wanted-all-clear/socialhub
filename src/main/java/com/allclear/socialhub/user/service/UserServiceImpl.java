@@ -59,15 +59,15 @@ public class UserServiceImpl implements UserService {
      * 비밀번호 유효성 검사 메서드
      * 작성자: 배서진
      *
-     * @param password
+     * @param password 1) 비밀번호 길이 검사
+     *                 2) 숫자, 문자, 특수문자 중 두 가지 이상 포함 확인
      */
     private void validatePassword(String password) {
-        // 비밀번호가 10자 이상 20자 이하인지 확인
+
         if (password.length() < 10 || password.length() > 20) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD_LENGTH);
         }
 
-        // 숫자, 문자, 특수문자 중 두 가지 이상 포함 확인
         int criteriaMet = 0;
         if (password.matches(".*[a-zA-Z]+.*")) { // 문자
             criteriaMet++;
