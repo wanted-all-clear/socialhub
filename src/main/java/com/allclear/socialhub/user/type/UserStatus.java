@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserStatus {
-	ACTIVE("ACTIVE"),
-	BLOCKED("BLOCKED"),
-	WITHDRAW("WITHDRAW");
+    ACTIVE("ACTIVE"),
+    BLOCKED("BLOCKED"),
+    WITHDRAW("WITHDRAW");
 
 	private final String state;
 }
