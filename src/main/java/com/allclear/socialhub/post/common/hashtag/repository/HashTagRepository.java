@@ -1,13 +1,12 @@
 package com.allclear.socialhub.post.common.hashtag.repository;
 
-import java.util.Optional;
-
+import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
+import java.util.Optional;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
-	Optional<Hashtag> findByContent(String content);
+    Optional<Hashtag> findByContent(String content);
 
 }
