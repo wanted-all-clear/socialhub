@@ -1,4 +1,5 @@
 package com.allclear.socialhub.user.dto;
 
-public class UserDto {
+public class UserResponse {
+
 }

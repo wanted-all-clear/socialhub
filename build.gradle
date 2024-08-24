@@ -18,6 +18,11 @@ repositories {
 }
 
 dependencies {
+    // 사용자
+    //implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-web'
