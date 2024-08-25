@@ -1,6 +1,5 @@
 package com.allclear.socialhub.user;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,11 +7,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
-import com.allclear.socialhub.user.dto.UserJoinRequest;
+import com.allclear.socialhub.user.dto.UserLoginRequest;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest {
@@ -22,27 +19,17 @@ public class UserControllerTest {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
-	private UserJoinRequest userJoinRequest;
-
-	@BeforeEach
-	public void setUp() {
-		userJoinRequest = new UserJoinRequest("username", "popcorn23@gmail.com", "qlalfqjsghek23");
-
-		MultiValueMap<String, Object> joinMap = new LinkedMultiValueMap<>();
-		joinMap.add("username", userJoinRequest.getUsername());
-		joinMap.add("email", userJoinRequest.getEmail());
-		joinMap.add("password", userJoinRequest.getPassword());
-
-		testRestTemplate.postForObject("/api/users/", joinMap, String.class);
-	}
-
+	/**
+	 * 로그인 통합 테스트
+	 * 작성자 : 김은정
+	 */
 	@Test
 	public void 사용자_로그인_테스트() {
-		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-		map.add("username", userJoinRequest.getUsername());
-		map.add("password", userJoinRequest.getPassword());
+		UserLoginRequest userLoginRequest = UserLoginRequest.builder()
+				.username("user1")
+				.password("abcd1234..").build();
 
-		HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(map);
+		HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(userLoginRequest);
 		ResponseEntity<String> responseEntity = testRestTemplate.exchange("/api/users/login", HttpMethod.POST,
 				httpEntity, String.class);
 
