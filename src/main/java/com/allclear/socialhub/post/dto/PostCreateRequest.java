@@ -4,12 +4,14 @@ import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.user.domain.User;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostCreateRequest {
