@@ -14,6 +14,7 @@ public enum ErrorCode {
     INVALID_USERNAME_LENGTH(HttpStatus.BAD_REQUEST, "계정명은 3자 이상 20자 이하로 설정해야 합니다."),
     INVALID_PASSWORD_LENGTH(HttpStatus.BAD_REQUEST, "비밀번호는 10자 이상 설정해야 합니다."),
     INVALID_PASSWORD_PATTERN(HttpStatus.BAD_REQUEST, "비밀번호는 10자 이상, 20자 이하 영문자, 숫자, 특수문자(!@#$%^&*)중 2가지 이상 포함해야 합니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 
     // POST
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
@@ -30,6 +31,8 @@ public enum ErrorCode {
     STATISTICS_INVALID_DATE_RANGE_START_AFTER_END(HttpStatus.BAD_REQUEST, "start 날짜는 end 날짜보다 이전이거나 같아야 합니다."),
 
     // JWT
+    INVALID_JWT_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 JWT 토큰입니다."),
+    JWT_CLAIMS_EMPTY(HttpStatus.BAD_REQUEST, "JWT 클레임이 비어 있습니다."),
     EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
 
     private final HttpStatus httpStatus;
