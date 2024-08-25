@@ -174,6 +174,21 @@ public class UserServiceTest {
 	@Test
 	public void duplicateAccountExistsTest() {
 		//given
-		
+		String username = "username";
+		// User user = User.builder()
+		// 		.username(username)
+		// 		.email("welfjlkd@gmail.com")
+		// 		.password("padlfjdl")
+		// 		.status(UserStatus.ACTIVE)
+		// 		.certifyStatus(UserCertifyStatus.AUTHENTICATED)
+		// 		.build();
+		given(mock(User.class).getUsername()).willReturn(username);
+
+
+		//when
+		String result = userService.checkDuplicateAccount(username);
+
+		//then
+		assertThat(result).isEqualTo(username);
 	}
 }
