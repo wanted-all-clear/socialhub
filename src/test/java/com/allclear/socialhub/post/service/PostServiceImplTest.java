@@ -1,12 +1,18 @@
 package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
+import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
+import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
+import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
+import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostResponse;
+import com.allclear.socialhub.post.dto.PostUpdateRequest;
 import com.allclear.socialhub.post.repository.PostRepository;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.repository.UserRepository;
@@ -27,7 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.allclear.socialhub.common.exception.ErrorCode.POST_TYPE_NOT_FOUND;
 import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
 import static com.allclear.socialhub.post.domain.PostType.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,6 +57,12 @@ class PostServiceImplTest {
 
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private PostLikeRepository postLikeRepository;
+    @Autowired
+    private PostShareRepository postShareRepository;
+    @Autowired
+    private PostViewRepository postViewRepository;
 
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
@@ -61,6 +72,9 @@ class PostServiceImplTest {
 
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
+        postLikeRepository.deleteAllInBatch();
+        postShareRepository.deleteAllInBatch();
+        postViewRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
 
@@ -123,10 +137,7 @@ class PostServiceImplTest {
                 .build();
 
         // when & then
-        CustomException exception = assertThrows(CustomException.class,
-                () -> postService.createPost(user.getId(), request));
-
-        assertEquals(POST_TYPE_NOT_FOUND, exception.getErrorCode());
+        assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
@@ -163,6 +174,39 @@ class PostServiceImplTest {
 
         // when & then
         assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
+
+    }
+
+    @Test
+    @DisplayName("게시물을 수정합니다.")
+    void updatePost() {
+        // given
+        User user = createUser();
+        userRepository.save(user);
+
+        Post post = createPost(user, "테스트제목", "테스트내용", INSTAGRAM, 0, 0, 0);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("테스트제목수정")
+                .content("테스트내용수정")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when
+        PostResponse response = postService.updatePost(user.getId(), post.getId(), updateRequest);
+
+        // then
+        assertNotNull(response);
+        assertEquals("테스트제목수정", response.getTitle());
+        assertEquals("테스트내용수정", response.getContent());
+        assertEquals(3, response.getHashtagList().size());
 
     }
 
@@ -218,6 +262,23 @@ class PostServiceImplTest {
                 .viewCnt(viewCnt)
                 .likeCnt(likeCnt)
                 .shareCnt(shareCnt)
+                .build();
+    }
+
+    // 해시태그 빌더 생성
+    private Hashtag createHashtag(String content) {
+
+        return Hashtag.builder()
+                .content(content)
+                .build();
+    }
+
+    // 게시물 해시태그 빌더 생성
+    private PostHashtag createPostHashtag(Post post, Hashtag hashtag) {
+
+        return PostHashtag.builder()
+                .post(post)
+                .hashtag(hashtag)
                 .build();
     }
 
