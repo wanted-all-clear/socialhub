@@ -6,6 +6,8 @@ import com.allclear.socialhub.post.domain.StatisticValue;
 import com.allclear.socialhub.post.dto.StatisticRequestParam;
 import com.allclear.socialhub.post.dto.StatisticResponse;
 import com.allclear.socialhub.post.service.StatisticService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +24,13 @@ import java.util.List;
 @RequestMapping("/api/posts/statistics")
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "Statistics", description = "통계 API")
 public class StatisticController {
 
     private final StatisticService statisticService;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Operation(summary = "통계 조회", description = "일자별, 시간별 통계를 조회합니다.")
     @GetMapping
     public ResponseEntity<List<StatisticResponse>> getStatistics(
             @RequestHeader("Authorization") String authorizationHeader,
