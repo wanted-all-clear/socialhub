@@ -1,14 +1,20 @@
 package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.response.StatisticQueryResponse;
+import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
+import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.StatisticType;
+import com.allclear.socialhub.post.domain.StatisticValue;
 import com.allclear.socialhub.post.dto.StatisticResponse;
+import com.allclear.socialhub.post.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -16,10 +22,25 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("StatisticService 테스트")
 class StatisticServiceImplTest {
+
+    @Mock
+    private PostRepository postRepository;
+
+    @Mock
+    private PostLikeRepository postLikeRepository;
+
+    @Mock
+    private PostViewRepository postViewRepository;
+
+    @Mock
+    private PostShareRepository postShareRepository;
 
     @InjectMocks
     private StatisticServiceImpl statisticService;
@@ -214,6 +235,116 @@ class StatisticServiceImplTest {
             assertEquals(2, result.size());
             assertEquals(3L, result.get("2024-08-01"));
             assertEquals(5L, result.get("2024-08-03"));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("통계 값에 따라 쿼리 결과를 가져올 때")
+    class WhenGetDaliyQueryReponsesByValue {
+
+        @Test
+        @DisplayName("통계 값이 COUNT인 경우 쿼리 결과들을 가져온다.")
+        void GivenStatisticValueIsCount_ThenReturnStatisticQueryResponses() {
+            // given
+            StatisticValue value = StatisticValue.COUNT;
+            List<Long> postIds = Arrays.asList(1L, 2L, 3L);
+            LocalDate start = LocalDate.of(2024, 1, 1);
+            LocalDate end = LocalDate.of(2024, 1, 31);
+            String queryDateFormatPattern = "%Y-%m-%d";
+            List<StatisticQueryResponse> queryResponses = Arrays.asList(
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-01", 3L),
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-05", 5L)
+            );
+
+            when(postRepository.findStatisticByPostIds(eq(postIds), eq(start), eq(end), eq(queryDateFormatPattern)))
+                    .thenReturn(queryResponses);
+
+            // when
+            List<StatisticQueryResponse> result = statisticService.getQueryResponsesByValue(
+                    value, postIds, start, end, queryDateFormatPattern
+            );
+
+            // then
+            assertEquals(queryResponses, result);
+        }
+
+        @Test
+        @DisplayName("통계 값이 LIKE_COUNT인 경우 쿼리 결과들을 가져온다.")
+        void GivenStatisticValueIsLikeCount_ThenReturnStatisticQueryResponses() {
+            // given
+            StatisticValue value = StatisticValue.LIKE_COUNT;
+            List<Long> postIds = Arrays.asList(1L, 2L, 3L);
+            LocalDate start = LocalDate.of(2024, 1, 1);
+            LocalDate end = LocalDate.of(2024, 1, 31);
+            String queryDateFormatPattern = "%Y-%m-%d";
+            List<StatisticQueryResponse> queryResponses = Arrays.asList(
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-01", 3L),
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-05", 5L)
+            );
+
+            when(postLikeRepository.findStatisticByPostIds(eq(postIds), eq(start), eq(end), eq(queryDateFormatPattern)))
+                    .thenReturn(queryResponses);
+
+            // when
+            List<StatisticQueryResponse> result = statisticService.getQueryResponsesByValue(
+                    value, postIds, start, end, queryDateFormatPattern
+            );
+
+            // then
+            assertEquals(queryResponses, result);
+        }
+
+        @Test
+        @DisplayName("통계 값이 VIEW_COUNT인 경우 쿼리 결과들을 가져온다.")
+        void GivenStatisticValueIsViewCount_ThenReturnStatisticQueryResponses() {
+            // given
+            StatisticValue value = StatisticValue.VIEW_COUNT;
+            List<Long> postIds = Arrays.asList(1L, 2L, 3L);
+            LocalDate start = LocalDate.of(2024, 1, 1);
+            LocalDate end = LocalDate.of(2024, 1, 31);
+            String queryDateFormatPattern = "%Y-%m-%d";
+            List<StatisticQueryResponse> queryResponses = Arrays.asList(
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-01", 3L),
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-05", 5L)
+            );
+
+            when(postViewRepository.findStatisticByPostIds(eq(postIds), eq(start), eq(end), eq(queryDateFormatPattern)))
+                    .thenReturn(queryResponses);
+
+            // when
+            List<StatisticQueryResponse> result = statisticService.getQueryResponsesByValue(
+                    value, postIds, start, end, queryDateFormatPattern
+            );
+
+            // then
+            assertEquals(queryResponses, result);
+        }
+
+        @Test
+        @DisplayName("통계 값이 SHARE_COUNT인 경우 쿼리 결과들을 가져온다.")
+        void GivenStatisticValueIsShareCount_ThenReturnStatisticQueryResponses() {
+            // given
+            StatisticValue value = StatisticValue.SHARE_COUNT;
+            List<Long> postIds = Arrays.asList(1L, 2L, 3L);
+            LocalDate start = LocalDate.of(2024, 1, 1);
+            LocalDate end = LocalDate.of(2024, 1, 31);
+            String queryDateFormatPattern = "%Y-%m-%d";
+            List<StatisticQueryResponse> queryResponses = Arrays.asList(
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-01", 3L),
+                    StatisticServiceImplTestHelper.createStatisticQueryResponse("2024-01-05", 5L)
+            );
+
+            when(postShareRepository.findStatisticByPostIds(eq(postIds), eq(start), eq(end), eq(queryDateFormatPattern)))
+                    .thenReturn(queryResponses);
+
+            // when
+            List<StatisticQueryResponse> result = statisticService.getQueryResponsesByValue(
+                    value, postIds, start, end, queryDateFormatPattern
+            );
+
+            // then
+            assertEquals(queryResponses, result);
         }
 
     }
