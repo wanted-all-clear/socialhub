@@ -104,13 +104,12 @@ public class UserServiceImpl implements UserService {
 	 * @param request
 	 */
 	public User userLogin(UserLoginRequest request) {
-
 		try {
 			User user = checkUsername(request.getUsername());
 			checkPassword(user, request.getPassword());
 
 			return user;
-		} catch (RuntimeException ex) {
+		} catch (CustomException ex) {
 			throw new CustomException(ErrorCode.LOGIN_FAIL);
 		}
 	}
@@ -145,7 +144,7 @@ public class UserServiceImpl implements UserService {
 		User user = repo.findByUsername(username);
 
 		if (user == null) {
-			throw new RuntimeException(ErrorCode.USER_NOT_EXIST.getMessage());
+			throw new CustomException(ErrorCode.USER_NOT_EXIST);
 		}
 
 		return user;
@@ -162,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
 		PasswordEncoder passwordEncoder = securityConfig.passwordEncoder();
 		if (!passwordEncoder.matches(password, user.getPassword())) {
-			throw new RuntimeException(ErrorCode.PASSWORD_NOT_VALID.getMessage());
+			throw new CustomException(ErrorCode.PASSWORD_NOT_VALID);
 		}
 	}
 }
