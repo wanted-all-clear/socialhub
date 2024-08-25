@@ -69,8 +69,24 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 
+	/**
+	 * 3. JWT 토큰에서 Payload 의 username 추출
+	 * 작성자 : 김효진
+	 *
+	 * @param token
+	 * @return String   username
+	 */
+	public String extractAccountFromToken(String token) {
+
+		Claims claims = this.extractAllClaims(token);
+		String payload = claims.getSubject();
+		String[] result = payload.split(",");
+		String username = result[0].trim();
+		return username;
+	}
+
     /**
-     * JWT 토큰에서 이메일을 추출합니다.
+     * 3. JWT 토큰에서 이메일을 추출합니다.
      * 작성자 : 배서진
      *
      * @param token JWT 토큰
