@@ -26,7 +26,7 @@ import com.allclear.socialhub.user.type.UserStatus;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceImplTest {
 
 	@Mock
 	private UserRepository userRepository;

@@ -3,12 +3,16 @@ package com.allclear.socialhub.user.repository;
 import com.allclear.socialhub.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+import java.util.Optional;
 
-    User findByUsername(String username);
+public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
+    Optional<User> findByEmail(String email);
+
     boolean existsByUsername(String username);
+
+    User findByUsername(String username);
 
 }
