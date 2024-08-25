@@ -99,4 +99,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException ex) {
+
+        log.error("handleHttpMessageNotReadableException", ex);
+
+        ErrorResponse response
+                = ErrorResponse.create()
+                .httpStatus(ErrorCode.POST_TYPE_NOT_FOUND.getHttpStatus())
+                .message(ErrorCode.POST_TYPE_NOT_FOUND.getMessage());
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
 }
