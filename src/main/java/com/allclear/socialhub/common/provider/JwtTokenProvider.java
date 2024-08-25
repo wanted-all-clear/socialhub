@@ -25,9 +25,11 @@ public class JwtTokenProvider {
 	/**
 	 * 1. 문자열을 SecretKey 타입으로 변환
 	 * 작성자 : 김은정
+	 *
 	 * @return SecretKey key
 	 */
 	private SecretKey getSigningKey() {
+
 		byte[] keyBytes = Decoders.BASE64.decode(this.SECRET_KEY);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
@@ -35,14 +37,16 @@ public class JwtTokenProvider {
 	/**
 	 * 2. JWT 토큰 생성
 	 * 작성자 : 김은정
+	 *
 	 * @param user
 	 * @return String jwtToken
 	 */
 	public String createToken(User user) {
+
 		Date expiryDate = Date.from(
 				Instant.now().plus(1, ChronoUnit.HOURS)
 		);
-		String sub = user.getUsername() + "," + user.getEmail();
+		String sub = user.getId() + "," + user.getUsername() + "," + user.getEmail();
 
 		return Jwts.builder()
 				.subject(sub)
@@ -55,14 +59,33 @@ public class JwtTokenProvider {
 	/**
 	 * 3. JWT 토큰에서 Payload 추출
 	 * 작성자 : 김은정
+	 *
 	 * @param token
 	 * @return Claims payload
 	 */
 	public Claims extractAllClaims(String token) {
+
 		return Jwts.parser()
 				.verifyWith(this.getSigningKey())
 				.build()
 				.parseSignedClaims(token)
 				.getPayload();
 	}
+
+	/**
+	 * 3. JWT 토큰에서 Payload 의 username 추출
+	 * 작성자 : 김효진
+	 *
+	 * @param token
+	 * @return String   username
+	 */
+	public String extractAccountFromToken(String token) {
+
+		Claims claims = this.extractAllClaims(token);
+		String payload = claims.getSubject();
+		String[] result = payload.split(",");
+		String username = result[0].trim();
+		return username;
+	}
+
 }

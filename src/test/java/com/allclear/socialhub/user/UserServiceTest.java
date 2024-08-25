@@ -167,4 +167,13 @@ public class UserServiceTest {
 		verify(userRepository, never()).save(Mockito.any(User.class));
 	}
 
+	/**
+	 * 회원가입 시 사용하고자 하는 계정을 이미 다른 사용자가 사용한 경우를 테스트합니다.
+	 * 작성자 : 김은정
+	 */
+	@Test
+	public void duplicateAccountExistsTest() {
+		//given
+		
+	}
 }
