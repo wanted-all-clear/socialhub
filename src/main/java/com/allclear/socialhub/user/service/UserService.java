@@ -5,10 +5,11 @@ import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import org.springframework.stereotype.Service;
 
-@Service
 public interface UserService {
 
     void joinUser(UserJoinRequest request);
+
+    boolean verifyUser(String storedCode, String authCode, String email);
 
     User userLogin(UserLoginRequest request);
 

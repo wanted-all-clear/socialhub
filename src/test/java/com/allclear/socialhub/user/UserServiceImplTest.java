@@ -23,7 +23,7 @@ import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.service.UserServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceImplTest {
 
 	@Mock
 	private UserRepository userRepository;
