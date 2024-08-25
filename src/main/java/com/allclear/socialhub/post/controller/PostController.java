@@ -43,7 +43,7 @@ public class PostController {
 
     @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponse> updatePost(@RequestBody PostUpdateRequest updateRequest,
+    public ResponseEntity<PostResponse> updatePost(@Valid @RequestBody PostUpdateRequest updateRequest,
                                                    @PathVariable Long postId) {
 
         return ResponseEntity.status(200).body(postService.updatePost(1L, postId, updateRequest));
