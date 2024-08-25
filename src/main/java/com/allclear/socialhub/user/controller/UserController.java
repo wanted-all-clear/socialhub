@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/users")
-@Tag(name = "User")
+@Tag(name = "User", description = "사용자 API")
 public class UserController {
 
     private final EmailService emailService;
