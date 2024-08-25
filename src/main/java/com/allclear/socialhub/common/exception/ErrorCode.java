@@ -31,6 +31,8 @@ public enum ErrorCode {
     STATISTICS_INVALID_DATE_RANGE_START_AFTER_END(HttpStatus.BAD_REQUEST, "start 날짜는 end 날짜보다 이전이거나 같아야 합니다."),
 
     // JWT
+    INVALID_JWT_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 JWT 토큰입니다."),
+    JWT_CLAIMS_EMPTY(HttpStatus.BAD_REQUEST, "JWT 클레임이 비어 있습니다."),
     EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
 
     private final HttpStatus httpStatus;

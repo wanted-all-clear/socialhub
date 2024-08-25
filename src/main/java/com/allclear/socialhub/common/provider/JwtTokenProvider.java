@@ -1,7 +1,10 @@
 package com.allclear.socialhub.common.provider;
 
+import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -62,28 +65,39 @@ public class JwtTokenProvider {
      */
     public Claims extractAllClaims(String token) {
 
-        return Jwts.parser()
-                .verifyWith(this.getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            // Bearer 접두사 제거
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            return Jwts.parser()
+                    .verifyWith(this.getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(ErrorCode.EXPIRED_JWT_TOKEN);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
+        }
     }
 
-	/**
-	 * 3. JWT 토큰에서 Payload 의 username 추출
-	 * 작성자 : 김효진
-	 *
-	 * @param token
-	 * @return String   username
-	 */
-	public String extractAccountFromToken(String token) {
+    /**
+     * 3. JWT 토큰에서 Payload 의 username 추출
+     * 작성자 : 김효진
+     *
+     * @param token
+     * @return String   username
+     */
+    public String extractAccountFromToken(String token) {
 
-		Claims claims = this.extractAllClaims(token);
-		String payload = claims.getSubject();
-		String[] result = payload.split(",");
-		String username = result[0].trim();
-		return username;
-	}
+        Claims claims = this.extractAllClaims(token);
+        String payload = claims.getSubject();
+        String[] result = payload.split(",");
+        String username = result[0].trim();
+        return username;
+    }
 
     /**
      * 3. JWT 토큰에서 이메일을 추출합니다.
