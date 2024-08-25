@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/users")
+@Tag(name = "User")
 public class UserController {
 
     private final EmailService emailService;
@@ -57,7 +59,7 @@ public class UserController {
 
         String storedCode = emailService.getVerificationToken(request.getEmail());
 
-        if (userService.verifyUser(storedCode, request.getAuthCode())) {
+        if (userService.verifyUser(storedCode, request.getAuthCode(), request.getEmail())) {
             return ResponseEntity.status(HttpStatus.OK).body("이메일 인증이 완료되었습니다.");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증 코드가 일치하지 않거나 만료되었습니다.");

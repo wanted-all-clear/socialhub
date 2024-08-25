@@ -42,4 +42,14 @@ public class User extends Timestamped {
     @Enumerated(EnumType.STRING)
     private UserCertifyStatus certifyStatus;
 
+    /**
+     * 사용자 인증 상태를 UNAUTHENTICATED에서 AUTHENTICATED로 변경합니다.
+     */
+    public void authenticateUser() {
+
+        if (this.certifyStatus == UserCertifyStatus.UNAUTHENTICATED) {
+            this.certifyStatus = UserCertifyStatus.AUTHENTICATED;
+        }
+    }
+
 }

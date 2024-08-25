@@ -6,6 +6,6 @@ public interface UserService {
 
     void joinUser(UserJoinRequest request);
 
-    boolean verifyUser(String storedCode, String authCode);
+    boolean verifyUser(String storedCode, String authCode, String email);
 
 }
