@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -145,6 +146,7 @@ public class PostServiceImpl implements PostService {
      *
      * @param postId 게시물 번호
      * @param userId 유저 번호
+     * @return 게시물 ID, 게시물 좋아요 수, 외부 API URL이 포함된 PostLikeResponse 객체
      */
     public PostLikeResponse likePost(Long postId, Long userId) {
 
@@ -224,8 +226,8 @@ public class PostServiceImpl implements PostService {
 
         try {
             restTemplate.postForObject(url, request, String.class);
-        } catch (Exception e) {
-            System.out.println("외부 API 호출에 실패하였습니다." + e.getMessage());
+        } catch (RestClientException e) {
+            log.info("외부 API 호출에 실패하였습니다.");
         }
 
         return url;
