@@ -11,6 +11,7 @@ import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.share.domain.PostShare;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
+import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
@@ -45,6 +46,7 @@ public class PostServiceImpl implements PostService {
     private final PostHashtagRepository postHashtagRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostShareRepository postShareRepository;
+    private final PostViewRepository postViewRepository;
 
     /**
      * 1. 게시물 등록
@@ -114,23 +116,33 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
-     * PostHashtag 연관관계 등록
+     * 3. 게시물 삭제
      * 작성자 : 오예령
      *
-     * @param post     게시물
-     * @param hashtags 해시태그
+     * @param userId 유저Id
+     * @param postId 게시물Id
      */
-    private void savePostHashtag(Post post, List<Hashtag> hashtags) {
 
-        for (Hashtag hashtag : hashtags) {
-            PostHashtag postHashtag = PostHashtag.builder()
-                    .post(post)
-                    .hashtag(hashtag)
-                    .build();
-            postHashtagRepository.save(postHashtag);
-        }
+    @Override
+    @Transactional
+    public void deletePost(Long userId, Long postId) {
+
+        userCheck(userId);
+        Post post = postCheck(postId);
+        if (!post.getUser().getId().equals(userId)) throw new CustomException(POST_OWNER_MISMATCH);
+
+        // 해시태그 연관관계 삭제
+        hashtagService.deleteByPostId(postId);
+        // 게시물 좋아요 삭제
+        postLikeRepository.deleteAllByPostId(postId);
+        // 게시물 공유 삭제
+        postShareRepository.deleteAllByPostId(postId);
+        // 게시물 조회수 삭제
+        postViewRepository.deleteAllByPostId(postId);
+        // 게시물 삭제
+        postRepository.delete(post);
+
     }
-
 
     /**
      * 5. 게시물 목록 조회
@@ -237,6 +249,24 @@ public class PostServiceImpl implements PostService {
         return postRepository.findById(postId).orElseThrow(
                 () -> new CustomException(POST_NOT_FOUND)
         );
+    }
+
+    /**
+     * PostHashtag 연관관계 등록
+     * 작성자 : 오예령
+     *
+     * @param post     게시물
+     * @param hashtags 해시태그
+     */
+    private void savePostHashtag(Post post, List<Hashtag> hashtags) {
+
+        for (Hashtag hashtag : hashtags) {
+            PostHashtag postHashtag = PostHashtag.builder()
+                    .post(post)
+                    .hashtag(hashtag)
+                    .build();
+            postHashtagRepository.save(postHashtag);
+        }
     }
 
     /**

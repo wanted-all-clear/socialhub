@@ -46,7 +46,17 @@ public class PostController {
     public ResponseEntity<PostResponse> updatePost(@Valid @RequestBody PostUpdateRequest updateRequest,
                                                    @PathVariable Long postId) {
 
+        // TODO : 추후 유저 토큰 검증 로직으로 수정
         return ResponseEntity.status(200).body(postService.updatePost(1L, postId, updateRequest));
+    }
+
+    @Operation(summary = "게시글 삭제", description = "게시물을 삭제합니다.")
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable Long postId) {
+
+        // TODO : 추후 유저 토큰 검증 로직으로 수정
+        postService.deletePost(1L, postId);
+        return ResponseEntity.status(200).body("성공적으로 삭제되었습니다.");
     }
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")
