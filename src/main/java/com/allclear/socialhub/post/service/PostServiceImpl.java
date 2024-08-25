@@ -148,7 +148,8 @@ public class PostServiceImpl implements PostService {
      */
     public PostLikeResponse likePost(Long postId, Long userId) {
 
-        Post post = postRepository.getReferenceById(postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
 
         PostLike postLike = PostLike.builder()
                 .user(userRepository.getReferenceById(userCheck(userId).getId()))
@@ -224,7 +225,7 @@ public class PostServiceImpl implements PostService {
         try {
             restTemplate.postForObject(url, request, String.class);
         } catch (Exception e) {
-            System.out.println("외부 API 호출 오류 발생" + e.getMessage());
+            System.out.println("외부 API 호출에 실패하였습니다." + e.getMessage());
         }
 
         return url;
