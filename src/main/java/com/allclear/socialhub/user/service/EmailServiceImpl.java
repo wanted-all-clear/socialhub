@@ -44,9 +44,6 @@ public class EmailServiceImpl implements EmailService {
         // 1) 인증 번호 생성
         String authCode = createAuthCode();
 
-        // JWT에서 이메일 추출 (TODO: 현재는 하드코딩된 이메일 사용)
-        email = "wpdls879@gmail.com";
-
         // 2) 인증 번호를 Redis에 저장
         saveAuthCodeToRedis(email, authCode);
 

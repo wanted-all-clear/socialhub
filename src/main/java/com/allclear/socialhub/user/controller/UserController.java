@@ -1,8 +1,11 @@
 package com.allclear.socialhub.user.controller;
 
 import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
+import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserEmailRequest;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
+import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.service.EmailService;
 import com.allclear.socialhub.user.service.UserService;
 import com.allclear.socialhub.user.type.EmailType;
@@ -16,12 +19,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.allclear.socialhub.user.domain.User;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.allclear.socialhub.common.provider.JwtTokenProvider;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -31,7 +29,7 @@ public class UserController {
 
     private final EmailService emailService;
     private final UserService userService;
-	private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "이메일 인증 코드 전송", description = "사용자의 이메일로 인증 코드를 전송합니다.")
     @ApiResponses(value = {
@@ -41,12 +39,10 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/email-code")
-    public ResponseEntity<String> sendEmailVerification() throws MessagingException {
-        // TODO: jwt 반영되면 추가 예정
-        // @RequestHeader("Authorization") String token
-        //    String jwtToken = token.substring(7);
+    public ResponseEntity<String> sendEmailVerification(@RequestHeader("Authorization") String token) throws MessagingException {
 
-        emailService.sendEmail("wpdls879@gmail.com", EmailType.VERIFICATION); //TODO
+        String email = jwtTokenProvider.extractEmailFromToken(token);
+        emailService.sendEmail(email, EmailType.VERIFICATION);
         return ResponseEntity.status(HttpStatus.OK).body("이메일로 인증 코드가 전송되었습니다.");
     }
 
@@ -58,11 +54,12 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/email-verify")
-    public ResponseEntity<String> verifyEmailCode(@Valid @RequestBody UserEmailRequest request) { // TODO: JWT 기능 구현 완료 후 email은 token에서 처리
+    public ResponseEntity<String> verifyEmailCode(@RequestHeader("Authorization") String token, @Valid @RequestBody UserEmailRequest request) {
 
-        String storedCode = emailService.getVerificationToken(request.getEmail());
+        String email = jwtTokenProvider.extractEmailFromToken(token);
+        String storedCode = emailService.getVerificationToken(email);
 
-        if (userService.verifyUser(storedCode, request.getAuthCode(), request.getEmail())) {
+        if (userService.verifyUser(storedCode, request.getAuthCode(), email)) {
             return ResponseEntity.status(HttpStatus.OK).body("이메일 인증이 완료되었습니다.");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증 코드가 일치하지 않거나 만료되었습니다.");
@@ -80,20 +77,22 @@ public class UserController {
     })
     @PostMapping("")
     public ResponseEntity<String> joinUser(@Valid @RequestBody UserJoinRequest request) {
-		try {
-			userService.joinUser(request);
-			return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
-		} catch (CustomException e) {
-			throw e;
-		}
-	}
 
-	@PostMapping("/login")
-	public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request) {
-		User user = userService.userLogin(request);
-		String jwtToken = jwtTokenProvider.createToken(user);
+        try {
+            userService.joinUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
+        } catch (CustomException e) {
+            throw e;
+        }
+    }
 
-		return ResponseEntity.ok().header("AUTHORIZATION", jwtToken).body("로그인이 완료되었습니다.");
-	}
+    @PostMapping("/login")
+    public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request) {
+
+        User user = userService.userLogin(request);
+        String jwtToken = jwtTokenProvider.createToken(user);
+
+        return ResponseEntity.ok().header("AUTHORIZATION", jwtToken).body("로그인이 완료되었습니다.");
+    }
 
 }

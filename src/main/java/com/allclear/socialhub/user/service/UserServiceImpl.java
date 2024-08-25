@@ -7,6 +7,7 @@ import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
+import com.allclear.socialhub.user.repository.EmailRedisRepository;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
