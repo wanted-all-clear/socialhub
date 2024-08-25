@@ -5,6 +5,7 @@ import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
+import com.allclear.socialhub.user.repository.EmailRedisRepository;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final EmailService emailService;
+    private final EmailRedisRepository emailRedisRepository;
 
     //private final BCryptPasswordEncoder passwordEncoder; TODO: jwt 기능 구현되면 주석 해제
 
@@ -111,7 +112,7 @@ public class UserServiceImpl implements UserService {
         if (storedCode != null && storedCode.equals(requestCode)) {
             user.authenticateUser(); // 인증 상태로 변경
             userRepository.save(user);
-            emailService.deleteVerificationToken(requestCode);
+            emailRedisRepository.deleteVerificationToken(requestCode);
             return true;
         } else {
             return false;

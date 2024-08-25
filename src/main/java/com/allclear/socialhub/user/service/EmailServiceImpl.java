@@ -1,6 +1,6 @@
 package com.allclear.socialhub.user.service;
 
-import com.allclear.socialhub.user.repository.UserEmailVerificationRepository;
+import com.allclear.socialhub.user.repository.EmailRedisRepository;
 import com.allclear.socialhub.user.type.EmailType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -22,7 +22,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
-    private final UserEmailVerificationRepository emailVerificationRepository;
+    private final EmailRedisRepository emailVerificationRepository;
 
     private final long expire_period = 1000L * 60L * 10; // 10분
 
@@ -114,16 +114,6 @@ public class EmailServiceImpl implements EmailService {
     public String getVerificationToken(String email) {
 
         return emailVerificationRepository.getVerificationToken(email);
-    }
-
-    /**
-     * 인증 코드 정보를 삭제합니다.
-     *
-     * @param email 인증 코드를 삭제할 이메일 주소
-     */
-    public void deleteVerificationToken(String email) {
-
-        emailVerificationRepository.deleteVerificationToken(email);
     }
 
     /**

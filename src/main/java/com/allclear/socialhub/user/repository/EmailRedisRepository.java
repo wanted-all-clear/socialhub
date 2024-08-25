@@ -6,11 +6,11 @@ import org.springframework.stereotype.Repository;
 import java.util.concurrent.TimeUnit;
 
 @Repository
-public class UserEmailVerificationRepository {
+public class EmailRedisRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public UserEmailVerificationRepository(RedisTemplate<String, String> redisTemplate) {
+    public EmailRedisRepository(RedisTemplate<String, String> redisTemplate) {
 
         this.redisTemplate = redisTemplate;
     }
