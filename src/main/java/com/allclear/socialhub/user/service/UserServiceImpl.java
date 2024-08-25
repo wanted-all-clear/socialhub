@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
 	 * @param username
 	 * @return String usernaame
 	 */
-	public String checkDuplicateAccount(String username) {
+	public String userDuplicateCheck(String username) {
 		User user;
 		try {
 			user = checkUsername(username);

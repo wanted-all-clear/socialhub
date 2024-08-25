@@ -44,4 +44,10 @@ public class UserController {
 		return ResponseEntity.ok().header("AUTHORIZATION", jwtToken).body("로그인이 완료되었습니다.");
 	}
 
+	@PostMapping("/duplicate-check")
+	public ResponseEntity<String> userDuplicateCheck(@RequestBody String username) {
+		String message = userService.userDuplicateCheck(username);
+		return ResponseEntity.ok(message);
+	}
+
 }

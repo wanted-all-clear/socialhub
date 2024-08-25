@@ -51,7 +51,7 @@ public class UserControllerTest {
 		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
 				httpEntity, String.class);
 
-		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
+		assertThat(result.getBody()).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
 	}
 
 	@Test
@@ -62,6 +62,6 @@ public class UserControllerTest {
 		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
 				httpEntity, String.class);
 
-		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
+		assertThat(result.getBody()).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
 	}
 }

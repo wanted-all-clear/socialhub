@@ -23,6 +23,7 @@ import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.service.UserServiceImpl;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
+import com.allclear.socialhub.user.type.UsernameDupStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -176,9 +177,8 @@ public class UserServiceTest {
 	@Test
 	public void duplicateAccountExistsTest() {
 		//given
-		String username = "username";
 		User user = User.builder()
-				.username(username)
+				.username("username")
 				.email("welfjlkd@gmail.com")
 				.password("padlfjdl")
 				.status(UserStatus.ACTIVE)
@@ -188,11 +188,11 @@ public class UserServiceTest {
 
 
 		//when
-		String result = userService.checkDuplicateAccount(username);
+		String result = userService.userDuplicateCheck(any());
 
 		//then
-		assertThat(result).isEqualTo(username);
-		verify(userRepository, times(1)).findByUsername(username);
+		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
+		verify(userRepository, times(1)).findByUsername(any());
 	}
 
 	/**
@@ -202,10 +202,10 @@ public class UserServiceTest {
 	@Test
 	public void duplicateAccountNoExistsTest() {
 		//when
-		String result = userService.checkDuplicateAccount(any());
+		String result = userService.userDuplicateCheck(any());
 
 		//then
-		assertThat(result).isEqualTo("해당 아이디는 사용이 가능합니다.");
+		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
 		verify(userRepository, times(1)).findByUsername(any());
 	}
 }
