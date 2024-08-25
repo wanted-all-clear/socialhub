@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
+import com.allclear.socialhub.common.util.TokenUtil;
 import com.allclear.socialhub.post.domain.StatisticType;
 import com.allclear.socialhub.post.domain.StatisticValue;
 import com.allclear.socialhub.post.dto.StatisticRequestParam;
@@ -38,8 +39,9 @@ public class StatisticController {
     ) {
 
         // JWT 토큰 추출
-        String token = authorizationHeader.substring(7); // "Bearer " 부분 제거
+        String token = TokenUtil.removeBearer(authorizationHeader);
         String username = jwtTokenProvider.extractAccountFromToken(token);
+
         // hashtag가 없으면 JWT 토큰에서 추출한 사용자 이름 설정
         if (statisticRequest.getHashtag() == null) {
             statisticRequest.setHashtag(username);
