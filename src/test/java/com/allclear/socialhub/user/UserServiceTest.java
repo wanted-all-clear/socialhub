@@ -166,5 +166,4 @@ public class UserServiceTest {
 
 		verify(userRepository, never()).save(Mockito.any(User.class));
 	}
-
 }

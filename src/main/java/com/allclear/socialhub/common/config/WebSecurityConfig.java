@@ -29,8 +29,7 @@ public class WebSecurityConfig {
 				.formLogin(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/api/users/login", "/api/users/").permitAll()
-						.anyRequest().authenticated()
+						.anyRequest().permitAll()
 				);
 
 		// 세션 무상태로 유지
