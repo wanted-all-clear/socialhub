@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
 			return user;
 		} catch (RuntimeException ex) {
-			throw new RuntimeException(ex.getMessage());
+			throw new CustomException(ex.getMessage());
 		}
 	}
 
