@@ -17,15 +17,13 @@ import com.allclear.socialhub.user.type.UserStatus;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
-	private final UserRepository repo;
+	private final EmailRedisRepository emailRedisRepository;
 	private final WebSecurityConfig securityConfig;
 	private final PasswordEncoder passwordEncoder;
 
@@ -95,51 +93,49 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private void validateUsername(String username) {
-    // 계정명 길이 검증
-    private void validateUsername(String username) {
-
+		// 계정명 길이 검증
 		if (username.length() < 3 || username.length() > 20) {
 			throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
 		}
 	}
 
-    /**
-     * 사용자가 제공한 인증 코드(requestCode)와 저장된 인증 코드(storedCode)를 검증하는 메서드.
-     * 인증 코드가 일치할 경우, 인증 코드를 삭제하고 검증 성공을 나타내는 true를 반환합니다.
-     * 작성자: 배서진
-     *
-     * @param storedCode  저장된 인증 코드
-     * @param requestCode 사용자가 제공한 인증 코드
-     * @param email       사용자 이메일
-     * @return 코드가 일치하면 true, 그렇지 않으면 false를 반환
-     */
-    @Override
-    public boolean verifyUser(String storedCode, String requestCode, String email) {
+	/**
+	 * 사용자가 제공한 인증 코드(requestCode)와 저장된 인증 코드(storedCode)를 검증하는 메서드.
+	 * 인증 코드가 일치할 경우, 인증 코드를 삭제하고 검증 성공을 나타내는 true를 반환합니다.
+	 * 작성자: 배서진
+	 *
+	 * @param storedCode  저장된 인증 코드
+	 * @param requestCode 사용자가 제공한 인증 코드
+	 * @param email       사용자 이메일
+	 * @return 코드가 일치하면 true, 그렇지 않으면 false를 반환
+	 */
+	@Override
+	public boolean verifyUser(String storedCode, String requestCode, String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
 
-        if (storedCode != null && storedCode.equals(requestCode)) {
-            user.authenticateUser(); // 인증 상태로 변경
-            userRepository.save(user);
-            emailRedisRepository.deleteVerificationToken(requestCode);
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (storedCode != null && storedCode.equals(requestCode)) {
+			user.authenticateUser(); // 인증 상태로 변경
+			userRepository.save(user);
+			emailRedisRepository.deleteVerificationToken(requestCode);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    /**
-     * 로그인
-     * 작성자 : 김은정
-     *
-     * @param request
-     */
-    public User userLogin(UserLoginRequest request) {
+	/**
+	 * 로그인
+	 * 작성자 : 김은정
+	 *
+	 * @param request
+	 */
+	public User userLogin(UserLoginRequest request) {
 
-        try {
-            User user = checkUsername(request.getUsername());
-            checkPassword(user, request.getPassword());
+		try {
+			User user = checkUsername(request.getUsername());
+			checkPassword(user, request.getPassword());
 
 			return user;
 		} catch (CustomException ex) {
@@ -162,19 +158,20 @@ public class UserServiceImpl implements UserService {
 			return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
 		}
 
-		return UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage();
+		throw new CustomException(ErrorCode.EMAIL_DUPLICATION);
+		// return UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage();
 	}
 
-    /**
-     * 아이디 확인
-     * 작성자 : 김은정
-     *
-     * @param username
-     * @return User user
-     */
-    public User checkUsername(String username) {
+	/**
+	 * 아이디 확인
+	 * 작성자 : 김은정
+	 *
+	 * @param username
+	 * @return User user
+	 */
+	public User checkUsername(String username) {
 
-        User user = userRepository.findByUsername(username);
+		User user = userRepository.findByUsername(username);
 
 		if (user == null) {
 			throw new CustomException(ErrorCode.USER_NOT_EXIST);
