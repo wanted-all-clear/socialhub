@@ -1,11 +1,13 @@
 package com.allclear.socialhub.post.controller;
 
+import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.service.PostServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.allclear.socialhub.post.domain.PostType.FACEBOOK;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PostController.class)
+@AutoConfigureMockMvc(addFilters = false) // Spring Security 제외 (추후 유저 검증 로직 구현 후 제거 예정)
 class PostControllerTest {
 
     @Autowired
@@ -69,7 +73,48 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.postList[1].content").value("영화 추천합니다"));
 
         verify(postService).getPosts(any(Pageable.class));
+    }
 
+    @DisplayName("게시물 상세를 조회합니다.")
+    @Test
+    void getPostDetail() throws Exception {
+        // given
+        PostDetailResponse response = createPostDetailResponse();
+
+        when(postService.getPostDetail(response.getPostId(), response.getUserId())).thenReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        get("/api/posts/{postId}", response.getPostId())
+                                .param("userId", response.getUserId().toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postId").value(response.getPostId()))
+                .andExpect(jsonPath("$.userId").value(response.getUserId()))
+                .andExpect(jsonPath("$.type").value(response.getType().toString()))
+                .andExpect(jsonPath("$.title").value(response.getTitle()))
+                .andExpect(jsonPath("$.content").value(response.getContent()))
+                .andExpect(jsonPath("$.hashtagList[0]").value(response.getHashtagList().get(0)))
+                .andExpect(jsonPath("$.viewCnt").value(response.getViewCnt()))
+                .andExpect(jsonPath("$.likeCnt").value(response.getLikeCnt()))
+                .andExpect(jsonPath("$.shareCnt").value(response.getShareCnt()));
+    }
+
+    // 게시물 상세 응답 빌더 생성
+    private static PostDetailResponse createPostDetailResponse() {
+
+        return PostDetailResponse.builder()
+                .postId(1L)
+                .userId(1L)
+                .type(FACEBOOK)
+                .title("게시물 상세 제목")
+                .content("게시물 상세 내용")
+                .hashtagList(List.of("#해시태그"))
+                .viewCnt(10)
+                .likeCnt(20)
+                .shareCnt(30)
+                .build();
     }
 
 }
