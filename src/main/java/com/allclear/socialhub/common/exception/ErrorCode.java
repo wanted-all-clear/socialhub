@@ -19,6 +19,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
     POST_NOT_OWNER(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
     POST_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시물 타입입니다."),
+    INVALID_HASHTAG_PATTERN(HttpStatus.BAD_REQUEST, "'#해시태그' 형식만 등록 가능합니다."),
 
     // STATISTICS
     STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
@@ -26,11 +27,13 @@ public enum ErrorCode {
     STATISTICS_INVALID_DATE_PATTERN(HttpStatus.BAD_REQUEST, "유효하지 않은 날짜 형식입니다. expected: 'YYYY-MM-DD'"),
     STATISTICS_INVALID_DATE_VALUE(HttpStatus.BAD_REQUEST, "잘못된 날짜입니다."),
     STATISTICS_INVALID_DATE_DURATION_DATE(HttpStatus.BAD_REQUEST, "최대 30일까지만 조회할 수 있습니다."),
-    STATISTICS_INVALID_DATE_DURATION_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다.");
+    STATISTICS_INVALID_DATE_DURATION_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다."),
 
+    // JWT
+    EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
 
-    private final HttpStatus httpStatus;
-    private final String message;
+	private final HttpStatus httpStatus;
+	private final String message;
 
     ErrorCode(HttpStatus httpStatus, String message) {
 
