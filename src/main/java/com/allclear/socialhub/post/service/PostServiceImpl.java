@@ -5,6 +5,9 @@ import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
 import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.service.HashtagService;
+import com.allclear.socialhub.post.common.share.domain.PostShare;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
@@ -18,9 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.allclear.socialhub.common.exception.ErrorCode.POST_NOT_FOUND;
 import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
@@ -34,6 +40,7 @@ public class PostServiceImpl implements PostService {
     private final HashtagService hashtagService;
     private final PostRepository postRepository;
     private final PostHashtagRepository postHashtagRepository;
+    private final PostShareRepository postShareRepository;
 
     /**
      * 0. 게시물 등록
@@ -133,6 +140,39 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
+     * 8. 게시물 공유
+     * 작성자 : 유리빛나
+     *
+     * @param postId 게시물 번호
+     * @param userId 유저 번호
+     */
+    public PostShareResponse sharePost(Long postId, Long userId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+
+        PostShare postShare = PostShare.builder()
+                .user(userRepository.getReferenceById(userCheck(userId).getId()))
+                .post(post)
+                .build();
+
+        // 게시물 공유 데이터 생성
+        postShareRepository.save(postShare);
+
+        // 게시물의 공유수 증가
+        post.updateShareCnt(post);
+        postRepository.save(post);
+
+        String url = sendToSnsApi(String.valueOf(post.getType()), "share");
+
+        return PostShareResponse.builder()
+                .postId(postId)
+                .shareCount(postShare.getPost().getShareCnt())
+                .url(url)
+                .build();
+    }
+
+    /**
      * 회원 검증
      * 작성자 : 오예령
      *
@@ -158,6 +198,37 @@ public class PostServiceImpl implements PostService {
         return postRepository.findById(postId).orElseThrow(
                 () -> new CustomException(POST_NOT_FOUND)
         );
+    }
+
+    /**
+     * 게시물 좋아요, 공유 관련 외부 API 호출
+     * 작성자 : 유리빛나
+     *
+     * @param postType SNS 타입
+     * @param apiType  좋아요 or 공유 타입
+     * @return 외부 API URL
+     */
+    private String sendToSnsApi(String postType, String apiType) {
+
+        // 1. Rest 방식의 API를 호출할 수 있는 Spring 내장 클래스 생성
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 2. Enum 타입이었던 PostType 문자열을 소문자로 변환
+        String lowerCasePostType = postType.toLowerCase();
+
+        // 3. 호출할 외부 API
+        String url = "https://www." + lowerCasePostType + ".com/" + apiType + "/" + lowerCasePostType;
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("contentId", lowerCasePostType);
+
+        try {
+            restTemplate.postForObject(url, request, String.class);
+        } catch (Exception e) {
+            System.out.println("외부 API 호출에 실패하였습니다." + e.getMessage());
+        }
+
+        return url;
     }
 
 }
