@@ -33,7 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
+import static com.allclear.socialhub.common.exception.ErrorCode.*;
 import static com.allclear.socialhub.post.domain.PostType.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -207,6 +207,121 @@ class PostServiceImplTest {
         assertEquals("테스트제목수정", response.getTitle());
         assertEquals("테스트내용수정", response.getContent());
         assertEquals(3, response.getHashtagList().size());
+
+    }
+
+    @Test
+    @DisplayName("본인 글이 아닌 게시물을 수정합니다.")
+    void updatePostWithNotPostAuthor() {
+        // given
+        User user = createUser();
+        userRepository.save(user);
+        User anotherUser = createUser();
+        userRepository.save(anotherUser);
+
+        Post post = createPost(user, "테스트제목", "테스트내용", INSTAGRAM, 0, 0, 0);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("테스트제목수정")
+                .content("테스트내용수정")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.updatePost(anotherUser.getId(), post.getId(), updateRequest));
+
+        assertEquals(POST_OWNER_MISMATCH, exception.getErrorCode());
+
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시물 id로 게시물을 수정합니다.")
+    void updatePostWithNoExistPost() {
+        // given
+        User user = createUser();
+        userRepository.save(user);
+
+        Post post = createPost(user, "테스트제목", "테스트내용", INSTAGRAM, 0, 0, 0);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("테스트제목수정")
+                .content("테스트내용수정")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.updatePost(user.getId(), post.getId() + 100, updateRequest));
+
+        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
+
+    }
+
+    @Test
+    @DisplayName("게시물 수정 시 제목은 필수 입력값입니다.")
+    void updatePostWithoutTitle() {
+        // given
+        User user = createUser();
+        userRepository.save(user);
+
+        Post post = createPost(user, "테스트제목", "테스트내용", TWITTER, 0, 0, 0);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title(null)
+                .content("테스트내용수정")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> postService.updatePost(user.getId(), post.getId(), updateRequest)).isInstanceOf(DataIntegrityViolationException.class);
+
+    }
+
+    @Test
+    @DisplayName("게시물 수정 시 내용은 필수 입력값입니다.")
+    void updatePostWithoutContent() {
+        // given
+        User user = createUser();
+
+        Post post = createPost(user, "테스트제목", "테스트내용", TWITTER, 0, 0, 0);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title(null)
+                .content("테스트내용수정")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> postService.updatePost(user.getId(), post.getId(), updateRequest)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
