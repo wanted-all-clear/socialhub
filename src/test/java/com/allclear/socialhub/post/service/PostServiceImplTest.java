@@ -1,7 +1,6 @@
 package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.common.exception.CustomException;
-import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
 import com.allclear.socialhub.post.domain.Post;
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,10 +27,12 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.allclear.socialhub.common.exception.ErrorCode.POST_TYPE_NOT_FOUND;
+import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
 import static com.allclear.socialhub.post.domain.PostType.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -51,6 +53,9 @@ class PostServiceImplTest {
     @Autowired
     private PostRepository postRepository;
 
+    static
+    List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
+
     @AfterEach
     void tearDown() {
 
@@ -67,12 +72,6 @@ class PostServiceImplTest {
         // given
         User user = createUser();
 
-        user = userRepository.findById(1L).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_EXIST)
-        );
-
-        List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
-
         PostCreateRequest request = PostCreateRequest.builder()
                 .type(INSTAGRAM)
                 .title("테스트제목")
@@ -88,6 +87,83 @@ class PostServiceImplTest {
         assertEquals("테스트제목", response.getTitle());
         assertEquals("테스트내용", response.getContent());
         assertEquals(3, response.getHashtagList().size());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 유저Id로 게시물을 등록합니다.")
+    void createPostWithNonExistUser() {
+        // given
+        Long nonExistUserId = -1L;  // 실제로 존재하지 않는 ID
+
+        PostCreateRequest request = PostCreateRequest.builder()
+                .type(INSTAGRAM)
+                .title("테스트제목")
+                .content("테스트내용")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.createPost(nonExistUserId, request));
+
+        assertEquals(USER_NOT_EXIST, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시물 타입으로 게시물을 등록합니다.")
+    void createPostWithNonExistType() {
+        // given
+        User user = createUser();
+
+        PostCreateRequest request = PostCreateRequest.builder()
+                .type(null)
+                .title("테스트제목")
+                .content("테스트내용")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.createPost(user.getId(), request));
+
+        assertEquals(POST_TYPE_NOT_FOUND, exception.getErrorCode());
+
+    }
+
+    @Test
+    @DisplayName("게시물 등록 시 제목은 필수 입력값입니다.")
+    void createPostWithoutTitle() {
+        // given
+        User user = createUser();
+
+        PostCreateRequest request = PostCreateRequest.builder()
+                .type(FACEBOOK)
+                .title(null)
+                .content("테스트내용")
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
+
+    }
+
+    @Test
+    @DisplayName("게시물 등록 시 내용은 필수 입력값입니다.")
+    void createPostWithoutContent() {
+        // given
+        User user = createUser();
+
+        PostCreateRequest request = PostCreateRequest.builder()
+                .type(FACEBOOK)
+                .title("테스트제목")
+                .content(null)
+                .hashtagList(hashtagList)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
+
     }
 
     @DisplayName("게시물 목록을 조회합니다.")
