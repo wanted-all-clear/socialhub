@@ -111,8 +111,26 @@ public class UserServiceImpl implements UserService {
 
 			return user;
 		} catch (RuntimeException ex) {
-			throw new CustomException(ex.getMessage());
+			throw new CustomException(ErrorCode.LOGIN_FAIL);
 		}
+	}
+
+	/**
+	 * 계정 중복 체크
+	 * 작성자 : 김은정
+	 *
+	 * @param username
+	 * @return String usernaame
+	 */
+	public String checkDuplicateAccount(String username) {
+		User user;
+		try {
+			user = checkUsername(username);
+		} catch (CustomException cex) {
+			return "해당 아이디는 사용이 가능합니다.";
+		}
+
+		return user.getUsername();
 	}
 
 	/**
