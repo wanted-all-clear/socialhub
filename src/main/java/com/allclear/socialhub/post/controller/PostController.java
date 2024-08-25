@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
@@ -53,6 +54,14 @@ public class PostController {
     public ResponseEntity<PostLikeResponse> likePost(@PathVariable Long postId, @RequestParam Long userId) {
 
         return ResponseEntity.status(201).body(postService.likePost(postId, userId));
+    }
+
+    @Operation(summary = "게시물 공유", description = "게시물 공유를 추가합니다.")
+    @PostMapping("/share/{postId}")
+    public ResponseEntity<PostShareResponse> sharePost(@PathVariable Long postId, @RequestParam Long userId) {
+
+        // TODO: 추후 유저 검증
+        return ResponseEntity.status(201).body(postService.sharePost(postId, userId));
     }
 
 }

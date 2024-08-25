@@ -8,6 +8,9 @@ import com.allclear.socialhub.post.common.hashtag.service.HashtagService;
 import com.allclear.socialhub.post.common.like.domain.PostLike;
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
+import com.allclear.socialhub.post.common.share.domain.PostShare;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
@@ -42,6 +45,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostHashtagRepository postHashtagRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostShareRepository postShareRepository;
 
     /**
      * 1. 게시물 등록
@@ -170,6 +174,39 @@ public class PostServiceImpl implements PostService {
         return PostLikeResponse.builder()
                 .postId(postId)
                 .likeCnt(postLike.getPost().getLikeCnt())
+                .url(url)
+                .build();
+    }
+
+    /**
+     * 8. 게시물 공유
+     * 작성자 : 유리빛나
+     *
+     * @param postId 게시물 번호
+     * @param userId 유저 번호
+     */
+    public PostShareResponse sharePost(Long postId, Long userId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+
+        PostShare postShare = PostShare.builder()
+                .user(userRepository.getReferenceById(userCheck(userId).getId()))
+                .post(post)
+                .build();
+
+        // 게시물 공유 데이터 생성
+        postShareRepository.save(postShare);
+
+        // 게시물의 공유수 증가
+        post.updateShareCnt(post);
+        postRepository.save(post);
+
+        String url = sendToSnsApi(String.valueOf(post.getType()), "share");
+
+        return PostShareResponse.builder()
+                .postId(postId)
+                .shareCount(postShare.getPost().getShareCnt())
                 .url(url)
                 .build();
     }
