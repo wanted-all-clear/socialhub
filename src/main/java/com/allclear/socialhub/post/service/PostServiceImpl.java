@@ -167,7 +167,7 @@ public class PostServiceImpl implements PostService {
 
         return PostLikeResponse.builder()
                 .postId(postId)
-                .likeCount(postLike.getPost().getLikeCnt())
+                .likeCnt(postLike.getPost().getLikeCnt())
                 .url(url)
                 .build();
     }

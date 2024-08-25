@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class PostLikeResponse {
 
     private Long postId;
-    private int likeCount;
+    private int likeCnt;
     String url;
 
 }
