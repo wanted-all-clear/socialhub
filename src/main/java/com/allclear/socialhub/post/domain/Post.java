@@ -49,6 +49,11 @@ public class Post extends Timestamped {
         this.content = updatePost.getContent();
     }
 
+    public void updateLikeCnt(Post post) {
+
+        this.likeCnt = post.getLikeCnt() + 1;
+    }
+
     public void updateShareCnt(Post post) {
 
         this.shareCnt = post.getShareCnt() + 1;

@@ -5,6 +5,9 @@ import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
 import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.service.HashtagService;
+import com.allclear.socialhub.post.common.like.domain.PostLike;
+import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
+import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.share.domain.PostShare;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
@@ -21,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -40,10 +44,11 @@ public class PostServiceImpl implements PostService {
     private final HashtagService hashtagService;
     private final PostRepository postRepository;
     private final PostHashtagRepository postHashtagRepository;
+    private final PostLikeRepository postLikeRepository;
     private final PostShareRepository postShareRepository;
 
     /**
-     * 0. 게시물 등록
+     * 1. 게시물 등록
      * 작성자 : 오예령
      *
      * @param createRequest 게시물 타입, 제목, 내용, 해시태그리스트
@@ -69,7 +74,7 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
-     * 1. 게시물 수정
+     * 2. 게시물 수정
      * 작성자 : 오예령
      *
      * @param userId        유저Id
@@ -137,6 +142,40 @@ public class PostServiceImpl implements PostService {
     public PostPaging getPosts(Pageable pageable) {
 
         return new PostPaging(postRepository.getPosts(pageable));
+    }
+
+    /**
+     * 7. 게시물 좋아요
+     * 작성자 : 유리빛나
+     *
+     * @param postId 게시물 번호
+     * @param userId 유저 번호
+     * @return 게시물 ID, 게시물 좋아요 수, 외부 API URL이 포함된 PostLikeResponse 객체
+     */
+    public PostLikeResponse likePost(Long postId, Long userId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+
+        PostLike postLike = PostLike.builder()
+                .user(userRepository.getReferenceById(userCheck(userId).getId()))
+                .post(post)
+                .build();
+
+        // 게시물 좋아요 데이터 생성
+        postLikeRepository.save(postLike);
+
+        // 게시물의 좋아요수 증가
+        post.updateLikeCnt(post);
+        postRepository.save(post);
+
+        String url = sendToSnsApi(String.valueOf(post.getType()), "likes");
+
+        return PostLikeResponse.builder()
+                .postId(postId)
+                .likeCnt(postLike.getPost().getLikeCnt())
+                .url(url)
+                .build();
     }
 
     /**
@@ -224,8 +263,8 @@ public class PostServiceImpl implements PostService {
 
         try {
             restTemplate.postForObject(url, request, String.class);
-        } catch (Exception e) {
-            System.out.println("외부 API 호출에 실패하였습니다." + e.getMessage());
+        } catch (RestClientException e) {
+            log.info("외부 API 호출에 실패하였습니다.");
         }
 
         return url;

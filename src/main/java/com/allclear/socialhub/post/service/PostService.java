@@ -1,5 +1,6 @@
 package com.allclear.socialhub.post.service;
 
+import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
@@ -16,6 +17,8 @@ public interface PostService {
     PostResponse updatePost(Long userId, Long postId, PostUpdateRequest updateRequest);
 
     PostPaging getPosts(Pageable pageable);
+
+    PostLikeResponse likePost(Long postId, Long userId);
 
     PostShareResponse sharePost(Long postId, Long userId);
 
