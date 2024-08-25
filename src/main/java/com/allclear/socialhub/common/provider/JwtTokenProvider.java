@@ -30,14 +30,7 @@ public class JwtTokenProvider {
         byte[] keyBytes = Decoders.BASE64.decode(this.SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
-    /**
-     * 2. JWT 토큰 생성
-     * 작성자 : 김은정
-     *
-     * @param user
-     * @return String jwtToken
-     */
+    
     /**
      * 2. JWT 토큰 생성
      * 작성자 : 김은정
@@ -76,13 +69,7 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 
-    /**
-     * 3. JWT 토큰에서 Payload 의 username 추출
-     * 작성자 : 김효진
-     *
-     * @param token
-     * @return String   username
-     */
+
     /**
      * 3. JWT 토큰에서 Payload 의 username 추출
      * 작성자 : 김효진
