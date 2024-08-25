@@ -52,16 +52,9 @@ public class UserServiceTest {
 	}
 
 	/**
-	 * 로그인 통합 테스트
+	 * 로그인 시 사용자가 전달한 계정과 일치하는 계정이 있는 경우
 	 * 작성자 : 김은정
 	 */
-	@Test
-	public void userLoginTest() {
-		userService.userLogin(loginDto);
-
-		verify(userService, times(1)).checkUsername(loginDto.getUsername());
-	}
-
 	@Test
 	public void checkUsernameSuccessTest() {
 		given(userRepository.findByUsername(loginDto.getUsername())).willReturn(mock(User.class));
@@ -70,6 +63,10 @@ public class UserServiceTest {
 		verify(userRepository, times(1)).findByUsername(loginDto.getUsername());
 	}
 
+	/**
+	 * 로그인 시 사용자가 전달한 계정과 일치하는 계정이 없는 경우
+	 * 작성자 : 김은정
+	 */
 	@Test
 	public void checkUsernameFailTest() {
 		Throwable throwable = assertThrows(RuntimeException.class,

@@ -2,7 +2,6 @@ package com.allclear.socialhub.user;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,20 +23,12 @@ public class UserControllerTest {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
-	private String username;
-	private String password;
-	private String email;
-
-	@BeforeEach
-	public void setUp() {
-		username = "user1";
-		password = "abcd1234..";
-		email = "user1@test.com";
-	}
-
+	/**
+	 * 로그인 통합 테스트
+	 */
 	@Test
 	public void 사용자_로그인_테스트() {
-		UserLoginRequest login = new UserLoginRequest(username, password);
+		UserLoginRequest login = new UserLoginRequest("user1", "abcd1234..");
 
 		HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(login);
 		ResponseEntity<String> responseEntity = testRestTemplate.exchange("/api/users/login", HttpMethod.POST,
@@ -50,7 +41,7 @@ public class UserControllerTest {
 		String resultUsername = result[0].trim();
 		String resultEmail = result[1].trim();
 
-		assertThat(resultUsername).isEqualTo(username);
-		assertThat(resultEmail).isEqualTo(email);
+		assertThat(resultUsername).isEqualTo("user1");
+		assertThat(resultEmail).isEqualTo("user1@test.com");
 	}
 }
