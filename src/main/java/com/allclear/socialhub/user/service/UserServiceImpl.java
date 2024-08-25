@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     //private final BCryptPasswordEncoder passwordEncoder; TODO: jwt 기능 구현되면 주석 해제
 
@@ -87,6 +88,17 @@ public class UserServiceImpl implements UserService {
 
         if (username.length() < 3 || username.length() > 20) {
             throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
+        }
+    }
+
+    @Override
+    public boolean verifyUser(String storedCode, String requestCode) {
+
+        if (storedCode != null && storedCode.equals(requestCode)) {
+            emailService.deleteVerificationToken(requestCode);
+            return true;
+        } else {
+            return false;
         }
     }
 

@@ -9,4 +9,8 @@ public interface EmailService {
     @Async
     void sendEmail(String email, EmailType emailType) throws MessagingException;
 
+    String getVerificationToken(String email);
+
+    void deleteVerificationToken(String email);
+
 }

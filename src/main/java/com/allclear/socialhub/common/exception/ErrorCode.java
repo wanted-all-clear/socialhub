@@ -19,7 +19,8 @@ public enum ErrorCode {
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
     POST_NOT_OWNER(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
     POST_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시물 타입입니다."),
-
+    INVALID_HASHTAG_PATTERN(HttpStatus.BAD_REQUEST, "'#해시태그' 형식만 등록 가능합니다."),
+    
     // STATISTICS
     STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
     STATISTICS_INVALID_VALUE(HttpStatus.BAD_REQUEST, "유효하지 않은 value parameter 입니다. expected: ['count', 'view_count', 'like_count', 'share_count']"),
