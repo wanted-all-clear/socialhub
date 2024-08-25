@@ -10,5 +10,5 @@ public enum UserStatus {
     BLOCKED("BLOCKED"),
     WITHDRAW("WITHDRAW");
 
-    private final String state;
+	private final String state;
 }
