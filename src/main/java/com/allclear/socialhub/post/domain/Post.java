@@ -43,4 +43,10 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private int shareCnt;
 
+    public void update(Post updatePost) {
+
+        this.title = updatePost.getTitle();
+        this.content = updatePost.getContent();
+    }
+
 }
