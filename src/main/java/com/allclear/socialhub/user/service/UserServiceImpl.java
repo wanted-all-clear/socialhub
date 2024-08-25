@@ -145,5 +145,4 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException(ErrorCode.PASSWORD_NOT_VALID.getMessage());
         }
     }
-
 }

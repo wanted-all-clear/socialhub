@@ -6,6 +6,7 @@ import com.allclear.socialhub.common.exception.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -94,6 +95,20 @@ public class GlobalExceptionHandler {
                 .create()
                 .message(message)
                 .httpStatus(errorCode.getHttpStatus());
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException ex) {
+
+        log.error("handleHttpMessageNotReadableException", ex);
+
+        ErrorResponse response
+                = ErrorResponse.create()
+                .httpStatus(ErrorCode.POST_TYPE_NOT_FOUND.getHttpStatus())
+                .message(ErrorCode.POST_TYPE_NOT_FOUND.getMessage());
 
         return ResponseEntity.badRequest().body(response);
     }

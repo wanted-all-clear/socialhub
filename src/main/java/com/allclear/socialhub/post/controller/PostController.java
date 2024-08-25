@@ -8,6 +8,7 @@ import com.allclear.socialhub.post.dto.PostUpdateRequest;
 import com.allclear.socialhub.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,7 +25,7 @@ public class PostController {
 
     @Operation(summary = "게시물 등록", description = "게시물을 등록합니다.")
     @PostMapping
-    public ResponseEntity<PostResponse> creatPost(@RequestBody PostCreateRequest requestDto) {
+    public ResponseEntity<PostResponse> creatPost(@Valid @RequestBody PostCreateRequest requestDto) {
 
         // TODO : 유저 받아오는 형식 추후 변경 예정
         return ResponseEntity.status(201).body(postService.createPost(1L, requestDto));
