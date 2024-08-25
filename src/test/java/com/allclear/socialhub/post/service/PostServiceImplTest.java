@@ -3,6 +3,8 @@ package com.allclear.socialhub.post.service;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
@@ -27,11 +29,9 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.allclear.socialhub.common.exception.ErrorCode.POST_TYPE_NOT_FOUND;
-import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
+import static com.allclear.socialhub.common.exception.ErrorCode.*;
 import static com.allclear.socialhub.post.domain.PostType.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -53,17 +53,20 @@ class PostServiceImplTest {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private PostShareRepository postShareRepository;
+
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
     @AfterEach
     void tearDown() {
 
+        postShareRepository.deleteAllInBatch();
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
-
     }
 
     @Test
@@ -190,6 +193,39 @@ class PostServiceImplTest {
                         tuple("제목2", "내용2", FACEBOOK, 20, 20, 20),
                         tuple("제목1", "내용1", INSTAGRAM, 10, 10, 10)
                 );
+    }
+
+    @DisplayName("게시물 공유를 추가합니다.")
+    @Test
+    void sharePost() {
+        // given
+        User user = createUser();
+
+        Post post = createPost(user, "제목1", "내용1", INSTAGRAM, 10, 10, 10);
+        postRepository.save(post);
+
+        // when
+        PostShareResponse postShareResponse = postService.sharePost(post.getId(), user.getId());
+
+        // then
+        assertThat(postShareResponse)
+                .extracting("postId", "shareCnt", "url")
+                .contains(1L, 1L, "https://www.instagram.com/share/instagram");
+
+
+    }
+
+    @DisplayName("존재하지 않는 게시물 ID로 게시물 공유를 추가합니다.")
+    @Test
+    void sharePostWithNonExistentPostId() {
+        // given
+        User user = createUser();
+
+        // when // then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.sharePost(-1L, user.getId()));
+
+        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }
 
     // 유저 빌더 생성
