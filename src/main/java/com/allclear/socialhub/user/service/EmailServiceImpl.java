@@ -177,7 +177,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
             mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("Socialhub 이메일 인증 코드를 발송합니다.");
+            mimeMessageHelper.setSubject("SocialHub 이메일 인증 코드를 발송합니다.");
             mimeMessageHelper.setText(content, true); // 메일 본문 내용, HTML 여부
 
             return mimeMessage;
