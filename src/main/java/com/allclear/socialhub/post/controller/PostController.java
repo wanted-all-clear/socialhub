@@ -49,9 +49,9 @@ public class PostController {
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")
     @PostMapping("/like/{postId}")
-    public ResponseEntity<PostLikeResponse> likePost(@PathVariable Long postId, @RequestParam String postType, @RequestParam Long userId) {
+    public ResponseEntity<PostLikeResponse> likePost(@PathVariable Long postId, @RequestParam Long userId) {
 
-        return ResponseEntity.status(201).body(postService.likePost(postId, postType, userId));
+        return ResponseEntity.status(201).body(postService.likePost(postId, userId));
     }
 
 }

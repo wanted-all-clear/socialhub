@@ -17,6 +17,6 @@ public interface PostService {
 
     PostPaging getPosts(Pageable pageable);
 
-    PostLikeResponse likePost(Long postId, String postType, Long userId);
+    PostLikeResponse likePost(Long postId, Long userId);
 
 }

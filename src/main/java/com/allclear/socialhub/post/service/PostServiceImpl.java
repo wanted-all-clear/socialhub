@@ -21,9 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.allclear.socialhub.common.exception.ErrorCode.POST_NOT_FOUND;
 import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
@@ -143,7 +146,7 @@ public class PostServiceImpl implements PostService {
      * @param postId 게시물 번호
      * @param userId 유저 번호
      */
-    public PostLikeResponse likePost(Long postId, String postType, Long userId) {
+    public PostLikeResponse likePost(Long postId, Long userId) {
 
         Post post = postRepository.getReferenceById(postId);
 
@@ -159,9 +162,12 @@ public class PostServiceImpl implements PostService {
         post.updateLikeCnt(post);
         postRepository.save(post);
 
+        String url = sendToSnsApi(String.valueOf(post.getType()), "likes");
+
         return PostLikeResponse.builder()
                 .postId(postId)
                 .likeCount(postLike.getPost().getLikeCnt())
+                .url(url)
                 .build();
     }
 
@@ -191,6 +197,37 @@ public class PostServiceImpl implements PostService {
         return postRepository.findById(postId).orElseThrow(
                 () -> new CustomException(POST_NOT_FOUND)
         );
+    }
+
+    /**
+     * 게시물 좋아요, 공유 관련 외부 API 호출
+     * 작성자 : 유리빛나
+     *
+     * @param postType SNS 타입
+     * @param apiType  좋아요 or 공유 타입
+     * @return 외부 API URL
+     */
+    private String sendToSnsApi(String postType, String apiType) {
+
+        // 1. Rest 방식의 API를 호출할 수 있는 Spring 내장 클래스 생성
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 2. Enum 타입이었던 PostType 문자열을 소문자로 변환
+        String lowerCasePostType = postType.toLowerCase();
+
+        // 3. 호출할 외부 API
+        String url = "https://www." + lowerCasePostType + ".com/" + apiType + "/" + lowerCasePostType;
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("contentId", lowerCasePostType);
+
+        try {
+            restTemplate.postForObject(url, request, String.class);
+        } catch (Exception e) {
+            System.out.println("외부 API 호출 오류 발생" + e.getMessage());
+        }
+
+        return url;
     }
 
 }

@@ -14,5 +14,6 @@ public class PostLikeResponse {
 
     private Long postId;
     private int likeCount;
+    String url;
 
 }
