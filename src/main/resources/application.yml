@@ -38,3 +38,8 @@ spring:
           timeout: 5000
           starttls:
             enable: true
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: ${REDIS_PASSWORD}

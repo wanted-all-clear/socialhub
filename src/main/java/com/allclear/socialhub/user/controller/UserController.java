@@ -6,11 +6,15 @@ import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.service.EmailServiceImpl;
 import com.allclear.socialhub.user.service.UserServiceImpl;
 import com.allclear.socialhub.user.type.EmailType;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
@@ -20,20 +24,13 @@ public class UserController {
     private final EmailServiceImpl emailService;
     private final UserServiceImpl userService;
 
-    /**
-     * 이메일 인증 요청을 처리합니다.
-     * 이메일 인증하기 -> 메일 전송 -> 인증번호 입력 -> 확인(인증 완료)
-     * 작성자: 배서진
-     *
-     * @param token Authorization 헤더에 포함된 JWT 토큰
-     * @return 인증 코드 전송 결과
-     */
+    
     @PostMapping("/email-code")
-    public ResponseEntity<String> sendEmailVerification(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> sendEmailVerification() throws MessagingException {
+        // @RequestHeader("Authorization") String token
+        //    String jwtToken = token.substring(7);
 
-        String jwtToken = token.substring(7);
-
-        emailService.sendEmail(jwtToken, EmailType.VERIFICATION);
+        emailService.sendEmail("wpdls879@gmail.com", EmailType.VERIFICATION);
         return new ResponseEntity<>("이메일로 인증 코드가 전송되었습니다.", HttpStatus.OK);
     }
 

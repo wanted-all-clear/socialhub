@@ -29,43 +29,33 @@ public class EmailServiceImpl implements EmailService {
     /**
      * 사용자에게 인증 이메일을 비동기적으로 전송합니다.
      *
-     * @param token     JWT token
      * @param emailType 이메일 템플릿의 유형 EmailType enum
      */
     @Async
     @Override
-    public void sendEmail(String token, EmailType emailType) {
+    public void sendEmail(String email, EmailType emailType) throws MessagingException {
+
+        log.info("이메일 인증 코드 전송 시작");
+
         // 1. 인증 번호 생성
-        String authCode = createCode();
+        String authCode = createAuthCode();
 
-        //TODO: JwtUils 클래스 생성되면, 해당 클래스에 메서드 추가 예정
-        /* JWT 토큰에서 이메일 추출
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey.getBytes())
-                .parseClaimsJws(jwtToken)
-                .getBody();
-        String email = claims.get("email", String.class);
-        */
-        String email = "wpdls879@gmail.com"; //TODO: jwt 기능 구현 완료 후 삭제
+        // 2. JWT에서 이메일 추출 (현재는 하드코딩된 이메일 사용)
+        email = "wpdls879@gmail.com";
 
-        // 2. 인증 번호를 Redis에 저장 (유효시간 10분)
-        emailVerificationRepository.saveVerificationToken(email, authCode, expire_period);
+        // 3. 인증 번호를 Redis에 저장
+        saveAuthCodeToRedis(email, authCode);
 
-        // 3. 이메일 생성 및 전송
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        // 4. 이메일 콘텐츠 생성
+        String content = generateEmailContent(authCode, emailType);
 
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("Socialhub 이메일 인증 코드를 발송합니다.");
-            mimeMessageHelper.setText(setContext(authCode, emailType), true); // 메일 본문 내용, HTML 여부
+        // 5. 이메일 메시지 생성
+        MimeMessage mimeMessage = createMimeMessage(email, content);
 
-            javaMailSender.send(mimeMessage);
-            log.info("인증 코드가 {}에 전송되었습니다.", email);
-        } catch (MessagingException e) {
-            log.error("이메일 전송 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException(e);
-        }
+        // 6. 이메일 전송
+        sendMimeMessage(mimeMessage);
+
+        log.info("인증 코드가 {}에 전송되었습니다.", email);
     }
 
     /**
@@ -107,7 +97,7 @@ public class EmailServiceImpl implements EmailService {
 
         Context context = new Context();
         context.setVariable("code", code);
-        return templateEngine.process(type.getTemplateName(), context);
+        return templateEngine.process("verification", context);
     }
 
     // 인증 코드 조회
@@ -120,6 +110,48 @@ public class EmailServiceImpl implements EmailService {
     public void deleteVerificationToken(String email) {
 
         emailVerificationRepository.deleteVerificationToken(email);
+    }
+
+    private String createAuthCode() {
+
+        String authCode = createCode(); // createCode() 메서드를 사용
+        log.debug("생성된 인증 코드: {}", authCode);
+        return authCode;
+    }
+
+    private void saveAuthCodeToRedis(String email, String authCode) {
+
+        emailVerificationRepository.saveVerificationToken(email, authCode, expire_period);
+        log.info("인증 코드가 Redis에 저장되었습니다. 이메일: {}, 유효시간: {}분", email, expire_period / (1000 * 60));
+    }
+
+    private String generateEmailContent(String authCode, EmailType emailType) {
+
+        String content = setContext(authCode, emailType);
+        log.debug("생성된 이메일 콘텐츠: {}", content);
+        return content;
+    }
+
+    private MimeMessage createMimeMessage(String email, String content) {
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject("Socialhub 이메일 인증 코드를 발송합니다.");
+            mimeMessageHelper.setText(content, true); // 메일 본문 내용, HTML 여부
+
+            return mimeMessage;
+        } catch (MessagingException e) {
+            log.error("이메일 메시지 생성 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("이메일 메시지 생성 중 오류 발생", e);
+        }
+    }
+
+    private void sendMimeMessage(MimeMessage mimeMessage) throws MessagingException {
+
+        javaMailSender.send(mimeMessage);
     }
 
 
