@@ -52,7 +52,8 @@ public class UserServiceTest {
 	}
 
 	/**
-	 *
+	 * 로그인 통합 테스트
+	 * 작성자 : 김은정
 	 */
 	@Test
 	public void userLoginTest() {
