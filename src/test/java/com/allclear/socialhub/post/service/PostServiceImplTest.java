@@ -1,11 +1,14 @@
 package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
+import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
+import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.repository.PostRepository;
 import com.allclear.socialhub.user.domain.User;
@@ -27,11 +30,9 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.allclear.socialhub.common.exception.ErrorCode.POST_TYPE_NOT_FOUND;
-import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
+import static com.allclear.socialhub.common.exception.ErrorCode.*;
 import static com.allclear.socialhub.post.domain.PostType.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -192,6 +193,48 @@ class PostServiceImplTest {
                 );
     }
 
+    @DisplayName("게시물 상세를 조회합니다.")
+    @Test
+    void getPostDetail() {
+        // given
+        User user = createUser();
+
+        Post post = createPost(user, "게시물 상세 제목", "게시물 상세 내용", INSTAGRAM, 10, 20, 30);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        // when
+        PostDetailResponse getDetail = postService.getPostDetail(post.getId(), user.getId());
+
+        // then
+        assertThat(getDetail).isNotNull();
+        assertThat(getDetail.getPostId()).isEqualTo(post.getId());
+        assertThat(getDetail.getTitle()).isEqualTo(post.getTitle());
+        assertThat(getDetail.getContent()).isEqualTo(post.getContent());
+        assertThat(getDetail.getType()).isEqualTo(post.getType());
+        assertThat(getDetail.getViewCnt()).isEqualTo(post.getViewCnt());
+        assertThat(getDetail.getLikeCnt()).isEqualTo(post.getLikeCnt());
+        assertThat(getDetail.getShareCnt()).isEqualTo(post.getShareCnt());
+    }
+
+    @DisplayName("존재하지 않는 게시물 ID로 게시물 상세를 조회합니다.")
+    @Test
+    void getPostDetailWithNonExistentPostId() {
+        // given
+        User user = createUser();
+
+        // when // then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.getPostDetail(-1L, user.getId()));
+
+        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
+    }
+
     // 유저 빌더 생성
     private User createUser() {
 
@@ -218,6 +261,23 @@ class PostServiceImplTest {
                 .viewCnt(viewCnt)
                 .likeCnt(likeCnt)
                 .shareCnt(shareCnt)
+                .build();
+    }
+
+    // 해시태그 빌더 생성
+    private Hashtag createHashtag(String content) {
+
+        return Hashtag.builder()
+                .content(content)
+                .build();
+    }
+
+    // 게시물 해시태그 빌더 생성
+    private PostHashtag createPostHashtag(Post post, Hashtag hashtag) {
+
+        return PostHashtag.builder()
+                .post(post)
+                .hashtag(hashtag)
                 .build();
     }
 
