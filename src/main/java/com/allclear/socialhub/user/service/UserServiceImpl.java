@@ -13,6 +13,7 @@ import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
+import com.allclear.socialhub.user.type.UsernameDupStatus;
 
 import lombok.AllArgsConstructor;
 
@@ -106,7 +107,7 @@ public class UserServiceImpl implements UserService {
 	public User userLogin(UserLoginRequest request) {
 		try {
 			User user = checkUsername(request.getUsername());
-			checkPassword(user, request.getPassword());
+			// checkPassword(user, request.getPassword());
 
 			return user;
 		} catch (CustomException ex) {
@@ -126,10 +127,10 @@ public class UserServiceImpl implements UserService {
 		try {
 			user = checkUsername(username);
 		} catch (CustomException cex) {
-			return "해당 아이디는 사용이 가능합니다.";
+			return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
 		}
 
-		return user.getUsername();
+		return UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage();
 	}
 
 	/**

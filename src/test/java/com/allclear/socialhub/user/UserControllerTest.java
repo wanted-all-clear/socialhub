@@ -1,5 +1,7 @@
 package com.allclear.socialhub.user;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
+import com.allclear.socialhub.user.type.UsernameDupStatus;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest {
@@ -34,6 +37,31 @@ public class UserControllerTest {
 				httpEntity, String.class);
 
 		String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
-		jwtTokenProvider.extractAllClaims(jwtToken);
+		String token = jwtTokenProvider.extractAllClaims(jwtToken).getSubject();
+		String[] tokenArray = token.split(",");
+
+		assertThat(userLoginRequest.getUsername()).isEqualTo(tokenArray[1]);
+	}
+
+	@Test
+	public void 계정_중복인_경우_테스트() {
+		String username = "user1";
+
+		HttpEntity<String> httpEntity = new HttpEntity<>(username);
+		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
+				httpEntity, String.class);
+
+		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
+	}
+
+	@Test
+	public void 계정_중복이_없는_경우_테스트() {
+		String username = "user1234";
+
+		HttpEntity<String> httpEntity = new HttpEntity<>(username);
+		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
+				httpEntity, String.class);
+
+		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
 	}
 }

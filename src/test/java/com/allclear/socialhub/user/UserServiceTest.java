@@ -21,6 +21,8 @@ import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.service.UserServiceImpl;
+import com.allclear.socialhub.user.type.UserCertifyStatus;
+import com.allclear.socialhub.user.type.UserStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -175,14 +177,14 @@ public class UserServiceTest {
 	public void duplicateAccountExistsTest() {
 		//given
 		String username = "username";
-		// User user = User.builder()
-		// 		.username(username)
-		// 		.email("welfjlkd@gmail.com")
-		// 		.password("padlfjdl")
-		// 		.status(UserStatus.ACTIVE)
-		// 		.certifyStatus(UserCertifyStatus.AUTHENTICATED)
-		// 		.build();
-		given(mock(User.class).getUsername()).willReturn(username);
+		User user = User.builder()
+				.username(username)
+				.email("welfjlkd@gmail.com")
+				.password("padlfjdl")
+				.status(UserStatus.ACTIVE)
+				.certifyStatus(UserCertifyStatus.AUTHENTICATED)
+				.build();
+		given(userRepository.findByUsername(any())).willReturn(user);
 
 
 		//when
@@ -190,5 +192,20 @@ public class UserServiceTest {
 
 		//then
 		assertThat(result).isEqualTo(username);
+		verify(userRepository, times(1)).findByUsername(username);
+	}
+
+	/**
+	 * 회원가입 시 사용하고자 하는 계정을 다른 사용자가 사용하지 않는 경우를 테스트합니다.
+	 * 작성자 : 김은정
+	 */
+	@Test
+	public void duplicateAccountNoExistsTest() {
+		//when
+		String result = userService.checkDuplicateAccount(any());
+
+		//then
+		assertThat(result).isEqualTo("해당 아이디는 사용이 가능합니다.");
+		verify(userRepository, times(1)).findByUsername(any());
 	}
 }
