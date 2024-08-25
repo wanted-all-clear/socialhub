@@ -92,6 +92,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * Thymeleaf 템플릿을 사용하여 이메일 본문 내용을 생성합니다.
+     * 작성자: 배서진
      *
      * @param code 이메일에 포함될 인증 코드
      * @param type 사용할 이메일 템플릿의 유형
@@ -127,6 +128,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * 1) 인증 코드를 생성하고 로그에 출력합니다.
+     * 작성자: 배서진
      *
      * @return 생성된 인증 코드
      */
@@ -139,6 +141,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * 2) 인증 코드를 Redis에 저장합니다.
+     * 작성자: 배서진
      *
      * @param email    인증 코드를 저장할 이메일 주소
      * @param authCode 저장할 인증 코드
@@ -151,6 +154,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * 3) 이메일 콘텐츠를 생성합니다.
+     * 작성자: 배서진
      *
      * @param authCode  이메일에 포함될 인증 코드
      * @param emailType 사용할 이메일 템플릿의 유형
@@ -165,6 +169,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * 4) MimeMessage 객체를 생성합니다.
+     * 작성자: 배서진
      *
      * @param email   이메일 수신자 주소
      * @param content 이메일 본문 내용
@@ -189,6 +194,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * 5) MimeMessage 객체를 통해 이메일을 전송합니다.
+     * 작성자: 배서진
      *
      * @param mimeMessage 전송할 MimeMessage 객체
      * @throws MessagingException 이메일 전송 중 오류가 발생할 경우

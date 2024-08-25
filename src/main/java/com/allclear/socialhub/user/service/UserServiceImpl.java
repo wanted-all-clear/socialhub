@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    // 계정명 길이 검증
     private void validateUsername(String username) {
 
         if (username.length() < 3 || username.length() > 20) {
@@ -91,6 +92,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * 사용자가 제공한 인증 코드(requestCode)와 저장된 인증 코드(storedCode)를 검증하는 메서드.
+     * 인증 코드가 일치할 경우, 인증 코드를 삭제하고 검증 성공을 나타내는 true를 반환합니다.
+     *
+     * @param storedCode  저장된 인증 코드
+     * @param requestCode 사용자가 제공한 인증 코드
+     * @return 코드가 일치하면 true, 그렇지 않으면 false를 반환
+     */
     @Override
     public boolean verifyUser(String storedCode, String requestCode) {
 
