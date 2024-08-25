@@ -39,7 +39,7 @@ public class PostServiceImpl implements PostService {
      * 0. 게시물 등록
      * 작성자 : 오예령
      *
-     * @param createRequest
+     * @param createRequest 게시물 타입, 제목, 내용, 해시태그리스트
      * @return 생성된 게시물 PostResponse에 담아 반환
      */
     @Override
@@ -65,9 +65,9 @@ public class PostServiceImpl implements PostService {
      * 1. 게시물 수정
      * 작성자 : 오예령
      *
-     * @param userId
-     * @param postId
-     * @param updateRequest
+     * @param userId        유저Id
+     * @param postId        게시물Id
+     * @param updateRequest 게시물 제목, 내용, 해시태그리스트
      * @return 수정된 게시물 PostResponse에 담아 반환
      */
     @Override
@@ -105,17 +105,17 @@ public class PostServiceImpl implements PostService {
      * PostHashtag 연관관계 등록
      * 작성자 : 오예령
      *
-     * @param post
-     * @param hashtags
+     * @param post     게시물
+     * @param hashtags 해시태그
      */
     private void savePostHashtag(Post post, List<Hashtag> hashtags) {
 
         for (Hashtag hashtag : hashtags) {
-            PostHashtag postHashTag = PostHashtag.builder()
+            PostHashtag postHashtag = PostHashtag.builder()
                     .post(post)
                     .hashtag(hashtag)
                     .build();
-            postHashtagRepository.save(postHashTag);
+            postHashtagRepository.save(postHashtag);
         }
     }
 
@@ -136,7 +136,7 @@ public class PostServiceImpl implements PostService {
      * 회원 검증
      * 작성자 : 오예령
      *
-     * @param userId
+     * @param userId 유저Id
      * @return 해당 회원을 반환
      */
     private User userCheck(Long userId) {
@@ -150,7 +150,7 @@ public class PostServiceImpl implements PostService {
      * 게시물 검증
      * 작성자 : 오예령
      *
-     * @param postId
+     * @param postId 게시물Id
      * @return 해당 게시물을 반환
      */
     private Post postCheck(Long postId) {
