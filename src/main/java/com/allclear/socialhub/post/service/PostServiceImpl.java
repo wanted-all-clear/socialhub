@@ -32,8 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.allclear.socialhub.common.exception.ErrorCode.POST_NOT_FOUND;
-import static com.allclear.socialhub.common.exception.ErrorCode.USER_NOT_EXIST;
+import static com.allclear.socialhub.common.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -91,6 +90,7 @@ public class PostServiceImpl implements PostService {
 
         // 1. 게시물 검증
         Post post = postCheck(postId);
+        if (!post.getUser().getId().equals(userId)) throw new CustomException(POST_OWNER_MISMATCH);
 
         Post updatePost = updateRequest.toEntity();
         post.update(updatePost);
