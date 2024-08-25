@@ -50,7 +50,6 @@ class StatisticControllerTest {
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
-    private List<StatisticResponse> mockDailyStatistics;
     private String jwt;
 
     @BeforeEach
@@ -73,7 +72,7 @@ class StatisticControllerTest {
         void GivenValidRequest_ThenReturnStatisticsSuccessfully() throws Exception {
 
             // given
-            mockDailyStatistics = Arrays.asList(
+            List<StatisticResponse> mockDailyStatistics = Arrays.asList(
                     new StatisticResponse("2024-08-23", 5L),
                     new StatisticResponse("2024-08-24", 0L),
                     new StatisticResponse("2024-08-25", 3L)
