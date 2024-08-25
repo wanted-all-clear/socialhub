@@ -16,10 +16,12 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.allclear.socialhub.user.domain.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 
 @RestController
 @AllArgsConstructor
@@ -29,6 +31,7 @@ public class UserController {
 
     private final EmailService emailService;
     private final UserService userService;
+	private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "이메일 인증 코드 전송", description = "사용자의 이메일로 인증 코드를 전송합니다.")
     @ApiResponses(value = {
@@ -77,14 +80,20 @@ public class UserController {
     })
     @PostMapping("")
     public ResponseEntity<String> joinUser(@Valid @RequestBody UserJoinRequest request) {
+		try {
+			userService.joinUser(request);
+			return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
+		} catch (CustomException e) {
+			throw e;
+		}
+	}
 
-        try {
-            userService.joinUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
-        } catch (CustomException e) {
-            throw e;
-        }
-    }
+	@PostMapping("/login")
+	public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request) {
+		User user = userService.userLogin(request);
+		String jwtToken = jwtTokenProvider.createToken(user);
 
+		return ResponseEntity.ok().header("AUTHORIZATION", jwtToken).body("로그인이 완료되었습니다.");
+	}
 
 }

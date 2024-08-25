@@ -1,4 +1,4 @@
-package com.allclear.socialhub.common.util.converter;
+package com.allclear.socialhub.common.converter;
 
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;

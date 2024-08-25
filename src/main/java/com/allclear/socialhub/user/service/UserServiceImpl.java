@@ -1,15 +1,17 @@
 package com.allclear.socialhub.user.service;
 
+import com.allclear.socialhub.common.config.WebSecurityConfig;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
+import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
-import com.allclear.socialhub.user.repository.EmailRedisRepository;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,8 +20,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final EmailRedisRepository emailRedisRepository;
-
-    //private final BCryptPasswordEncoder passwordEncoder; TODO: jwt 기능 구현되면 주석 해제
+    private final WebSecurityConfig securityConfig;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 사용자 회원가입
@@ -42,11 +44,12 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateUserInfoException(ErrorCode.USERNAME_DUPLICATION);
         }
 
-        //String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(request.getPassword()) //TODO: jwt 기능 구현되면 주석해제, encodedPassword로 사용 예정
+                .password(encodedPassword)
                 .status(UserStatus.ACTIVE)
                 .certifyStatus(UserCertifyStatus.UNAUTHENTICATED)
                 .build();
@@ -116,6 +119,57 @@ public class UserServiceImpl implements UserService {
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * 로그인
+     * 작성자 : 김은정
+     *
+     * @param request
+     */
+    public User userLogin(UserLoginRequest request) {
+
+        try {
+            User user = checkUsername(request.getUsername());
+            checkPassword(user, request.getPassword());
+
+            return user;
+        } catch (RuntimeException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    /**
+     * 아이디 확인
+     * 작성자 : 김은정
+     *
+     * @param username
+     * @return User user
+     */
+    public User checkUsername(String username) {
+
+        User user = userRepository.findByUsername(username);
+
+        if (user == null) {
+            throw new RuntimeException(ErrorCode.USER_NOT_EXIST.getMessage());
+        }
+
+        return user;
+    }
+
+    /**
+     * 비밀번호 확인
+     * 작성자 : 김은정
+     *
+     * @param user
+     * @param password
+     */
+    public void checkPassword(User user, String password) {
+
+        PasswordEncoder passwordEncoder = securityConfig.passwordEncoder();
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException(ErrorCode.PASSWORD_NOT_VALID.getMessage());
         }
     }
 

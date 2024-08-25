@@ -25,11 +25,13 @@ public enum ErrorCode {
     // STATISTICS
     STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
     STATISTICS_INVALID_VALUE(HttpStatus.BAD_REQUEST, "유효하지 않은 value parameter 입니다. expected: ['count', 'view_count', 'like_count', 'share_count']"),
-    STATISTICS_INVALID_DATE_PATTERN(HttpStatus.BAD_REQUEST, "유효하지 않은 날짜 형식입니다. expected: 'YYYY-MM-DD'"),
-    STATISTICS_INVALID_DATE_VALUE(HttpStatus.BAD_REQUEST, "잘못된 날짜입니다."),
-    STATISTICS_INVALID_DATE_DURATION_DATE(HttpStatus.BAD_REQUEST, "최대 30일까지만 조회할 수 있습니다."),
-    STATISTICS_INVALID_DATE_DURATION_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다.");
+    STATISTICS_INVALID_DATE(HttpStatus.BAD_REQUEST, "유효하지 않은 날짜입니다. expected: 'yyyy-MM-DD'"),
+    STATISTICS_INVALID_DATE_RANGE_TOO_LONG_DATE(HttpStatus.BAD_REQUEST, "최대 30일까지만 조회할 수 있습니다."),
+    STATISTICS_INVALID_DATE_RANGE_TOO_LONG_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다."),
+    STATISTICS_INVALID_DATE_RANGE_START_AFTER_END(HttpStatus.BAD_REQUEST, "start 날짜는 end 날짜보다 이전이거나 같아야 합니다."),
 
+    // JWT
+    EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

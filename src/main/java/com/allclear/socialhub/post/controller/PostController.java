@@ -26,9 +26,9 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<PostPaging> getPosts(@PageableDefault Pageable pageable) {
+    public PostPaging getPosts(@PageableDefault Pageable pageable) {
 
-        return ResponseEntity.status(200).body(postService.getPosts(pageable));
+        return postService.getPosts(pageable);
 
     }
 

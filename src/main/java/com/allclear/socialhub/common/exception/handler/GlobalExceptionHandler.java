@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -59,11 +60,22 @@ public class GlobalExceptionHandler {
 
         log.error("handleBindException", ex);
 
-        String message = ex.getMessage();
-        String defaultMsg = message.substring(message.lastIndexOf("[") + 1, message.lastIndexOf("]"));
+        FieldError fieldError = ex.getFieldError();
+
+        String fieldName = fieldError.getField();
+        Object rejectedValue = fieldError.getRejectedValue();
+
+        // TODO: 하드 코딩 변환할 방법 & 메서드의 type 들어올 경우 변경해야 함.
+        String errorMessage = switch (fieldName) {
+            case "type" -> ErrorCode.STATISTICS_INVALID_TYPE.getMessage();
+            case "value" -> ErrorCode.STATISTICS_INVALID_VALUE.getMessage();
+            case "start", "end" -> ErrorCode.STATISTICS_INVALID_DATE.getMessage();
+            default -> fieldError.getDefaultMessage();
+        };
+
 
         ErrorResponse response = ErrorResponse.create()
-                .message(defaultMsg)
+                .message(errorMessage)
                 .httpStatus(HttpStatus.BAD_REQUEST);
 
         return ResponseEntity.badRequest().body(response);
@@ -85,5 +97,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(response);
     }
-    
+
 }
