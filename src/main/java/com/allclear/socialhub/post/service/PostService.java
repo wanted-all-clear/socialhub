@@ -22,4 +22,6 @@ public interface PostService {
 
     PostShareResponse sharePost(Long postId, Long userId);
 
+    void deletePost(Long userId, Long postId);
+
 }

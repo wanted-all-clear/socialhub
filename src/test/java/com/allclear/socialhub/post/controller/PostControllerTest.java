@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.dto.PostDetailResponse;
+import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.service.PostServiceImpl;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PostController.class)
@@ -115,6 +117,33 @@ class PostControllerTest {
                 .likeCnt(20)
                 .shareCnt(30)
                 .build();
+
+    @DisplayName("게시물 좋아요를 추가합니다.")
+    @Test
+    void likePost() throws Exception {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        String url = "https://www.facebook.com/likes/facebook";
+
+        PostLikeResponse response = PostLikeResponse.builder()
+                .postId(postId)
+                .likeCnt(10)
+                .url(url)
+                .build();
+
+        when(postService.likePost(postId, userId)).thenReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        post("/api/posts/like/{postId}", postId)
+                                .param("userId", userId.toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.postId").value(postId))
+                .andExpect(jsonPath("$.likeCnt").value(10))
+                .andExpect(jsonPath("$.url").value(url));
     }
 
 }
