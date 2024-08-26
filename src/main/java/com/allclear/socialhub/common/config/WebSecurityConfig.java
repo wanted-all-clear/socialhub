@@ -37,6 +37,7 @@ public class WebSecurityConfig {
 				.sessionManagement((session) -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-		return http.build();
+
+		return http.getOrBuild();
 	}
 }

@@ -114,5 +114,4 @@ public class JwtTokenProvider {
 
 		return String.valueOf(claims.get("email"));
 	}
-
 }

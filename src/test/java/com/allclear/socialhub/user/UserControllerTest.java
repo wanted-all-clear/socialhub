@@ -76,10 +76,6 @@ public class UserControllerTest {
 				.username(username)
 				.password(password).build();
 
-		// MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-		// map.add("username", username);
-		// map.add("password", password);
-
 		HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(userLoginRequest);
 		ResponseEntity<String> responseEntity = testRestTemplate.exchange("/api/users/login", HttpMethod.POST,
 				httpEntity, String.class);
