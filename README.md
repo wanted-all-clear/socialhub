@@ -13,9 +13,7 @@
 > 9. [API 명세서](#api-명세서)
 > 10. [ERD](#erd)
 > 11. [트러블 슈팅](#트러블-슈팅)
->    - [JWT 토큰 시크릿 키 보안 오류](#jwt-토큰-시크릿-키-보안-오류)
->    - [Enum의 유효성 검사 및 예외처리](#enum의-유효성-검사-및-예외처리)
->    - [목(Mock) 객체 사용 및 테스트 코드 이해 부족](#목mock-객체-사용-및-테스트-코드-이해-부족)
+
 
 <br/>
 
@@ -282,16 +280,12 @@ protected ResponseEntity<ErrorResponse> handleBindException(BindException ex, Ha
 
 - 작성자: 배서진
 ### (1) 문제 상황
-
->```java
-1. JwtTokenProvider jwtTokenProvider = mock(JwtTokenProvider.class);
-2. jwtTokenProvider.createToken(); 의 차이를 이해하지 못하여 테스트 코드 작성 시 시간이 많이 소요되었습니다.
-```
+> 1. JwtTokenProvider jwtTokenProvider = mock(JwtTokenProvider.class);
+> 2. jwtTokenProvider.createToken(); 의 차이를 이해하지 못하여 테스트 코드 작성 시 시간이 많이 소요되었습니다.
 
 ### (2) 발생한 문제(에러)
->- `extractEmail`이나 `extractAllClaims` 등의 모킹이 제대로 설정되지 않음
+> - `extractEmail`이나 `extractAllClaims` 등의 모킹이 제대로 설정되지 않음
 - 이메일을 추출하는 과정에서 `null` 반환
-
 
 ### 3. 원인
 - 추정되는 원인
