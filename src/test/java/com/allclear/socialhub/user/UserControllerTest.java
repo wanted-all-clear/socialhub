@@ -89,9 +89,11 @@ public class UserControllerTest {
 
 		String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
 		Claims token = jwtTokenProvider.extractAllClaims(jwtToken);
+		String email = jwtTokenProvider.extractEmail(token);
 		String tokenStr = jwtTokenProvider.extractUsername(token);
 
 		assertThat(userLoginRequest.getUsername()).isEqualTo(tokenStr);
+		assertThat(this.email).isEqualTo(email);
 	}
 
 	@Test
@@ -125,7 +127,8 @@ public class UserControllerTest {
 				.compact();
 
 		// jwtTokenProvider의 extractEmailFromToken 메서드가 "wpdls879@gmail.com"을 반환하도록 모킹
-		when(jwtTokenProvider.extractEmailFromToken(anyString())).thenReturn("wpdls879@gmail.com");
+		// todo
+		//when(jwtTokenProvider.extractEmailFromToken(anyString())).thenReturn("wpdls879@gmail.com");
 
 		// emailService의 sendEmail 메서드가 호출되더라도 아무 동작도 하지 않도록 모킹
 		doNothing().when(emailService).sendEmail(anyString(), any(EmailType.class));
@@ -179,7 +182,8 @@ public class UserControllerTest {
 		UserEmailRequest request = new UserEmailRequest(authCode); // 인증 코드 요청 객체 생성
 
 		// JWT 토큰에서 이메일을 추출하도록 모킹 설정
-		when(jwtTokenProvider.extractEmailFromToken(token)).thenReturn(email);
+		// todo
+		//when(jwtTokenProvider.extractEmailFromToken(token)).thenReturn(email);
 
 		// emailService.getVerificationToken()이 잘못된 인증 코드를 반환하도록 모킹 설정
 		when(emailService.getVerificationToken(email)).thenReturn("wrongCode");
