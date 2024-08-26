@@ -1,5 +1,24 @@
 package com.allclear.socialhub.user;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
@@ -10,177 +29,204 @@ import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.service.EmailService;
 import com.allclear.socialhub.user.service.UserService;
 import com.allclear.socialhub.user.type.EmailType;
+import com.allclear.socialhub.user.type.UsernameDupStatus;
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.mail.MessagingException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class UserControllerTest {
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
+	@Autowired
+	private TestRestTemplate testRestTemplate = new TestRestTemplate();
 
-    @Autowired
-    @Mock
-    private JwtTokenProvider jwtTokenProvider;
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
 
-    @Mock
-    private EmailService emailService;
+	@Mock
+	private EmailService emailService;
 
-    @Mock
-    private UserService userService;
+	@Mock
+	private UserService userService;
 
-    @InjectMocks
-    private UserController userController;
+	@InjectMocks
+	private UserController userController;
 
-    @BeforeEach
-    void setUp() {
+	public String username = "popcorn23";
+	public String email = "fkznsha23@gmail.com";
+	public String password = "qlalfqjsghgh23";
 
-        MockitoAnnotations.openMocks(this);
-    }
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
 
-    /**
-     * 로그인 통합 테스트
-     * 작성자 : 김은정
-     */
-    @Test
-    public void 사용자_로그인_테스트() {
+		// 회원가입
+		UserJoinRequest userJoinRequest = new UserJoinRequest(username, email, password);
 
-        UserLoginRequest userLoginRequest = UserLoginRequest.builder()
-                .username("user1")
-                .password("abcd1234..").build();
+		HttpEntity<UserJoinRequest> httpEntityJoin = new HttpEntity<>(userJoinRequest);
+		testRestTemplate.exchange("/api/users", HttpMethod.POST, httpEntityJoin, String.class);
 
-        HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(userLoginRequest);
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange("/api/users/login", HttpMethod.POST,
-                httpEntity, String.class);
+	}
 
-        String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
-        jwtTokenProvider.extractAllClaims(jwtToken);
-    }
+	/**
+	 * 로그인 통합 테스트
+	 * 작성자 : 김은정
+	 */
+	@Test
+	public void 사용자_로그인_테스트() {
+		// 로그인
+		UserLoginRequest userLoginRequest = UserLoginRequest.builder()
+				.username(username)
+				.password(password).build();
 
-    @Test
-    void sendEmailVerification_Success() throws MessagingException {
-        // given
-        // 테스트용 JWT 토큰 생성
-        String token = Jwts.builder()
-                .setSubject("wpdls879@gmail.com")
-                .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256))
-                .compact();
+		HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(userLoginRequest);
+		ResponseEntity<String> responseEntity = testRestTemplate.exchange("/api/users/login", HttpMethod.POST,
+				httpEntity, String.class);
 
-        // jwtTokenProvider의 extractEmailFromToken 메서드가 "wpdls879@gmail.com"을 반환하도록 모킹
-        when(jwtTokenProvider.extractEmailFromToken(anyString())).thenReturn("wpdls879@gmail.com");
+		String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
+		Claims token = jwtTokenProvider.extractAllClaims(jwtToken);
+		String email = jwtTokenProvider.extractEmail(token);
+		String tokenStr = jwtTokenProvider.extractUsername(token);
 
-        // emailService의 sendEmail 메서드가 호출되더라도 아무 동작도 하지 않도록 모킹
-        doNothing().when(emailService).sendEmail(anyString(), any(EmailType.class));
+		assertThat(userLoginRequest.getUsername()).isEqualTo(tokenStr);
+		assertThat(this.email).isEqualTo(email);
+	}
 
-        // when
-        // Authorization 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
+	@Test
+	public void 계정_중복인_경우_테스트() {
+		// 계정 중복 확인
+		HttpEntity<String> httpEntity = new HttpEntity<>(username);
+		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
+				httpEntity, String.class);
 
-        // UserController의 sendEmailVerification 메서드 호출
-        ResponseEntity<String> response = userController.sendEmailVerification(headers.getFirst("Authorization"));
+		assertThat(result.getStatusCode()).isEqualTo(ErrorCode.USERNAME_DUPLICATION.getHttpStatus());
+	}
 
-        // then
-        // 상태 코드와 응답 메시지가 기대한 대로 반환되는지 확인
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("이메일로 인증 코드가 전송되었습니다.", response.getBody());
-    }
+	@Test
+	public void 계정_중복이_없는_경우_테스트() {
+		String username = "user12";
 
+		HttpEntity<String> httpEntity = new HttpEntity<>(username);
+		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
+				httpEntity, String.class);
 
-    @Test
-    void sendEmailVerification_Failure() throws MessagingException {
-        // given
-        String token = "testToken"; // 테스트용 JWT 토큰
-        // emailService의 sendEmail 메서드가 호출될 때 MessagingException을 던지도록 설정
-        doThrow(new MessagingException("이메일 전송 실패")).when(emailService).sendEmail(anyString(), any(EmailType.class));
+		assertThat(result.getBody()).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
+	}
 
-        // when & then
-        try {
-            // 헤더를 포함한 HttpHeaders 객체 생성
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + token);
+	@Test
+	void sendEmailVerification_Success() throws MessagingException {
+		// given
+		// 테스트용 JWT 토큰 생성
+		String token = Jwts.builder()
+				.setSubject("wpdls879@gmail.com")
+				.signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256))
+				.compact();
 
-            // HttpEntity 객체 생성 (헤더를 포함한 상태)
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+		// jwtTokenProvider의 extractEmailFromToken 메서드가 "wpdls879@gmail.com"을 반환하도록 모킹
+		// todo
+		//when(jwtTokenProvider.extractEmailFromToken(anyString())).thenReturn("wpdls879@gmail.com");
 
-            // UserController의 sendEmailVerification 메서드를 호출하여 예외 발생 여부를 확인
-            ResponseEntity<String> response = userController.sendEmailVerification(headers.getFirst("Authorization"));
-        } catch (MessagingException e) {
-            // 예외가 발생했을 때 예외 메시지가 "이메일 전송 실패"와 일치하는지 확인
-            assertEquals("이메일 전송 실패", e.getMessage());
-        }
-    }
-    
+		// emailService의 sendEmail 메서드가 호출되더라도 아무 동작도 하지 않도록 모킹
+		doNothing().when(emailService).sendEmail(anyString(), any(EmailType.class));
 
-    @Test
-    void verifyEmailCode_Failure() {
-        // given
-        String token = "testToken"; // 테스트용 JWT 토큰
-        String email = "user@example.com"; // 테스트용 이메일
-        String authCode = "123456"; // 테스트용 인증 코드
-        UserEmailRequest request = new UserEmailRequest(authCode); // 인증 코드 요청 객체 생성
+		// when
+		// Authorization 헤더 설정
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer " + token);
 
-        // JWT 토큰에서 이메일을 추출하도록 모킹 설정
-        when(jwtTokenProvider.extractEmailFromToken(token)).thenReturn(email);
+		// UserController의 sendEmailVerification 메서드 호출
+		ResponseEntity<String> response = userController.sendEmailVerification(headers.getFirst("Authorization"));
 
-        // emailService.getVerificationToken()이 잘못된 인증 코드를 반환하도록 모킹 설정
-        when(emailService.getVerificationToken(email)).thenReturn("wrongCode");
-
-        // userService.verifyUser()가 false를 반환하도록 모킹 설정
-        when(userService.verifyUser("wrongCode", authCode, email)).thenReturn(false);
-
-        // when
-        ResponseEntity<String> response = userController.verifyEmailCode(token, request);
-
-        // then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode()); // 상태 코드가 400 BAD_REQUEST인지 확인
-        assertEquals("인증 코드가 일치하지 않거나 만료되었습니다.", response.getBody()); // 응답 메시지 확인
-    }
+		// then
+		// 상태 코드와 응답 메시지가 기대한 대로 반환되는지 확인
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("이메일로 인증 코드가 전송되었습니다.", response.getBody());
+	}
 
 
-    @Test
-    void joinUser_Success() {
-        // given
-        UserJoinRequest request = new UserJoinRequest("username", "user@example.com", "password");
-        doNothing().when(userService).joinUser(request);
+	@Test
+	void sendEmailVerification_Failure() throws MessagingException {
+		// given
+		String token = "testToken"; // 테스트용 JWT 토큰
+		// emailService의 sendEmail 메서드가 호출될 때 MessagingException을 던지도록 설정
+		doThrow(new MessagingException("이메일 전송 실패")).when(emailService).sendEmail(anyString(), any(EmailType.class));
 
-        // when
-        ResponseEntity<String> response = userController.joinUser(request);
+		// when & then
+		try {
+			// 헤더를 포함한 HttpHeaders 객체 생성
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Authorization", "Bearer " + token);
 
-        // then
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("회원가입이 완료되었습니다.", response.getBody());
-    }
+			// HttpEntity 객체 생성 (헤더를 포함한 상태)
+			HttpEntity<String> entity = new HttpEntity<>(headers);
 
-    @Test
-    void joinUser_Failure() {
-        // given
-        UserJoinRequest request = new UserJoinRequest("username", "user@example.com", "password");
-        doThrow(new CustomException(ErrorCode.EMAIL_DUPLICATION)).when(userService).joinUser(request);
+			// UserController의 sendEmailVerification 메서드를 호출하여 예외 발생 여부를 확인
+			ResponseEntity<String> response = userController.sendEmailVerification(headers.getFirst("Authorization"));
+		} catch (MessagingException e) {
+			// 예외가 발생했을 때 예외 메시지가 "이메일 전송 실패"와 일치하는지 확인
+			assertEquals("이메일 전송 실패", e.getMessage());
+		}
+	}
 
-        // when & then
-        try {
-            userController.joinUser(request);
-        } catch (CustomException e) {
-            assertEquals(ErrorCode.EMAIL_DUPLICATION.getMessage(), e.getMessage());
-            assertEquals(HttpStatus.CONFLICT, e.getErrorCode().getHttpStatus());
-        }
-    }
+
+	@Test
+	void verifyEmailCode_Failure() {
+		// given
+		String token = "testToken"; // 테스트용 JWT 토큰
+		String email = "user@example.com"; // 테스트용 이메일
+		String authCode = "123456"; // 테스트용 인증 코드
+		UserEmailRequest request = new UserEmailRequest(authCode); // 인증 코드 요청 객체 생성
+
+		// JWT 토큰에서 이메일을 추출하도록 모킹 설정
+		// todo
+		//when(jwtTokenProvider.extractEmailFromToken(token)).thenReturn(email);
+
+		// emailService.getVerificationToken()이 잘못된 인증 코드를 반환하도록 모킹 설정
+		when(emailService.getVerificationToken(email)).thenReturn("wrongCode");
+
+		// userService.verifyUser()가 false를 반환하도록 모킹 설정
+		when(userService.verifyUser("wrongCode", authCode, email)).thenReturn(false);
+
+		// when
+		ResponseEntity<String> response = userController.verifyEmailCode(token, request);
+
+		// then
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode()); // 상태 코드가 400 BAD_REQUEST인지 확인
+		assertEquals("인증 코드가 일치하지 않거나 만료되었습니다.", response.getBody()); // 응답 메시지 확인
+	}
+
+
+	@Test
+	void joinUser_Success() {
+		// given
+		UserJoinRequest request = new UserJoinRequest("username", "user@example.com", "password");
+		doNothing().when(userService).joinUser(request);
+
+		// when
+		ResponseEntity<String> response = userController.joinUser(request);
+
+		// then
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		assertEquals("회원가입이 완료되었습니다.", response.getBody());
+	}
+
+	@Test
+	void joinUser_Failure() {
+		// given
+		UserJoinRequest request = new UserJoinRequest("username", "user@example.com", "password");
+		doThrow(new CustomException(ErrorCode.EMAIL_DUPLICATION)).when(userService).joinUser(request);
+
+		// when & then
+		try {
+			userController.joinUser(request);
+		} catch (CustomException e) {
+			assertEquals(ErrorCode.EMAIL_DUPLICATION.getMessage(), e.getMessage());
+			assertEquals(HttpStatus.CONFLICT, e.getErrorCode().getHttpStatus());
+		}
+	}
 
 }

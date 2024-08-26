@@ -21,6 +21,9 @@ import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.service.UserServiceImpl;
+import com.allclear.socialhub.user.type.UserCertifyStatus;
+import com.allclear.socialhub.user.type.UserStatus;
+import com.allclear.socialhub.user.type.UsernameDupStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -61,7 +64,7 @@ public class UserServiceImplTest {
 		given(userRepository.findByUsername(loginRequest.getUsername())).willReturn(mock(User.class));
 
 		// when
-		userService.checkUsername(loginRequest.getUsername());
+		userService.getUserByUsername(loginRequest.getUsername());
 
 		// then
 		verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
@@ -78,7 +81,7 @@ public class UserServiceImplTest {
 
 		//when
 		Throwable throwable = assertThrows(RuntimeException.class,
-				() -> userService.checkUsername(uername));
+				() -> userService.getUserByUsername(uername));
 
 		// then
 		verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
@@ -174,6 +177,35 @@ public class UserServiceImplTest {
 	@Test
 	public void duplicateAccountExistsTest() {
 		//given
-		
+		User user = User.builder()
+				.username("username")
+				.email("welfjlkd@gmail.com")
+				.password("padlfjdl")
+				.status(UserStatus.ACTIVE)
+				.certifyStatus(UserCertifyStatus.AUTHENTICATED)
+				.build();
+		given(userRepository.findByUsername(any())).willReturn(user);
+
+
+		//when
+		String result = userService.userDuplicateCheck(any());
+
+		//then
+		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
+		verify(userRepository, times(1)).findByUsername(any());
+	}
+
+	/**
+	 * 회원가입 시 사용하고자 하는 계정을 다른 사용자가 사용하지 않는 경우를 테스트합니다.
+	 * 작성자 : 김은정
+	 */
+	@Test
+	public void duplicateAccountNoExistsTest() {
+		//when
+		String result = userService.userDuplicateCheck(any());
+
+		//then
+		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
+		verify(userRepository, times(1)).findByUsername(any());
 	}
 }
