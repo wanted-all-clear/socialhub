@@ -80,12 +80,10 @@ public class UserServiceImplTest {
 		String uername = loginRequest.getUsername();
 
 		//when
-		Throwable throwable = assertThrows(RuntimeException.class,
-				() -> userService.getUserByUsername(uername));
+		User user = userService.getUserByUsername(uername);
 
 		// then
-		verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
-		assertThat(throwable.getMessage()).isEqualTo(ErrorCode.USER_NOT_EXIST.getMessage());
+		assertThat(user).isNull();
 	}
 
 	/**
@@ -188,10 +186,10 @@ public class UserServiceImplTest {
 
 
 		//when
-		String result = userService.userDuplicateCheck(any());
+		Throwable ex = assertThrows(CustomException.class, () -> userService.userDuplicateCheck(any()));
 
 		//then
-		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
+		assertThat(ex.getMessage()).isEqualTo(ErrorCode.USERNAME_DUPLICATION.getMessage());
 		verify(userRepository, times(1)).findByUsername(any());
 	}
 

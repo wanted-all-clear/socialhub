@@ -1,4 +1,4 @@
-package com.allclear.socialhub.common.provider;
+package com.allclear.socialhub.common.jwt;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
