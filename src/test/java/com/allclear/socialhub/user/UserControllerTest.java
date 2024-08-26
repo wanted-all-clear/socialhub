@@ -1,18 +1,38 @@
 package com.allclear.socialhub.user;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.controller.UserController;
+
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserEmailRequest;
+
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.service.EmailService;
 import com.allclear.socialhub.user.service.UserService;
-import com.allclear.socialhub.user.type.EmailType;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
 import io.jsonwebtoken.Claims;
+
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,11 +61,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
-    @Autowired
-    private TestRestTemplate testRestTemplate = new TestRestTemplate();
+	  @Autowired
+	  private TestRestTemplate testRestTemplate;
+
+	  @Autowired
+	  private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -248,5 +269,4 @@ public class UserControllerTest {
             assertEquals(HttpStatus.CONFLICT, e.getErrorCode().getHttpStatus());
         }
     }
-
 }
