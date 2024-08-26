@@ -21,6 +21,7 @@ public enum ErrorCode {
     POST_OWNER_MISMATCH(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
     POST_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시물 타입입니다."),
     INVALID_HASHTAG_PATTERN(HttpStatus.BAD_REQUEST, "'#해시태그' 형식만 등록 가능합니다."),
+    INVALID_SEARCH_CONDITION(HttpStatus.BAD_REQUEST, "알맞은 검색조건이 아닙니다."),
 
     // STATISTICS
     STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
