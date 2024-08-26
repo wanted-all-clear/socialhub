@@ -59,4 +59,9 @@ public class Post extends Timestamped {
         this.shareCnt = post.getShareCnt() + 1;
     }
 
+    public void updateViewCnt(Post post) {
+
+        this.viewCnt = post.getViewCnt() + 1;
+    }
+
 }
