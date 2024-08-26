@@ -89,9 +89,11 @@ public class UserControllerTest {
 
 		String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
 		Claims token = jwtTokenProvider.extractAllClaims(jwtToken);
+		String email = jwtTokenProvider.extractEmail(token);
 		String tokenStr = jwtTokenProvider.extractUsername(token);
 
 		assertThat(userLoginRequest.getUsername()).isEqualTo(tokenStr);
+		assertThat(this.email).isEqualTo(email);
 	}
 
 	@Test
