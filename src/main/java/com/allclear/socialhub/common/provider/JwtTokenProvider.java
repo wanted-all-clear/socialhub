@@ -54,7 +54,7 @@ public class JwtTokenProvider {
 		String sub = user.getId() + "," + user.getUsername() + "," + user.getEmail();
 
 		return BEARER + Jwts.builder()
-				.subject(sub)
+				.claim("username", user.getUsername())
 				.issuedAt(new Date())
 				.expiration(expiryDate)
 				.signWith(this.getSigningKey())
@@ -90,6 +90,17 @@ public class JwtTokenProvider {
 		} catch (Exception e) {
 			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
 		}
+	}
+
+	/**
+	 * JWT 토큰에서 비공개 클레임 추출
+	 * 작성자 : 김은정
+	 */
+	public String extractUsername(Claims claims) {
+		if (claims == null) {
+			throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
+		}
+		return String.valueOf(claims.get("username"));
 	}
 
 
