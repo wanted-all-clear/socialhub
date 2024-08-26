@@ -31,8 +31,8 @@ public class HashtagServiceImpl implements HashtagService {
      * 해시태그 등록
      * 작성자 : 오예령
      *
-     * @param hashtagList
-     * @return
+     * @param hashtagList 등록 요청하는 hashtagList
+     * @return Hashtag 엔티티 List 반환
      */
     @Override
     @Transactional
@@ -60,9 +60,9 @@ public class HashtagServiceImpl implements HashtagService {
      * 해시태그 수정
      * 작성자 : 오예령
      *
-     * @param postId
-     * @param hashtagList
-     * @return
+     * @param postId      게시물Id
+     * @param hashtagList 수정 요청하는 hashtagList
+     * @return createHashtag()를 호출
      */
     @Override
     @Transactional
@@ -99,7 +99,32 @@ public class HashtagServiceImpl implements HashtagService {
 
         // 새로 추가해야 하는 해시태그 반환
         return createHashtag(compareHashtagList);
+
     }
+
+    /**
+     * 해당 게시물이 가진 해시태그 연관관계 삭제
+     * 작성자 : 오예령
+     *
+     * @param postId 게시물
+     */
+    @Transactional
+    public void deleteByPostId(Long postId) {
+
+        JPADeleteClause deleteClause = new JPADeleteClause(entityManager, postHashtag);
+
+        deleteClause.where(
+                postHashtag.post.id.eq(postId)).execute();
+
+    }
+
+    /**
+     * 해당 게시물과 hashtagId 값들의 연관관계 삭제
+     * 작성자 : 오예령
+     *
+     * @param postId     게시물Id
+     * @param hashtagIds 삭제가 필요한 hashtagId List
+     */
 
     @Transactional
     public void deleteByPostIdAndHashtagIds(Long postId, List<Long> hashtagIds) {
@@ -110,13 +135,14 @@ public class HashtagServiceImpl implements HashtagService {
                 postHashtag.post.id.eq(postId)
                         .and(postHashtag.hashtag.id.in(hashtagIds))
         ).execute();
+
     }
 
     /**
      * 해시태그 검증 및 '#' 삭제
      * 작성자 : 오예령
      *
-     * @param hashtagList
+     * @param hashtagList '#'가 포함된 hashtagList
      * @return '#'가 삭제된 hashtagList 반환
      */
     public List<String> removeHashSymbol(List<String> hashtagList) {
