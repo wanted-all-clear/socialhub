@@ -5,6 +5,7 @@ import com.allclear.socialhub.post.common.hashtag.domain.QPostHashtag;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.domain.QPost;
+import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.domain.SearchByType;
 import com.allclear.socialhub.post.dto.PostListResponse;
 import com.querydsl.core.types.OrderSpecifier;
@@ -35,6 +36,7 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
+    // 게시물 목록 조회
     public Page<PostListResponse> getPosts(Pageable pageable) {
 
         QPost post = QPost.post;
@@ -83,6 +85,48 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
                 .fetchCount();
 
         return new PageImpl<>(postList, pageable, total);
+    }
+
+    // 게시물 상세 조회
+    public PostDetailResponse getPostDetail(Long postId, Long userId) {
+
+        QPost post = QPost.post;
+        QHashtag hashtag = QHashtag.hashtag;
+        QPostHashtag postHashtag = QPostHashtag.postHashtag;
+
+        // 1. PostDetailResponse 쿼리 실행
+        PostDetailResponse postDetailResponse = queryFactory
+                .select(
+                        Projections.constructor(
+                                PostDetailResponse.class,
+                                post.id.as("postId"),
+                                post.user.id,
+                                post.type,
+                                post.title,
+                                post.content,
+                                post.viewCnt,
+                                post.likeCnt,
+                                post.shareCnt,
+                                post.createdAt,
+                                post.updatedAt
+                        )
+                )
+                .from(post)
+                .where(post.id.eq(postId))
+                .fetchOne();
+
+        // 2. 해시태그 리스트 쿼리 실행
+        List<String> hashtagList = queryFactory
+                .select(hashtag.content)
+                .from(postHashtag)
+                .join(hashtag).on(hashtag.id.eq(postHashtag.hashtag.id))
+                .where(postHashtag.post.id.eq(postId))
+                .fetch();
+
+        // 3. PostDetailResponse 에 해시태그 리스트 저장
+        postDetailResponse.setHashtagList(hashtagList);
+
+        return postDetailResponse;
     }
 
     public Page<PostListResponse> searchPosts(Pageable pageable, String username, String hashtagQuery, PostType type, String query, String orderBy, String sort, String searchBy) {
@@ -202,6 +246,5 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
                 .hashtagList(hashtags)
                 .build();
     }
-
 
 }

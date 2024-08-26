@@ -2,11 +2,7 @@ package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
-import com.allclear.socialhub.post.domain.PostType;
-import com.allclear.socialhub.post.dto.PostCreateRequest;
-import com.allclear.socialhub.post.dto.PostPaging;
-import com.allclear.socialhub.post.dto.PostResponse;
-import com.allclear.socialhub.post.dto.PostUpdateRequest;
+import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -72,7 +68,13 @@ public class PostController {
 
         // TODO : 추후 유저 검증 필요
         return ResponseEntity.status(200).body(postService.getPosts(pageable));
+    }
 
+    @GetMapping("/{postId}")
+    @Operation(summary = "게시물 상세 조회", description = "게시물 상세를 조회합니다.")
+    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId, Long userId) {
+
+        return ResponseEntity.status(200).body(postService.getPostDetail(postId, userId));
     }
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")

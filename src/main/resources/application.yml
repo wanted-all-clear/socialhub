@@ -74,6 +74,12 @@ spring:
     activate:
       on-profile: test # 프로파일명 (@ActiveProfiles("test") 어노테이션을 부착한 테스트 클래스만 테스트 환경으로 실행)
 
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}_test
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: create # 테스트 실행 시 DB의 모든 테이블 삭제 후 재생성
