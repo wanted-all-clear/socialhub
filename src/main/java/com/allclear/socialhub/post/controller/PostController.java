@@ -52,7 +52,7 @@ public class PostController {
 
     @Operation(summary = "게시글 삭제", description = "게시물을 삭제합니다.")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Long postId) {
+    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) {
 
         // TODO : 추후 유저 토큰 검증 로직으로 수정
         postService.deletePost(1L, postId);
@@ -61,7 +61,7 @@ public class PostController {
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")
     @PostMapping("/like/{postId}")
-    public ResponseEntity<PostLikeResponse> likePost(@PathVariable Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostLikeResponse> likePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
 
         return ResponseEntity.status(201).body(postService.likePost(postId, userId));
     }
