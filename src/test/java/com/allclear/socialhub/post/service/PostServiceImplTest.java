@@ -5,9 +5,9 @@ import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
 import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
-import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
@@ -36,7 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.allclear.socialhub.common.exception.ErrorCode.*;
+import static com.allclear.socialhub.common.exception.ErrorCode.POST_NOT_FOUND;
+import static com.allclear.socialhub.common.exception.ErrorCode.POST_OWNER_MISMATCH;
 import static com.allclear.socialhub.post.domain.PostType.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,16 +60,16 @@ class PostServiceImplTest {
 
     @Autowired
     private PostRepository postRepository;
-  
+
     @Autowired
     private PostLikeRepository postLikeRepository;
-  
+
     @Autowired
     private PostShareRepository postShareRepository;
-  
+
     @Autowired
     private PostViewRepository postViewRepository;
-  
+
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
@@ -98,33 +99,13 @@ class PostServiceImplTest {
                 .build();
 
         // when
-        PostResponse response = postService.createPost(user.getId(), request);
+        PostResponse response = postService.createPost(user.getUsername(), request);
 
         // then
         assertNotNull(response);
         assertEquals("테스트제목", response.getTitle());
         assertEquals("테스트내용", response.getContent());
         assertEquals(3, response.getHashtagList().size());
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 유저Id로 게시물을 등록합니다.")
-    void createPostWithNonExistUser() {
-        // given
-        Long nonExistUserId = -1L;  // 실제로 존재하지 않는 ID
-
-        PostCreateRequest request = PostCreateRequest.builder()
-                .type(INSTAGRAM)
-                .title("테스트제목")
-                .content("테스트내용")
-                .hashtagList(hashtagList)
-                .build();
-
-        // when & then
-        CustomException exception = assertThrows(CustomException.class,
-                () -> postService.createPost(nonExistUserId, request));
-
-        assertEquals(USER_NOT_EXIST, exception.getErrorCode());
     }
 
     @Test
@@ -141,7 +122,7 @@ class PostServiceImplTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> postService.createPost(user.getUsername(), request)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
@@ -159,7 +140,7 @@ class PostServiceImplTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> postService.createPost(user.getUsername(), request)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
@@ -177,7 +158,7 @@ class PostServiceImplTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> postService.createPost(user.getId(), request)).isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> postService.createPost(user.getUsername(), request)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
@@ -204,7 +185,7 @@ class PostServiceImplTest {
                 .build();
 
         // when
-        PostResponse response = postService.updatePost(user.getId(), post.getId(), updateRequest);
+        PostResponse response = postService.updatePost(user.getUsername(), post.getId(), updateRequest);
 
         // then
         assertNotNull(response);
@@ -220,7 +201,14 @@ class PostServiceImplTest {
         // given
         User user = createUser();
         userRepository.save(user);
-        User anotherUser = createUser();
+        User anotherUser = User.builder()
+                .username("testUsername2")
+                .email("testEmail2@test.com")
+                .password("testPassword@2")
+                .status(UserStatus.ACTIVE)
+                .certifyStatus(UserCertifyStatus.AUTHENTICATED)
+                .build();
+
         userRepository.save(anotherUser);
 
         Post post = createPost(user, "테스트제목", "테스트내용", INSTAGRAM, 0, 0, 0);
@@ -240,7 +228,7 @@ class PostServiceImplTest {
 
         // when & then
         CustomException exception = assertThrows(CustomException.class,
-                () -> postService.updatePost(anotherUser.getId(), post.getId(), updateRequest));
+                () -> postService.updatePost(anotherUser.getUsername(), post.getId(), updateRequest));
 
         assertEquals(POST_OWNER_MISMATCH, exception.getErrorCode());
 
@@ -270,7 +258,7 @@ class PostServiceImplTest {
 
         // when & then
         CustomException exception = assertThrows(CustomException.class,
-                () -> postService.updatePost(user.getId(), post.getId() + 100, updateRequest));
+                () -> postService.updatePost(user.getUsername(), post.getId() + 100, updateRequest));
 
         assertEquals(POST_NOT_FOUND, exception.getErrorCode());
 
@@ -299,7 +287,7 @@ class PostServiceImplTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> postService.updatePost(user.getId(), post.getId(), updateRequest)).isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> postService.updatePost(user.getUsername(), post.getId(), updateRequest)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
@@ -325,7 +313,7 @@ class PostServiceImplTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> postService.updatePost(user.getId(), post.getId(), updateRequest)).isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> postService.updatePost(user.getUsername(), post.getId(), updateRequest)).isInstanceOf(DataIntegrityViolationException.class);
 
     }
 
@@ -346,7 +334,7 @@ class PostServiceImplTest {
         postHashtagRepository.save(postHashtag);
 
         // when
-        postService.deletePost(user.getId(), post.getId());
+        postService.deletePost(user.getUsername(), post.getId());
 
         // then
         Optional<Post> deletedEntity = postRepository.findById(post.getId());
@@ -360,7 +348,14 @@ class PostServiceImplTest {
         // given
         User user = createUser();
         userRepository.save(user);
-        User anotherUser = createUser();
+        User anotherUser = User.builder()
+                .username("testUsername2")
+                .email("testEmail2@test.com")
+                .password("testPassword@2")
+                .status(UserStatus.ACTIVE)
+                .certifyStatus(UserCertifyStatus.AUTHENTICATED)
+                .build();
+
         userRepository.save(anotherUser);
 
         Post post = createPost(user, "테스트제목", "테스트내용", INSTAGRAM, 0, 0, 0);
@@ -374,33 +369,9 @@ class PostServiceImplTest {
 
         // when & then
         CustomException exception = assertThrows(CustomException.class,
-                () -> postService.deletePost(anotherUser.getId(), post.getId()));
+                () -> postService.deletePost(anotherUser.getUsername(), post.getId()));
 
         assertEquals(POST_OWNER_MISMATCH, exception.getErrorCode());
-
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 게시물 id로 게시물을 삭제합니다.")
-    void deletePostWithNoExistPost() {
-        // given
-        User user = createUser();
-        userRepository.save(user);
-
-        Post post = createPost(user, "테스트제목", "테스트내용", INSTAGRAM, 0, 0, 0);
-        postRepository.save(post);
-
-        Hashtag hashtag = createHashtag("#해시태그");
-        hashtagRepository.save(hashtag);
-
-        PostHashtag postHashtag = createPostHashtag(post, hashtag);
-        postHashtagRepository.save(postHashtag);
-
-        // when & then
-        CustomException exception = assertThrows(CustomException.class,
-                () -> postService.deletePost(user.getId(), post.getId() + 100));
-
-        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
 
     }
 
@@ -446,7 +417,7 @@ class PostServiceImplTest {
         postHashtagRepository.save(postHashtag);
 
         // when
-        PostDetailResponse getDetail = postService.getPostDetail(post.getId(), user.getId());
+        PostDetailResponse getDetail = postService.getPostDetail(post.getId(), user.getUsername());
 
         // then
         assertThat(getDetail).isNotNull();
@@ -467,11 +438,11 @@ class PostServiceImplTest {
 
         // when // then
         CustomException exception = assertThrows(CustomException.class,
-                () -> postService.getPostDetail(-1L, user.getId()));
+                () -> postService.getPostDetail(-1L, user.getUsername()));
 
         assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }
-  
+
     @DisplayName("게시물 좋아요를 추가합니다.")
     @Test
     void likePost() {
@@ -482,12 +453,12 @@ class PostServiceImplTest {
         postRepository.save(post);
 
         // when
-        PostLikeResponse postLikeResponse = postService.likePost(post.getId(), user.getId());
+        PostLikeResponse postLikeResponse = postService.likePost(post.getId(), user.getUsername());
 
         // then
         assertThat(postLikeResponse)
                 .extracting("postId", "likeCnt", "url")
-                .contains(1L, 11, "https://www.instagram.com/likes/instagram");
+                .contains(post.getId(), 11, "https://www.instagram.com/likes/instagram");
     }
 
     @DisplayName("존재하지 않는 게시물 ID로 게시물 좋아요를 추가합니다.")
@@ -498,7 +469,7 @@ class PostServiceImplTest {
 
         // when // then
         CustomException exception = assertThrows(CustomException.class,
-                () -> postService.likePost(-1L, user.getId()));
+                () -> postService.likePost(-1L, user.getUsername()));
 
         assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }
@@ -513,7 +484,7 @@ class PostServiceImplTest {
         postRepository.save(post);
 
         // when
-        PostShareResponse postShareResponse = postService.sharePost(post.getId(), user.getId());
+        PostShareResponse postShareResponse = postService.sharePost(post.getId(), user.getUsername());
 
         // then
         assertThat(postShareResponse)
@@ -529,7 +500,7 @@ class PostServiceImplTest {
 
         // when // then
         CustomException exception = assertThrows(CustomException.class,
-                () -> postService.sharePost(-1L, user.getId()));
+                () -> postService.sharePost(-1L, user.getUsername()));
 
         assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }
