@@ -8,6 +8,9 @@ import com.allclear.socialhub.post.dto.StatisticRequestParam;
 import com.allclear.socialhub.post.dto.StatisticResponse;
 import com.allclear.socialhub.post.service.StatisticService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,18 @@ public class StatisticController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "통계 조회", description = "일자별, 시간별 통계를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "통계 일자별, 시간별 데이터 조회됨",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "type 이 date, hour 가 아닐 경우\n\n" +
+                    "value 가 count, view_count, like_count, share_count 가 아닐 경우\n\n" +
+                    "날짜 형식이 yyyy-MM-DD로 파싱 불가능한 경우\n\n" +
+                    "end 가 오늘보다 미래일 경우\n\n" +
+                    "start, end 가 올바른 날짜가 아닐 경우  ex. 23-02-31\n\n" +
+                    "start ~ end 최대 기간 넘을 경우\n\n" +
+                    "start가 end 보다 미래일경우\n\n",
+                    content = @Content)
+    })
     @GetMapping
     public ResponseEntity<List<StatisticResponse>> getStatistics(
             @RequestHeader("Authorization") String authorizationHeader,
