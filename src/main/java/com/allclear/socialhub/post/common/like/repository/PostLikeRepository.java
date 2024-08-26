@@ -23,4 +23,6 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
             @Param("end") LocalDate end,
             @Param("dateFormatPattern") String dateFormatPattern);
 
+    void deleteAllByPostId(Long postId);
+
 }

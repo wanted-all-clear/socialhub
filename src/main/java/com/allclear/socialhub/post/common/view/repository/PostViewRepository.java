@@ -23,4 +23,6 @@ public interface PostViewRepository extends JpaRepository<PostView, Long> {
             @Param("end") LocalDate end,
             @Param("dateFormatPattern") String dateFormatPattern);
 
+    void deleteAllByPostId(Long postId);
+
 }
