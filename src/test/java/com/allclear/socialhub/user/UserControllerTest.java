@@ -87,11 +87,6 @@ public class UserControllerTest {
 
         // jwtTokenProvider를 사용해 JWT 토큰 생성
         jwt = jwtTokenProvider.createToken(user);
-
-        // JWT 토큰에서 클레임 추출 모킹
-//        when(jwtTokenProvider.extractAllClaims(anyString())).thenReturn(mockClaims);
-//        when(jwtTokenProvider.extractUsername(any(Claims.class))).thenReturn(username);
-//        when(jwtTokenProvider.extractEmail(any(Claims.class))).thenReturn(email);
     }
 
     /**
@@ -150,8 +145,6 @@ public class UserControllerTest {
 
         when(mockJwtTokenProvider.extractAllClaims(validJwt)).thenReturn(mockClaims);
         when(mockJwtTokenProvider.extractEmail(mockClaims)).thenReturn(user.getEmail());
-
-        System.out.println("Using Email: " + user.getEmail());
 
         doNothing().when(emailService).sendEmail(user.getEmail(), EmailType.VERIFICATION);
 
