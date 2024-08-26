@@ -11,6 +11,7 @@ import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.share.domain.PostShare;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
+import com.allclear.socialhub.post.common.view.domain.PostView;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
@@ -142,6 +143,7 @@ public class PostServiceImpl implements PostService {
 
     }
 
+    /**
      * 4. 게시물 검색 목록 조회
      * 작성자 : 오예령
      *
@@ -183,7 +185,21 @@ public class PostServiceImpl implements PostService {
      */
     public PostDetailResponse getPostDetail(Long postId, String username) {
 
-        postRepository.findById(postId).orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+
+        // 상세조회 시 조회수 1 증가
+        PostView postView = PostView.builder()
+                .user(userRepository.getReferenceById(userCheck(username).getId()))
+                .post(post)
+                .build();
+
+        // 게시물 조회수 데이터 생성
+        postViewRepository.save(postView);
+
+        // 게시물의 조회수 증가
+        post.updateViewCnt(post);
+        postRepository.save(post);
 
         return postRepository.getPostDetail(postId, username);
     }
