@@ -1,5 +1,24 @@
 # Socialhub
 
+> ## 목차
+> 1. [서비스 소개](#서비스-소개)
+> 2. [R&R](#rr)
+> 3. [Issue & Jira 를 통한 트래킹 일정 관리](#issue--jira-를-통한-트래킹-일정-관리)
+> 4. [Discord 이용한 소통 및 PR 알림 봇](#discord-이용한-소통-및-pr-알림-봇)
+> 5. [협업 및 커뮤니케이션](#협업-및-커뮤니케이션)
+>   - [Notion](#notion)
+> 6. [주요 기능](#주요-기능)
+> 7. [프로젝트 환경](#프로젝트-환경)
+> 8. [요구사항 정의서 정리](#요구사항-정의서-정리)
+> 9. [API 명세서](#api-명세서)
+> 10. [ERD](#erd)
+> 11. [트러블 슈팅](#트러블-슈팅)
+>    - [JWT 토큰 시크릿 키 보안 오류](#jwt-토큰-시크릿-키-보안-오류)
+>    - [Enum의 유효성 검사 및 예외처리](#enum의-유효성-검사-및-예외처리)
+>    - [목(Mock) 객체 사용 및 테스트 코드 이해 부족](#목mock-객체-사용-및-테스트-코드-이해-부족)
+
+<br/>
+
 ## 서비스 소개
 
 해시태그를 기반으로 `인스타그램`, `스레드`, `페이스북`, `트위터(X)` 등
@@ -10,19 +29,80 @@
 
 - 유저는 계정(추후 해시태그로 관리), 비밀번호, 이메일로 **가입요청**을 진행합니다.
 - 가입 요청 시, 이메일로 발송된 코드를 입력하여 **가입승인**을 받고 서비스 이용이 가능합니다.
-- 서비스 로그인 시, 메뉴는 **통합 Feed** 단일 입니다. ****
+- 서비스 로그인 시, 메뉴는 **통합 Feed** 단일 입니다. 
 - 통합 Feed 에선  `인스타그램`, `스레드`, `페이스북`, `트위터` 에서 유저의 계정이 태그된 글들을 확인합니다.
 - 또는, 특정 해시태그(1건)를 입력하여, 해당 해시태그가 포함된 게시물들을 확인합니다.
 - 유저는 본인 계정명 또는 특정 해시태그 일자별, 시간별 게시물 갯수 통계를 확인할 수 있습니다.
 - 유저는 하나의 채널로 유저(ex. `#dani`), 또는 브랜드(ex. `#danishop`) 의 SNS 노출 게시물 및 통계를 확인할 수 있습니다.
 
-### 프로젝트 환경
+<br/>
+
+### 👩🏻‍💻 R&R
+    - 오예령(팀장) : 게시물 기능 구현(등록, 수정, 삭제, 검색)
+    - 유리빛나 : 게시물 기능 구현 (목록 조회, 상세 조회, 좋아요, 공유)
+    - 김유현 : 통계 기능 구현 (서비스 및 컨트롤러, 단위 테스트)
+    - 김은정 : 사용자 기능 구현 (로그인, 계정 중복 확인)   
+    - 김효진 : 통계 기능 구현 (서비스 및 레포지토리, 스웨거)
+    - 배서진 : 사용자 기능 구현 (회원가입, 이메일 인증 요청&검증)
+
+### 🗣️ 협업 및 커뮤니케이션
+
+<details>
+<summary>문서화 작업</summary>
+<div markdown="1">
+<figure class="half">  
+    <a href="link"><img src="docs/Notion.png" width="32%"></a>  
+    <a href="link"><img src="https://github.com/user-attachments/assets/4a0b74f4-bf4d-4dc1-93e3-1419d25e7047" width="32%"></a>  
+</figure>
+
+</div>
+</details>
+
+<br/>
+
+### 🏃‍♀️‍➡️ Issue & Jira 를 통한 트래킹 일정 관리
+
+<details>
+<summary>개발일정 관리</summary>
+<div markdown="1">
+
+<img src="docs/Issue.png" alt="Alt text" width="980" height="610"/>
+
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/589e3eee-997d-48a8-adb9-18fb3dd9045a" align="center" width="32%">  
+    <img src="https://github.com/user-attachments/assets/11a9b040-a855-4533-bbe8-d3cc63240b01" align="center" width="32%">  
+</p>
+
+</div>
+</details>
+
+<br/>
+
+### 🤖 Discord을 활용한 소통 및 PR 알림 봇
+
+<details>
+<summary>소통 및 PR 알림 확인</summary>
+<div markdown="1">
+
+![img_1.png](docs/img_1.png)
+<img src="docs/img_2.png" alt="Alt text" width="430" height="600"/>
+
+</div>
+</details>
+
+<br/>
+
+## 프로젝트 환경
 
 - Spring boot 3.3.x
 - Gradle 8.8
 - JDK 17
 - MySQL 8.0
 - Redis 6.0
+
+### 요구사항 정의서 정리
+
+![img.png](docs/요구사항.png)
 
 ### API 명세서
 
@@ -174,32 +254,4 @@ createToken();
 
 - 실제의 JWT 토큰 생성이 테스트에서 중요한 부분이라면, jwtTokenProvider
 
-## 협업 및 커뮤니케이션
 
-### Notion
-
-![img.png](docs/Notion.png)
-
-- 요구사항 정의서 정리
-
-![img.png](docs/요구사항.png)
-
-- R&R
-    - 오예령(팀장) : 게시물 기능 구현(등록, 수정, 삭제, 검색)
-    - 김유현 : 통계 기능 구현 (서비스 및 컨트롤러, 단위 테스트)
-    - 김은정 : 사용자 기능 구현 (로그인, 계정 중복 확인)
-    - 김효진 :  통계 기능 구현 (서비스 및 레포지토리, 스웨거)
-    - 배서진 : 사용자 기능 구현 (회원가입, 이메일 인증 요청&검증)
-    - 유리빛나 : 게시물 기능 구현 (목록 조회, 상세 조회, 좋아요, 공유)
-
-
-- Issue & Jira 를 통한 트래킹 일정 관리
-
-![img.png](docs/Issue.png)
-
-![img_1.png](docs/Jira.png)
-
-### Discord 이용한한 소통 및 PR 알림 봇
-
-![img_1.png](docs/img_1.png)
-![img_2.png](docs/img_2.png)
