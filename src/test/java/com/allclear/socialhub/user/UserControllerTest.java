@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
-import com.allclear.socialhub.common.jwt.JwtTokenProvider;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.controller.UserController;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
