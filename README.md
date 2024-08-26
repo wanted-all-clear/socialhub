@@ -36,12 +36,15 @@
 <br/>
 
 ### 👩🏻‍💻 R&R
-    - 오예령(팀장) : 게시물 기능 구현(등록, 수정, 삭제, 검색)
-    - 유리빛나 : 게시물 기능 구현 (목록 조회, 상세 조회, 좋아요, 공유)
-    - 김유현 : 통계 기능 구현 (서비스 및 컨트롤러, 단위 테스트)
-    - 김은정 : 사용자 기능 구현 (로그인, 계정 중복 확인)   
-    - 김효진 : 통계 기능 구현 (서비스 및 레포지토리, 스웨거)
-    - 배서진 : 사용자 기능 구현 (회원가입, 이메일 인증 요청&검증)
+| 담당자       | 담당 업무                                                 |
+|--------------|----------------------------------------------------------|
+| [오예령(팀장)](https://github.com/ohyeryung) | 게시물 기능 구현 (등록, 수정, 삭제, 검색)                  |
+| [유리빛나](https://github.com/ryuneng)     | 게시물 기능 구현 (목록 조회, 상세 조회, 좋아요, 공유)       |
+| [김유현](https://github.com/youhyeoneee)       | 통계 기능 구현 (서비스 및 컨트롤러, 단위 테스트)           |
+| [김은정](https://github.com/fkznsha23)| 사용자 기능 구현 (로그인, 계정 중복 확인)                  |
+| [김효진](https://github.com/hyojin52)       | 통계 기능 구현 (서비스 및 레포지토리, 스웨거)              |
+| [배서진](https://github.com/bsjin1122)       | 사용자 기능 구현 (회원가입, 이메일 인증 요청&검증)         |
+
 
 ### 🗣️ 협업 및 커뮤니케이션
 
@@ -92,234 +95,77 @@
 
 ## 프로젝트 환경
 
-- Spring boot 3.3.x
-- Gradle 8.8
-- JDK 17
-- MySQL 8.0
-- Redis 6.0
+| Stack                                                                | Version            |
+|:----------------------------------------------------------------------:|:-----------------:|
+| ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)  | Spring Boot 3.3.x |
+| ![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)    | Gradle 8.8       |
+| ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)    | JDK 17           |
+| ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)       | MySQL 8.0        |
+| ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)    | Redis 6.0        |
 
 ### 요구사항 정의서 정리
 
-![img.png](docs/요구사항.png)
+| 도메인 | 기능명               | Controller & Service method   | 담당자        |
+|--------|----------------------|-------------------------|---------------|
+| 사용자 | 사용자 회원가입        | joinUser                | 배서진        |
+| 사용자 | 사용자 로그인         | loginUser               | 김은정        |
+| 사용자 | 사용자 이메일 인증 요청 | sendEmailVerification    | 배서진        |
+| 사용자 | 사용자 이메일 인증 검증 | verifyEmailCode         | 배서진        |
+| 사용자 | 사용자 계정 중복 확인  | userDuplicateCheck      | 김은정        |
+| 사용자 | 사용자 회원정보 수정   | updateUserInfo          | 배서진        |
+| 게시물 | 게시물 검색 필터링     | searchPosts             | 오예령        |
+| 게시물 | 게시물 목록 조회      | getPosts                | 유리빛나       |
+| 게시물 | 게시물 상세 조회      | getPostDetail           | 유리빛나       |
+| 게시물 | 게시물 등록           | createPost              | 오예령        |
+| 게시물 | 게시물 삭제           | deletePost              | 오예령        |
+| 게시물 | 게시물 수정           | updatePost              | 오예령        |
+| 게시물 | 게시물 좋아요         | likePost                | 유리빛나       |
+| 게시물 | 게시물 공유           | sharePost               | 유리빛나       |
+| 통계   | 통계                  | getStatistics           | 김유현, 김효진 |
 
 ### API 명세서
 
-![img.png](docs/img.png)
+| 도메인 | 기능명               | Http Method | API Path                       | 인증 | 담당자        |
+|--------|----------------------|-------------|--------------------------------|------|---------------|
+| 사용자 | 사용자 회원가입        | POST        | /api/users                     | X    | 배서진        |
+| 사용자 | 사용자 가입 승인       | POST        | /api/users/allow               | O    | 배서진        |
+| 사용자 | 사용자 로그인         | POST        | /api/users/login               | X    | 김은정        |
+| 사용자 | 사용자 이메일 인증 요청 | POST        | /api/users/email-verification  | O    | 배서진        |
+| 사용자 | 사용자 이메일 인증 검증 | POST        | /api/users/email-verification  | O    | 배서진        |
+| 사용자 | 사용자 계정 중복 확인  | POST        | /api/users/duplicate-check     | X    | 김은정        |
+| 사용자 | 사용자 회원정보 수정   | PATCH       | /api/users            | O    | 배서진        |
+| 게시물 | 게시물 검색 필터링     | GET         | /api/posts/search              | O    | 오예령        |
+| 게시물 | 게시물 목록 조회      | GET         | /api/posts                     | O    | 유리빛나       |
+| 게시물 | 게시물 상세 조회      | GET         | /api/posts/{postId}            | O    | 유리빛나       |
+| 게시물 | 게시물 등록           | POST        | /api/posts                     | O    | 오예령        |
+| 게시물 | 게시물 삭제           | DELETE      | /api/posts/{postId}            | O    | 오예령        |
+| 게시물 | 게시물 수정           | PUT         | /api/posts/{postId}            | O    | 오예령        |
+| 게시물 | 게시물 좋아요         | POST        | /api/posts/{postId}/like       | O    | 유리빛나       |
+| 게시물 | 게시물 공유           | POST        | /api/posts/{postId}/share      | O    | 유리빛나       |
+| 통계   | 통계                  | GET         | /api/statistics                | O    | 김유현, 김효진 |
+
+
 
 ### ERD
 
 ![img.png](docs/ERD.png)
 
 ## 트러블 슈팅
-<details>
-  <summary> <strong> 💥 1. JWT 토큰 시크릿 키 보안 오류 </strong> </summary>
-  
-- 작성자: 김은정
-### (1) 문제 상황
-- JWT 토큰 발행을 위한 Secret Key 설정 중 발생
+- [💥 **1. JWT 토큰 시크릿 키 보안 오류**](https://github.com/wanted-all-clear/socialhub/blob/docs/%23ALL-94-docs-trouble-shooting-1/readme/trouble/JWT_%ED%86%A0%ED%81%B0_%EC%8B%9C%ED%81%AC%EB%A6%BF_%ED%82%A4_%EB%B3%B4%EC%95%88_%EC%98%A4%EB%A5%98.md)  
 
-### (2) 발생한 문제(에러)
->해당 에러 발생 : `io.jsonwebtoken.security.WeakKeyException`
+<p></p>
 
-### (3) 원인
-- 추정되는 원인
-  - 오류 제목을 보고 보안이 약한 Secret Key를 설정했기 때문이라고 생각
-- 실제 원인
-  - Secret Key를 256bit 미만으로 설정했기 때문에 발생
+- [🤔 **2. MultiValueMap으로 인한 415 UNSUPPORTED_MEDIA_TYPE 오류**](https://github.com/wanted-all-clear/socialhub/blob/docs/%23ALL-94-docs-trouble-shooting-1/readme/trouble/MultiValueMap_415_ERROR.md)
 
-### (4) 해결방법
-- Secret Key를 좀 더 길게 설정
+<p></p>
 
-### (5) 참고자료
-- [Spring Security - io.jsonwebtoken.security.WeakKeyException 원인과 해결 방법](https://green-bin.tistory.com/49)
+- [💦 **3. Querydsl 설정 관련 이슈**](https://github.com/wanted-all-clear/socialhub/blob/docs/%23ALL-94-docs-trouble-shooting-1/readme/trouble/Querydsl_%EC%84%A4%EC%A0%95_%EA%B4%80%EB%A0%A8_%EC%9D%B4%EC%8A%88.md)
 
-</details>
+<p></p>
 
-<br>
+- [🔥 **4. Enum의 유효성 검사 및 예외처리**](https://github.com/wanted-all-clear/socialhub/blob/docs/%23ALL-94-docs-trouble-shooting-1/readme/trouble/Enum%EC%9D%98_%EC%9C%A0%ED%9A%A8%EC%84%B1_%EA%B2%80%EC%82%AC_%EB%B0%8F_%EC%98%88%EC%99%B8%EC%B2%98%EB%A6%AC.md)
 
-<details>
-<summary> <strong> 🤔 2. MultiValueMap으로 인한 415 UNSUPPORTED_MEDIA_TYPE 오류 </strong></summary>
+<p></p>
 
-- 작성자: 김은정
- ### (1) 문제 상황
-> 로그인 통합 테스트 실행 중 `username`과 `password`를 `MultiValueMap`에 저장해 컨트롤러로 로그인을 요청하던 중 발생
-
-### (2) 발생한 문제(에러)
-  - ⓐ 최초 `💥NullPointerException`이 발생하면서 <u>"가입되지 않은 아이디"</u>라는 사용자 정의 에러 메시지가 전달됨 <p></p>
-- ⓑ `@BeforeEach` 애노테이션을 이용해 로그인 테스트 직전에 회원가입을 실행했기 때문에 전달된
-  
-  ResponseEntity의 HttpStatus를 확인해봤는데, `💥415 UNSUPPORTED_MEDIA_TYPE` 오류가 발생
-
-### (3) 원인
-- 추정되는 원인
-  - `MultiValueMap`에 담긴 데이터가 파라미터와 바인딩되지 않아서 발생하는 오류라고 생각
-
-- 실제 원인 
-  - `MultiValueMap`은 기본적으로 데이터를 `application/x-www-form-urlencoded` 타입으로 받아서 인코딩 후 JSON으로 변환한다. 
-  - 그런데, JSON 형식의 데이터를 보내서 415 UNSUPPORTED_MEDIA_TYPE 에러가 발생한 것 같다.
-
-### (4) 해결방법
-> `MultiValueMap` 대신 파라미터와 같은 객체를 사용
-
-### (5) 참고자료
-
-- [x-www-form-urlencoded 타입이란: multipart/form-data와의 차이점](https://wildeveloperetrain.tistory.com/304)
-- [[Spring boot] Post 요청, Content-Type](https://velog.io/@hyerin_story/Spring-boot-Post-요청-Content-Type)
-
-</details>
-
-<br>
-
-<details>
-  <summary> <strong> 💦 3. Querydsl 설정 관련 이슈 </strong> </summary>
-
-  - 작성자: 유리빛나, 오예령
-### (1) 문제 상황
-> 게시물 검색, 목록 조회, 통계 API에 활용하기 위해 Querydsl 설정 중 버전 관련하여 문제 발생
-
-### (2) 발생한 환경, 프로그램
->- Spring Boot 3.3.x
-- Gradle 8.8
-- JDK 17
-- IntelliJ
-
-### (3) 발생한 문제(에러)
-- 이전에 사용해본 Querydsl 설정 방법으로 build.gradle에 추가하였으나,
-  Qclass를 생성하는 과정에서 의존성에서 `compileQuerydsl`을 실행하지 못하면서 빌드가 안되는 현상❌ 발생 <p></p>
-- 발생한 오류를 검색해보니 `Spring Boot 2.xx 버전과 3.xx 버전 차이`로 설정하는 방식이 변경되었다는 것을 알게 되었습니다.
-  
-  - 저희 프로젝트의 환경에 맞는 환경설정을 검색해 <u>의존성 주입 및 저장 경로를 추가해보았지만</u> 오류가 바뀌지 않았음
-
-### (4) 원인
-- 1차 원인버전에 따른 dependency 변경  
-2차 원인: IntelliJ의 `Setting > Build, Execution, Deployment > Gradle` 설정  
-경로 설정에 따라 Qclass들이 생성되는 위치가 달라지며, 이는 Gradle 설정의 영향을 받습니다.
-
-- a. `$buildDir/generated/querydsl`
-  - 프로젝트 최상단의 build 폴더 > generated 폴더 > querydsl
-- b. `src/main/generated`
-  - 프로젝트 src 폴더 > main 폴더 > generated
-
-### (5) 해결 방법
-- 저희 프로젝트의 버전에 맞는 설정을 찾기 위해 다양한 시도를 해보았습니다.
-
->1. Commit > Unversioned Files에 있는 Q클래스 파일 삭제
-2. `gradle > build > clean`
-3. `gradle > build > build`
-4. 재부팅 시도
-
-> **다른 방법**
-1. `gradle > build > clean` 실행 후 `build` 실행해보기
-2. `Settings > Build > Build Tools > Gradle > IntelliJ`로 변경해보기
-3. `Settings > Build > Compiler > Annotation Processors` 활성화해보기
-
-</details>
-
-<br>
-
-<details>
-  <summary> <strong> 🔥 4. Enum의 유효성 검사 및 예외처리 </strong></summary>
-
-- 작성자: 김유현
-### (1) 문제 상황
-> 쿼리 파라미터가 길고 복잡하여 DTO로 생성하였습니다.  
-추가로 잘못된 Enum 값이 들어올 경우, 해당 타입에 따라서 원하는 에러 코드를 던지고 싶었습니다.
-
-### (2) 발생한 문제(에러)
-> 어떤 Enum값이든 상관없이 유효하지 않은 타입이 왔을 때 `BindException`을 던져서 언제 어느 타입이 유효하지 않은지 메시지를 정확히 주기 어려웠습니다.
-
-### (3) 원인
-> DTO에서 들어올 때, `@ModelAttribute`에서 타입이 맞지 않으면 `BindException`을 내기 때문이었습니다.
-
-### (4) 최종 해결
-> Global Exception Handler에서 파라미터명에 따라서 에러 코드를 매핑해주었습니다.  
-
-### (5) 해결 방법
-
-```java
-// 우선 Global Exception Handler에서 파라미터명에 따라서 에러 코드를 매핑해주었다.
-// 다만,  다른 메서드에서도 동일한 파라미터명이 들어올 수 있기 때문에 이를 처리해야한다.
-  
-@ExceptionHandler(value = {BindException.class})
-protected ResponseEntity<ErrorResponse> handleBindException(BindException ex, HandlerMethod handlerMethod) {
-
-    log.error("handleBindException", ex);
-
-    FieldError fieldError = ex.getFieldError();
-    String fieldName = fieldError.getField();
-    Object rejectedValue = fieldError.getRejectedValue();
-
-    String errorMessage = switch (fieldName) {
-        case "type" -> ErrorCode.STATISTICS_INVALID_TYPE.getMessage();
-        case "value" -> ErrorCode.STATISTICS_INVALID_VALUE.getMessage();
-        case "start", "end" -> ErrorCode.STATISTICS_INVALID_DATE.getMessage();
-        default -> fieldError.getDefaultMessage();
-    };
-
-    ErrorResponse response = ErrorResponse.create()
-            .message(errorMessage)
-            .httpStatus(HttpStatus.BAD_REQUEST);
-
-    return ResponseEntity.badRequest().body(response);
-}
-```
-### (6) 개선 방안
-> - 컨트롤러나 메소드 명에 따라서, 의도한 에러코드를 낼 수 있도록 수정하거나,
-커스텀 어노테이션을 만들어 Enum을 유효성 검사할 수 있도록 해야겠다.
-
-### (7) 참고 자료
-- [Enum 유효성 검사하기](https://cchoimin.tistory.com/entry/Enum-유효성-검사하기)
-- [Enum Validation](https://tommykim.tistory.com/20)
-
-</details>
-
-<br>
-
-<details>
-  <summary><strong> 😅 5. 목(Mock) 객체 사용 및 테스트 코드 작성 이해 부족 </strong></summary>
-
-- 작성자: 배서진
-### (1) 문제 상황
-> 1. JwtTokenProvider jwtTokenProvider = mock(JwtTokenProvider.class);
-> 2. jwtTokenProvider.createToken(); 의 차이를 이해하지 못하여 테스트 코드 작성 시 시간이 많이 소요되었습니다.
-
-### (2) 발생한 문제(에러)
-> - `extractEmail`이나 `extractAllClaims` 등의 모킹이 제대로 설정되지 않음
-- 이메일을 추출하는 과정에서 `null` 반환
-
-### 3. 원인
-- 추정되는 원인
-> - 실제 로그인한 유저의 token을 받아와야 한다고 생각
-> - 어노테이션의 설정 오류라고 생각
-  - `@Mock`, `@MockBean`, `@AutoConfigureMockMvc`
-- 실제 원인
-> **실제 로직 vs 모킹된 로직**
-  - 1번은 해당 클래스의 메서드를 가짜로 구현하여 실제로 아무런 로직을 수행하지 않고, 반환할 값이나 예외를 지정할 수 있습니다.
-  - 2번은 실제 로직을 실행합니다.
----
-1. `JwtTokenProvider jwtTokenProvider = mock(JwtTokenProvider.class);`
-- 실제로 JwtTokenProvider의 모든 메서드를 실제 구현 없이 스터빙(stubbing)할 수 있는 목 객체를 생성
-- 이 객체는 JwtTokenProvider 클래스의 인스턴스처럼 동작하지만, 실제 로직은 수행되지 않습니다.
-
-2. `jwtTokenProvider.createToken();`
-  - 실제의 JWT 토큰 생성이 테스트에서 중요한 부분이라면, 
-  - jwtTokenProvider.createToken(user)를 사용합니다.
----
-
-### (4) 해결 방법
-- `JwtTokenProvider jwtTokenProvider = mock(JwtTokenProvider.class);` 으로 사용
-
-### (5) 참고 자료
-- [mock() vs @Mock vs @MockBean 이제 그만 헷갈리자!](https://simgee.tistory.com/58)
-- **실제 JWT 토큰 생성이 필요 없는 이유**
-  - 테스트에서 JWT 토큰이 어떻게 생성되는지 자체는 중요한 부분이 아닙니다.
-  - 단지 토큰에서 올바른 이메일이 추출되고, 그 결과가 이메일 전송 로직으로 이어지는지, 그리고 예외가 발생할 때 올바르게 처리되는지에만 집중하면 됩니다.
-
-- **목 객체(Mock Object)**
-  - 단위 테스트에서 사용되는 가짜 객체
-
-- **스터빙(stubbing)**
-  - 목 객체가 어떤 메소드를 호출할 때, 실제 메소드의 동작을 대신하여 미리 정해진 값을 반환하거나, 특정 동작을 수행하도록 하는 과정
-
-</details>
+- [😅 **5. 목(Mock) 객체 사용 및 테스트 코드 작성에 어려움**](https://github.com/wanted-all-clear/socialhub/blob/docs/%23ALL-94-docs-trouble-shooting-1/readme/trouble/%EB%AA%A9(Mock)_%EA%B0%9D%EC%B2%B4_%EC%82%AC%EC%9A%A9_%EB%B0%8F_%ED%85%8C%EC%8A%A4%ED%8A%B8_%EC%BD%94%EB%93%9C_%EC%9E%91%EC%84%B1_%EC%9D%B4%ED%95%B4_%EB%B6%80%EC%A1%B1.md)
 
