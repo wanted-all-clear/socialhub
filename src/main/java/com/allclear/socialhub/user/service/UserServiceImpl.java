@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
 	 * @param request
 	 */
 	public User userLogin(UserLoginRequest request) {
-		User user = checkUsername(request.getUsername());
+		User user = getUserByUsername(request.getUsername());
 
 		if (user == null) {
 			throw new CustomException(ErrorCode.USER_NOT_EXIST);
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
 	 * @return String usernaame
 	 */
 	public String userDuplicateCheck(String username) {
-		User user = checkUsername(username);
+		User user = getUserByUsername(username);
 
 		if (user != null) {
 			throw new CustomException(ErrorCode.USERNAME_DUPLICATION);
@@ -166,14 +166,9 @@ public class UserServiceImpl implements UserService {
 	 * @param username
 	 * @return User user
 	 */
-	public User checkUsername(String username) {
+	public User getUserByUsername(String username) {
 
-		User user = userRepository.findByUsername(username);
-		// if (user == null) {
-		// 	throw new CustomException(ErrorCode.USER_NOT_EXIST);
-		// }
-
-		return user;
+		return userRepository.findByUsername(username);
 	}
 
 	/**
