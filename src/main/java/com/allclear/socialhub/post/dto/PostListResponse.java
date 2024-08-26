@@ -29,4 +29,13 @@ public class PostListResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
+    public void setContent(String content) {
+
+        if (content != null && content.length() > 20) {
+            this.content = content.substring(0, 20); // 글자수 제한 적용
+        } else {
+            this.content = content;
+        }
+    }
+
 }
