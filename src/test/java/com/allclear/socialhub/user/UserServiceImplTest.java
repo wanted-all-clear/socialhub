@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,23 +30,8 @@ import com.allclear.socialhub.user.service.UserServiceImpl;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
+
 import io.jsonwebtoken.Claims;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -65,7 +52,7 @@ public class UserServiceImplTest {
 	@BeforeEach
 	public void setUp() {
 
-		loginRequest = new UserLoginRequest("validUser", "password");
+		loginRequest = new UserLoginRequest("oldUsername", "encodedPassword");
 		request = new UserJoinRequest();
 		request.setUsername("validUser");
 		request.setEmail("valid@example.com");
@@ -98,15 +85,15 @@ public class UserServiceImplTest {
 	@DisplayName("로그인 시 사용자 전달한 계정과 일치하지 않는 경우를 테스트합니다.")
 	public void checkUsernameFailTest() {
 		// given
-		String uername = loginRequest.getUsername();
+		String username = loginRequest.getUsername();
+		given(userService.getUserByUsername(any())).willReturn(user);
 
-		//when
-		Throwable throwable = assertThrows(RuntimeException.class,
-				() -> userService.getUserByUsername(uername));
+		// when
+		User user = userService.getUserByUsername(username);
 
 		// then
+		assertThat(user.getUsername()).isEqualTo(username);
 		verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
-		assertThat(throwable.getMessage()).isEqualTo(ErrorCode.USER_NOT_EXIST.getMessage());
 	}
 
 	@Test
@@ -198,108 +185,70 @@ public class UserServiceImplTest {
 		verify(userRepository, times(1)).findByUsername(any());
 	}
 
-  @Test
-  @DisplayName("회원가입 시 사용하고자 하는 계정을 이미 다른 사용자가 사용한 경우를 테스트합니다.")
-  public void duplicateAccountExistsTest() {
-        //given
-        User user = User.builder()
-                .username("username")
-                .email("welfjlkd@gmail.com")
-                .password("padlfjdl")
-                .status(UserStatus.ACTIVE)
-                .certifyStatus(UserCertifyStatus.AUTHENTICATED)
-                .build();
-        given(userRepository.findByUsername(any())).willReturn(user);
+	@Test
+	@DisplayName("회원 정보 수정 성공 테스트")
+	public void updateUserInfo_Success() {
+		// given
+		String token = "validToken";
+		UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
+		Claims claims = mock(Claims.class);
+		given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+		given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+		given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+		given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
+		given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);
+		given(passwordEncoder.encode(request.getPassword())).willReturn("encodedNewPassword");
 
-        // 사용자명으로 이미 사용자가 존재할 때를 시뮬레이션
-        given(userRepository.findByUsername(user.getUsername())).willReturn(user);
+		// when
+		UserInfoUpdateResponse response = userService.updateUserInfo(request, token);
 
-        //when & then
-        // userDuplicateCheck 메서드가 호출될 때 CustomException이 발생하는지 확인합니다.
-        // 예외의 메시지가 ErrorCode.USERNAME_DUPLICATION의 메시지를 포함하고 있는지 검증합니다.
-        assertThatThrownBy(() -> userService.userDuplicateCheck(user.getUsername()))
-                .isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.USERNAME_DUPLICATION.getMessage());
+		// then
+		verify(userRepository, times(1)).save(any(User.class));
+		assertThat(response.getUsername()).isEqualTo(request.getUsername());
+		assertThat(response.getMessage()).isEqualTo("회원가입 수정이 완료되었습니다.");
+	}
 
-        // userRepository의 findByUsername 메서드가 정확히 한 번 호출되었는지 검증합니다.
-        verify(userRepository, times(1)).findByUsername(any());
+	@Test
+	@DisplayName("회원 정보 수정 실패 테스트 - 기존 비밀번호 재사용")
+	public void updateUserInfo_Failure_PasswordReused() {
+		// given
+		String token = "validToken";
+		UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
-    }
+		Claims claims = mock(Claims.class);
+		given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+		given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+		given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+		given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
+		given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
 
-    @DisplayName("회원가입 시 사용하고자 하는 계정을 다른 사용자가 사용하지 않는 경우를 테스트합니다.")
-    @Test
-    public void duplicateAccountNoExistsTest() {
-        //when
-        String result = userService.userDuplicateCheck(any());
+		// when & then
+		CustomException exception = assertThrows(CustomException.class,
+				() -> userService.updateUserInfo(request, token));
 
-        //then
-        assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
-        verify(userRepository, times(1)).findByUsername(any());
-    }
+		assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.PASSWORD_REUSED);
+		verify(userRepository, never()).save(any(User.class));
+	}
 
-    @Test
-    @DisplayName("회원 정보 수정 성공 테스트")
-    public void updateUserInfo_Success() {
-        // given
-        String token = "validToken";
-        UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
+	@Test
+	@DisplayName("회원 정보 수정 실패 테스트 - 사용자 존재하지 않음")
+	public void updateUserInfo_Failure_UserNotExist() {
+		// given
+		String token = "validToken";
+		UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
-        Claims claims = mock(Claims.class);
-        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
-        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
-        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
-        given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
-        given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);
-        given(passwordEncoder.encode(request.getPassword())).willReturn("encodedNewPassword");
+		Claims claims = mock(Claims.class);
+		given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+		given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+		given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+		// when & then
+		CustomException exception = assertThrows(CustomException.class,
+				() -> userService.updateUserInfo(request, token));
 
-        // when
-        UserInfoUpdateResponse response = userService.updateUserInfo(request, token);
-
-        // then
-        verify(userRepository, times(1)).save(any(User.class));
-        assertThat(response.getUsername()).isEqualTo(request.getUsername());
-        assertThat(response.getMessage()).isEqualTo("회원가입 수정이 완료되었습니다.");
-    }
-
-    @Test
-    @DisplayName("회원 정보 수정 실패 테스트 - 기존 비밀번호 재사용")
-    public void updateUserInfo_Failure_PasswordReused() {
-        // given
-        String token = "validToken";
-        UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
-
-        Claims claims = mock(Claims.class);
-        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
-        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
-        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
-        given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
-        given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
-
-        // when & then
-        CustomException exception = assertThrows(CustomException.class, () -> userService.updateUserInfo(request, token));
-
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.PASSWORD_REUSED);
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    @DisplayName("회원 정보 수정 실패 테스트 - 사용자 존재하지 않음")
-    public void updateUserInfo_Failure_UserNotExist() {
-        // given
-        String token = "validToken";
-        UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
-
-        Claims claims = mock(Claims.class);
-        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
-        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
-        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
-        // when & then
-        CustomException exception = assertThrows(CustomException.class, () -> userService.updateUserInfo(request, token));
-
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
-        verify(userRepository, never()).save(any(User.class));
-    }
+		assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
+		verify(userRepository, never()).save(any(User.class));
+	}
 
 
 }

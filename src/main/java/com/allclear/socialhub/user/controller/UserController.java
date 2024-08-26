@@ -49,11 +49,17 @@ public class UserController {
 	public ResponseEntity<String> sendEmailVerification(@RequestHeader("Authorization") String token) throws
 			MessagingException {
 
-		Claims claims = jwtTokenProvider.extractAllClaims(token);
-		String email = jwtTokenProvider.extractEmail(claims);
+		try {
+			Claims claims = jwtTokenProvider.extractAllClaims(token);
+			String email = jwtTokenProvider.extractEmail(claims);
 
-		emailService.sendEmail(email, EmailType.VERIFICATION);
-		return ResponseEntity.status(HttpStatus.OK).body("이메일로 인증 코드가 전송되었습니다.");
+			emailService.sendEmail(email, EmailType.VERIFICATION);
+			return ResponseEntity.status(HttpStatus.OK).body("이메일로 인증 코드가 전송되었습니다.");
+
+		} catch (MessagingException e) {
+			// 이메일 전송 실패 시 500 응답
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이메일 전송 실패");
+		}
 	}
 
 	@Operation(summary = "이메일 인증 코드 확인", description = "사용자가 입력한 인증 코드를 확인합니다.")

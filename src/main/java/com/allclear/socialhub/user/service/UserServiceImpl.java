@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
 
 		// 4. 기존 비밀번호와 새 비밀번호 비교
 		if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-			// throw new CustomException(ErrorCode.PASSWORD_REUSED);
+			throw new CustomException(ErrorCode.PASSWORD_REUSED);
 		}
 
 		// 5. 기존 사용자 객체를 복사하고 필드 업데이트
