@@ -15,6 +15,7 @@ public enum ErrorCode {
     INVALID_PASSWORD_LENGTH(HttpStatus.BAD_REQUEST, "비밀번호는 10자 이상 설정해야 합니다."),
     INVALID_PASSWORD_PATTERN(HttpStatus.BAD_REQUEST, "비밀번호는 10자 이상, 20자 이하 영문자, 숫자, 특수문자(!@#$%^&*)중 2가지 이상 포함해야 합니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    PASSWORD_REUSED(HttpStatus.BAD_REQUEST, "이전에 사용했던 비밀번호는 다시 사용할 수 없습니다."),
 
     // POST
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),

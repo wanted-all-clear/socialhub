@@ -3,6 +3,7 @@ package com.allclear.socialhub.user.service;
 import com.allclear.socialhub.common.config.WebSecurityConfig;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.dto.UserInfoUpdateRequest;
 import com.allclear.socialhub.user.dto.UserInfoUpdateResponse;
@@ -25,6 +26,8 @@ public class UserServiceImpl implements UserService {
     private final EmailRedisRepository emailRedisRepository;
     private final WebSecurityConfig securityConfig;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+
 
     /**
      * 사용자 회원가입
@@ -183,35 +186,48 @@ public class UserServiceImpl implements UserService {
 
     /**
      * @param request 사용자 회원정보 수정한 데이터
-     * @param email   JWT token에서 추출한 이메일
+     * @param token   JWT token
      * @return Response 객체
      */
     @Override
-    public UserInfoUpdateResponse updateUserInfo(UserInfoUpdateRequest request, String email) {
-        // 1. 이메일을 사용해 사용자 검색
-        User user = userRepository.findByEmail(email)
+    public UserInfoUpdateResponse updateUserInfo(UserInfoUpdateRequest request, String token) {
+        // 1. 토큰에서 이메일과 ID를 추출
+        String email = jwtTokenProvider.extractEmailFromToken(token);
+        Long idFromToken = jwtTokenProvider.extractIdFromToken(token);
+
+        // 2. 이메일과 ID를 사용해 사용자 검색
+        User user = userRepository.findByIdAndEmail(idFromToken, email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
 
-        // 2. 사용자 입력 정보 유효성 검사
+        // 3. 사용자 입력 정보 유효성 검사
         validateUsername(request.getUsername());
         validatePassword(request.getPassword());
-
-        // TODO: 변경 예정
-        //String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String newPassword = passwordEncoder.encode(request.getPassword());
 
 
-        // 3. 사용자 정보 업데이트
-        User updateUser = User.builder()
+        // 4. 기존 비밀번호와 새 비밀번호 비교
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_REUSED);
+        }
+
+        // 5. 기존 사용자 객체를 복사하고 필드 업데이트
+        User updatedUser = User.builder()
+                .id(user.getId())  // 기존 ID 유지
                 .username(request.getUsername())
-                .password(request.getPassword()) // TODO: encodedPassword
+                .email(user.getEmail())  // 이메일은 변경하지 않음
+                .password(newPassword)
+                .deletedAt(user.getDeletedAt())  // 기존의 삭제 날짜 유지
+                .status(user.getStatus())  // 기존 상태 유지
+                .certifyStatus(user.getCertifyStatus())  // 기존 인증 상태 유지
                 .build();
 
-        // 4. 업데이트된 사용자 정보 저장
-        userRepository.save(updateUser);
+        // 6. 업데이트된 사용자 정보 저장
+        userRepository.save(updatedUser);
 
-        // 5. Response 객체를 생성하여 반환
+        // 7. Response 객체를 생성하여 반환
         return UserInfoUpdateResponse.builder()
                 .username(request.getUsername())
+                .message("회원가입 수정이 완료되었습니다.")
                 .build();
 
     }

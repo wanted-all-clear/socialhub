@@ -10,5 +10,6 @@ import lombok.*;
 public class UserInfoUpdateResponse {
 
     private String username;
+    private String message;
 
 }

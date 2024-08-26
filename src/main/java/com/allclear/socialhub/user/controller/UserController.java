@@ -86,13 +86,11 @@ public class UserController {
         }
     }
 
-    @PatchMapping("/{userId}")
+    @PatchMapping("")
     public ResponseEntity<UserInfoUpdateResponse> updateUserInfo(@Valid @RequestBody UserInfoUpdateRequest request,
                                                                  @RequestHeader("Authorization") String token) {
 
-        String email = jwtTokenProvider.extractEmailFromToken(token);
-
-        UserInfoUpdateResponse response = userService.updateUserInfo(request, email);
+        UserInfoUpdateResponse response = userService.updateUserInfo(request, token);
 
         return ResponseEntity.status(200).body(response);
     }
