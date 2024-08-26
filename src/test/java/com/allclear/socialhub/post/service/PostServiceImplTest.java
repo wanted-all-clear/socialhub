@@ -62,12 +62,16 @@ class PostServiceImplTest {
     @Autowired
     private PostViewRepository postViewRepository;
 
+    @Autowired
+    private PostLikeRepository postLikeRepository;
+
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
     @AfterEach
     void tearDown() {
 
+        postLikeRepository.deleteAllInBatch();
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
         postLikeRepository.deleteAllInBatch();
