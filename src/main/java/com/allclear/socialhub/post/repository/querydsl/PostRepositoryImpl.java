@@ -233,11 +233,16 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
                 .where(postHashtag.post.id.eq(postEntity.getId()))
                 .fetch();
 
+        // content 값을 20자로 제한
+        String truncatedContent = postEntity.getContent().length() > 20
+                ? postEntity.getContent().substring(0, 20)
+                : postEntity.getContent();
+
         return PostListResponse.builder()
                 .postId(postEntity.getId())
                 .type(postEntity.getType())
                 .title(postEntity.getTitle())
-                .content(postEntity.getContent())
+                .content(truncatedContent)
                 .viewCnt(postEntity.getViewCnt())
                 .likeCnt(postEntity.getLikeCnt())
                 .shareCnt(postEntity.getShareCnt())
