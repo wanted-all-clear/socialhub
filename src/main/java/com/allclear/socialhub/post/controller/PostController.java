@@ -1,9 +1,12 @@
 package com.allclear.socialhub.post.controller;
 
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.service.PostService;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,36 +23,41 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "게시물 등록", description = "게시물을 등록합니다.")
     @PostMapping
-    public ResponseEntity<PostResponse> creatPost(@Valid @RequestBody PostCreateRequest requestDto) {
+    public ResponseEntity<PostResponse> creatPost(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody PostCreateRequest requestDto) {
 
-        // TODO : 유저 받아오는 형식 추후 변경 예정
-        return ResponseEntity.status(201).body(postService.createPost(1L, requestDto));
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+        return ResponseEntity.status(201).body(postService.createPost(username, requestDto));
     }
 
     @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponse> updatePost(@Valid @RequestBody PostUpdateRequest updateRequest,
+    public ResponseEntity<PostResponse> updatePost(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody PostUpdateRequest updateRequest,
                                                    @PathVariable("postId") Long postId) {
 
-        // TODO : 추후 유저 토큰 검증 로직으로 수정
-        return ResponseEntity.status(200).body(postService.updatePost(1L, postId, updateRequest));
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+        return ResponseEntity.status(200).body(postService.updatePost(username, postId, updateRequest));
     }
 
     @Operation(summary = "게시글 삭제", description = "게시물을 삭제합니다.")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<String> deletePost(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("postId") Long postId) {
 
-        // TODO : 추후 유저 토큰 검증 로직으로 수정
-        postService.deletePost(1L, postId);
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+        postService.deletePost(username, postId);
         return ResponseEntity.status(200).body("성공적으로 삭제되었습니다.");
     }
 
     @Operation(summary = "게시물 검색 목록 조회", description = "게시물 검색 목록을 조회합니다.")
     @GetMapping("/search")
     public ResponseEntity<PostPaging> searchPosts(
+            @RequestHeader("Authorization") String authorizationHeader,
             @PageableDefault Pageable pageable,
             @RequestParam(value = "hashtag", required = false) String hashtag,
             @RequestParam(value = "type", required = false) PostType type,
@@ -58,38 +66,47 @@ public class PostController {
             @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
             @RequestParam(value = "searchBy", required = false, defaultValue = "title") String searchBy) {
 
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+
         return ResponseEntity.status(200)
-                .body(postService.searchPosts(pageable, "username", hashtag, type, query, orderBy, sort, searchBy));
+                .body(postService.searchPosts(pageable, username, hashtag, type, query, orderBy, sort, searchBy));
     }
 
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
     @GetMapping
-    public ResponseEntity<PostPaging> getPosts(@PageableDefault Pageable pageable) {
+    public ResponseEntity<PostPaging> getPosts(@RequestHeader("Authorization") String authorizationHeader, @PageableDefault Pageable pageable) {
 
-        // TODO : 추후 유저 검증 필요
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
         return ResponseEntity.status(200).body(postService.getPosts(pageable));
     }
 
     @GetMapping("/{postId}")
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세를 조회합니다.")
-    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId, Long userId) {
+    public ResponseEntity<PostDetailResponse> getPostDetail(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("postId") Long postId) {
 
-        return ResponseEntity.status(200).body(postService.getPostDetail(postId, userId));
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+        return ResponseEntity.status(200).body(postService.getPostDetail(postId, username));
     }
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")
     @PostMapping("/like/{postId}")
-    public ResponseEntity<PostLikeResponse> likePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostLikeResponse> likePost(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("postId") Long postId) {
 
-        return ResponseEntity.status(201).body(postService.likePost(postId, userId));
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+        return ResponseEntity.status(201).body(postService.likePost(postId, username));
     }
 
     @Operation(summary = "게시물 공유", description = "게시물 공유를 추가합니다.")
     @PostMapping("/share/{postId}")
-    public ResponseEntity<PostShareResponse> sharePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostShareResponse> sharePost(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("postId") Long postId) {
 
-        // TODO: 추후 유저 검증
-        return ResponseEntity.status(201).body(postService.sharePost(postId, userId));
+        Claims claims = jwtTokenProvider.extractAllClaims(authorizationHeader);
+        String username = jwtTokenProvider.extractUsername(claims);
+        return ResponseEntity.status(201).body(postService.sharePost(postId, username));
     }
 
 }

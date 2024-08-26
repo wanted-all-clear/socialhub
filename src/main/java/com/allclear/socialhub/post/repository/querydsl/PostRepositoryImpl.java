@@ -5,8 +5,8 @@ import com.allclear.socialhub.post.common.hashtag.domain.QPostHashtag;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.domain.QPost;
-import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.domain.SearchByType;
+import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.dto.PostListResponse;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -88,7 +88,7 @@ public class PostRepositoryImpl implements PostRepositoryQuerydsl {
     }
 
     // 게시물 상세 조회
-    public PostDetailResponse getPostDetail(Long postId, Long userId) {
+    public PostDetailResponse getPostDetail(Long postId, String username) {
 
         QPost post = QPost.post;
         QHashtag hashtag = QHashtag.hashtag;
