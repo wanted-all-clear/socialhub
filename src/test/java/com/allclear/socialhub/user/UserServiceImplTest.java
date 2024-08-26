@@ -64,7 +64,7 @@ public class UserServiceImplTest {
 		given(userRepository.findByUsername(loginRequest.getUsername())).willReturn(mock(User.class));
 
 		// when
-		userService.checkUsername(loginRequest.getUsername());
+		userService.getUserByUsername(loginRequest.getUsername());
 
 		// then
 		verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
@@ -81,7 +81,7 @@ public class UserServiceImplTest {
 
 		//when
 		Throwable throwable = assertThrows(RuntimeException.class,
-				() -> userService.checkUsername(uername));
+				() -> userService.getUserByUsername(uername));
 
 		// then
 		verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
