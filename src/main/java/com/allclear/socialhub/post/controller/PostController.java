@@ -84,7 +84,7 @@ public class PostController {
 
     @Operation(summary = "게시물 공유", description = "게시물 공유를 추가합니다.")
     @PostMapping("/share/{postId}")
-    public ResponseEntity<PostShareResponse> sharePost(@PathVariable Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostShareResponse> sharePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
 
         // TODO: 추후 유저 검증
         return ResponseEntity.status(201).body(postService.sharePost(postId, userId));
