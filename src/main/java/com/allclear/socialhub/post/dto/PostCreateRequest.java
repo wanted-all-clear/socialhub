@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PostCreateRequest {
 
+    @NotNull(message = "게시물 타입을 확인해주세요.")
     private PostType type;
     @NotNull(message = "제목은 필수 입력 값입니다.")
     private String title;

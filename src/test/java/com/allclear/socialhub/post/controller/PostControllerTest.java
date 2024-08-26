@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.service.PostServiceImpl;
@@ -73,6 +74,34 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.postList[1].content").value("영화 추천합니다"));
 
         verify(postService).getPosts(any(Pageable.class));
+    }
+  
+    @DisplayName("게시물 좋아요를 추가합니다.")
+    @Test
+    void likePost() throws Exception {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        String url = "https://www.facebook.com/likes/facebook";
+
+        PostLikeResponse response = PostLikeResponse.builder()
+                .postId(postId)
+                .likeCnt(10)
+                .url(url)
+                .build();
+
+        when(postService.likePost(postId, userId)).thenReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        post("/api/posts/like/{postId}", postId)
+                                .param("userId", userId.toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.postId").value(postId))
+                .andExpect(jsonPath("$.likeCnt").value(10))
+                .andExpect(jsonPath("$.url").value(url));
     }
 
     @DisplayName("게시물 공유를 추가합니다.")
