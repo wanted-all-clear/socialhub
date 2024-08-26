@@ -54,7 +54,7 @@
 <details>
     <summary><b>프로젝트 과정 타임라인🗓</b></summary>
     - 프로젝트 기간: 2024.08.20 ~ 2024.08.26
-    <img src="https://github.com/user-attachments/assets/1016fba4-e0c2-4858-b21d-636e56523120" alt="image" width="80%">
+    <img src="https://github.com/user-attachments/assets/1016fba4-e0c2-4858-b21d-636e56523120" alt="image" width="90%">
 </details>
 
 <br>
