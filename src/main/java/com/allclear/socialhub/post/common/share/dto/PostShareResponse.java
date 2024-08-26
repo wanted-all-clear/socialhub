@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class PostShareResponse {
 
     private Long postId;
-    private int shareCount;
+    private int shareCnt;
     String url;
 
 }

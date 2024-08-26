@@ -47,6 +47,21 @@ public class PostController {
         return ResponseEntity.status(200).body("성공적으로 삭제되었습니다.");
     }
 
+    @Operation(summary = "게시물 검색 목록 조회", description = "게시물 검색 목록을 조회합니다.")
+    @GetMapping("/search")
+    public ResponseEntity<PostPaging> searchPosts(
+            @PageableDefault Pageable pageable,
+            @RequestParam(value = "hashtag", required = false) String hashtag,
+            @RequestParam(value = "type", required = false) PostType type,
+            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+            @RequestParam(value = "orderBy", required = false, defaultValue = "created_at") String orderBy,
+            @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
+            @RequestParam(value = "searchBy", required = false, defaultValue = "title") String searchBy) {
+
+        return ResponseEntity.status(200)
+                .body(postService.searchPosts(pageable, "username", hashtag, type, query, orderBy, sort, searchBy));
+    }
+
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<PostPaging> getPosts(@PageableDefault Pageable pageable) {
@@ -71,7 +86,7 @@ public class PostController {
 
     @Operation(summary = "게시물 공유", description = "게시물 공유를 추가합니다.")
     @PostMapping("/share/{postId}")
-    public ResponseEntity<PostShareResponse> sharePost(@PathVariable Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostShareResponse> sharePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
 
         // TODO: 추후 유저 검증
         return ResponseEntity.status(201).body(postService.sharePost(postId, userId));
