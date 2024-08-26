@@ -142,7 +142,7 @@ public class PostServiceImpl implements PostService {
 
     }
 
-     * 4. 게시물 검색 목록 조회
+    /* 4. 게시물 검색 목록 조회
      * 작성자 : 오예령
      *
      * @param pageable Pagination 요청 정보 관련 인터페이스
