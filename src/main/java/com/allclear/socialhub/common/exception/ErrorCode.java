@@ -3,8 +3,6 @@ package com.allclear.socialhub.common.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import lombok.Getter;
-
 @Getter
 public enum ErrorCode {
 
@@ -18,20 +16,19 @@ public enum ErrorCode {
 	INVALID_PASSWORD_PATTERN(HttpStatus.BAD_REQUEST, "비밀번호는 10자 이상, 20자 이하 영문자, 숫자, 특수문자(!@#$%^&*)중 2가지 이상 포함해야 합니다."),
 	LOGIN_FAIL(HttpStatus.BAD_REQUEST, "로그인에 실패하셨습니다."),
 
-	// POST
-	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
-	POST_NOT_OWNER(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
-	POST_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시물 타입입니다."),
-	INVALID_HASHTAG_PATTERN(HttpStatus.BAD_REQUEST, "'#해시태그' 형식만 등록 가능합니다."),
+    // POST
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시물입니다."),
+    POST_OWNER_MISMATCH(HttpStatus.BAD_REQUEST, "본인 글만 수정/삭제가 가능합니다."),
+    POST_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 게시물 타입입니다."),
+    INVALID_HASHTAG_PATTERN(HttpStatus.BAD_REQUEST, "'#해시태그' 형식만 등록 가능합니다."),
 
-	// STATISTICS
-	STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
-	STATISTICS_INVALID_VALUE(HttpStatus.BAD_REQUEST,
-			"유효하지 않은 value parameter 입니다. expected: ['count', 'view_count', 'like_count', 'share_count']"),
-	STATISTICS_INVALID_DATE(HttpStatus.BAD_REQUEST, "유효하지 않은 날짜입니다. expected: 'yyyy-MM-DD'"),
-	STATISTICS_INVALID_DATE_RANGE_TOO_LONG_DATE(HttpStatus.BAD_REQUEST, "최대 30일까지만 조회할 수 있습니다."),
-	STATISTICS_INVALID_DATE_RANGE_TOO_LONG_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다."),
-	STATISTICS_INVALID_DATE_RANGE_START_AFTER_END(HttpStatus.BAD_REQUEST, "start 날짜는 end 날짜보다 이전이거나 같아야 합니다."),
+    // STATISTICS
+    STATISTICS_INVALID_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 type parameter 입니다. expected: ['date', 'hour']"),
+    STATISTICS_INVALID_VALUE(HttpStatus.BAD_REQUEST, "유효하지 않은 value parameter 입니다. expected: ['count', 'view_count', 'like_count', 'share_count']"),
+    STATISTICS_INVALID_DATE(HttpStatus.BAD_REQUEST, "유효하지 않은 날짜입니다. expected: 'yyyy-MM-DD'"),
+    STATISTICS_INVALID_DATE_RANGE_TOO_LONG_DATE(HttpStatus.BAD_REQUEST, "최대 30일까지만 조회할 수 있습니다."),
+    STATISTICS_INVALID_DATE_RANGE_TOO_LONG_HOUR(HttpStatus.BAD_REQUEST, "최대 7일까지만 조회할 수 있습니다."),
+    STATISTICS_INVALID_DATE_RANGE_START_AFTER_END(HttpStatus.BAD_REQUEST, "start 날짜는 end 날짜보다 이전이거나 같아야 합니다."),
 
     // JWT
     INVALID_JWT_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 JWT 토큰입니다."),
