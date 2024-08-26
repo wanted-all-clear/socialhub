@@ -1,13 +1,17 @@
 package com.allclear.socialhub.post.controller;
 
-import com.allclear.socialhub.post.dto.PostDetailResponse;
-import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.service.PostServiceImpl;
+import io.jsonwebtoken.Claims;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,14 +27,14 @@ import java.util.List;
 
 import static com.allclear.socialhub.post.domain.PostType.FACEBOOK;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PostController.class)
 @AutoConfigureMockMvc(addFilters = false) // Spring Security 제외 (추후 유저 검증 로직 구현 후 제거 예정)
+
 class PostControllerTest {
 
     @Autowired
@@ -39,9 +43,26 @@ class PostControllerTest {
     @MockBean
     private PostServiceImpl postService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    private String jwt;
+    private String username = "test";
+    @Mock
+    private Claims mockClaims;
+
+    @BeforeEach
+    void setUp() {
+
+        jwt = "mockJwtToken"; // 실제 JWT 생성 로직을 대체하는 Mock 값
+        when(jwtTokenProvider.extractAllClaims(anyString())).thenReturn(mockClaims);
+        when(jwtTokenProvider.extractUsername(any(Claims.class))).thenReturn("test");
+    }
+
     @DisplayName("게시물 목록을 조회합니다.")
     @Test
     void getPosts() throws Exception {
+
         // given
         List<PostResponse> postList = List.of(
                 new PostResponse(1L, 1L, "망원동 맛집", "맛집 소개해요",
@@ -64,7 +85,8 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", "0")
                         .param("pageSize", "10")
-                        .param("sort", "postId,DESC"))
+                        .param("sort", "postId,DESC")
+                        .header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.postCnt").value(2))
@@ -84,14 +106,13 @@ class PostControllerTest {
         // given
         PostDetailResponse response = createPostDetailResponse();
 
-        when(postService.getPostDetail(response.getPostId(), response.getUserId())).thenReturn(response);
+        when(postService.getPostDetail(response.getPostId(), "test")).thenReturn(response);
 
         // when // then
         mockMvc.perform(
                         get("/api/posts/{postId}", response.getPostId())
-                                .param("userId", response.getUserId().toString())
                                 .contentType(MediaType.APPLICATION_JSON)
-                )
+                                .header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.postId").value(response.getPostId()))
                 .andExpect(jsonPath("$.userId").value(response.getUserId()))
@@ -103,13 +124,13 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.likeCnt").value(response.getLikeCnt()))
                 .andExpect(jsonPath("$.shareCnt").value(response.getShareCnt()));
     }
-  
+
     @DisplayName("게시물 좋아요를 추가합니다.")
     @Test
     void likePost() throws Exception {
         // given
         Long postId = 1L;
-        Long userId = 1L;
+
         String url = "https://www.facebook.com/likes/facebook";
 
         PostLikeResponse response = PostLikeResponse.builder()
@@ -118,13 +139,13 @@ class PostControllerTest {
                 .url(url)
                 .build();
 
-        when(postService.likePost(postId, userId)).thenReturn(response);
+        when(postService.likePost(postId, username)).thenReturn(response);
 
         // when // then
         mockMvc.perform(
                         post("/api/posts/like/{postId}", postId)
-                                .param("userId", userId.toString())
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + jwt)
                 )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.postId").value(postId))
@@ -137,7 +158,6 @@ class PostControllerTest {
     void sharePost() throws Exception {
         // given
         Long postId = 1L;
-        Long userId = 1L;
         String url = "https://www.facebook.com/share/facebook";
 
         PostShareResponse response = PostShareResponse.builder()
@@ -146,13 +166,13 @@ class PostControllerTest {
                 .url(url)
                 .build();
 
-        when(postService.sharePost(postId, userId)).thenReturn(response);
+        when(postService.sharePost(postId, username)).thenReturn(response);
 
         // when // then
         mockMvc.perform(
                         post("/api/posts/share/{postId}", postId)
-                                .param("userId", userId.toString())
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + jwt)
                 )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.postId").value(postId))

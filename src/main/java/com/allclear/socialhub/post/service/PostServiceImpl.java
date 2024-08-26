@@ -13,8 +13,8 @@ import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
-import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.domain.PostType;
+import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.repository.PostRepository;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.repository.UserRepository;
@@ -54,10 +54,10 @@ public class PostServiceImpl implements PostService {
      * @return 생성된 게시물 PostResponse에 담아 반환
      */
     @Override
-    public PostResponse createPost(Long userId, PostCreateRequest createRequest) {
+    public PostResponse createPost(String username, PostCreateRequest createRequest) {
 
         // 0. 유저 검증
-        User user = userCheck(userId);
+        User user = userCheck(username);
 
         // 1. 게시물 등록
         Post post = postRepository.save(createRequest.toEntity(user));
@@ -76,21 +76,21 @@ public class PostServiceImpl implements PostService {
      * 2. 게시물 수정
      * 작성자 : 오예령
      *
-     * @param userId        유저Id
+     * @param username      유저 계정명
      * @param postId        게시물Id
      * @param updateRequest 게시물 제목, 내용, 해시태그리스트
      * @return 수정된 게시물 PostResponse에 담아 반환
      */
     @Override
     @Transactional
-    public PostResponse updatePost(Long userId, Long postId, PostUpdateRequest updateRequest) {
+    public PostResponse updatePost(String username, Long postId, PostUpdateRequest updateRequest) {
 
         // 0. 유저 검증
-        userCheck(userId);
+        userCheck(username);
 
         // 1. 게시물 검증
         Post post = postCheck(postId);
-        if (!post.getUser().getId().equals(userId)) throw new CustomException(POST_OWNER_MISMATCH);
+        if (!post.getUser().getUsername().equals(username)) throw new CustomException(POST_OWNER_MISMATCH);
 
         Post updatePost = updateRequest.toEntity();
         post.update(updatePost);
@@ -117,17 +117,17 @@ public class PostServiceImpl implements PostService {
      * 3. 게시물 삭제
      * 작성자 : 오예령
      *
-     * @param userId 유저Id
-     * @param postId 게시물Id
+     * @param username 유저 계정명
+     * @param postId   게시물Id
      */
 
     @Override
     @Transactional
-    public void deletePost(Long userId, Long postId) {
+    public void deletePost(String username, Long postId) {
 
-        userCheck(userId);
+        userCheck(username);
         Post post = postCheck(postId);
-        if (!post.getUser().getId().equals(userId)) throw new CustomException(POST_OWNER_MISMATCH);
+        if (!post.getUser().getUsername().equals(username)) throw new CustomException(POST_OWNER_MISMATCH);
 
         // 해시태그 연관관계 삭제
         hashtagService.deleteByPostId(postId);
@@ -177,32 +177,32 @@ public class PostServiceImpl implements PostService {
      * 6. 게시물 상세 조회
      * 작성자 : 유리빛나
      *
-     * @param postId 게시물 번호
-     * @param userId 유저 번호
+     * @param postId   게시물 번호
+     * @param username 유저 계정명
      * @return 게시물 상세
      */
-    public PostDetailResponse getPostDetail(Long postId, Long userId) {
+    public PostDetailResponse getPostDetail(Long postId, String username) {
 
         postRepository.findById(postId).orElseThrow(() -> new CustomException(POST_NOT_FOUND));
 
-        return postRepository.getPostDetail(postId, userId);
+        return postRepository.getPostDetail(postId, username);
     }
 
     /**
      * 7. 게시물 좋아요
      * 작성자 : 유리빛나
      *
-     * @param postId 게시물 번호
-     * @param userId 유저 번호
+     * @param postId   게시물 번호
+     * @param username 유저 계정명
      * @return 게시물 ID, 게시물 좋아요 수, 외부 API URL이 포함된 PostLikeResponse 객체
      */
-    public PostLikeResponse likePost(Long postId, Long userId) {
+    public PostLikeResponse likePost(Long postId, String username) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
 
         PostLike postLike = PostLike.builder()
-                .user(userRepository.getReferenceById(userCheck(userId).getId()))
+                .user(userRepository.getReferenceById(userCheck(username).getId()))
                 .post(post)
                 .build();
 
@@ -226,16 +226,16 @@ public class PostServiceImpl implements PostService {
      * 8. 게시물 공유
      * 작성자 : 유리빛나
      *
-     * @param postId 게시물 번호
-     * @param userId 유저 번호
+     * @param postId   게시물 번호
+     * @param username 유저 계정명
      */
-    public PostShareResponse sharePost(Long postId, Long userId) {
+    public PostShareResponse sharePost(Long postId, String username) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(POST_NOT_FOUND));
 
         PostShare postShare = PostShare.builder()
-                .user(userRepository.getReferenceById(userCheck(userId).getId()))
+                .user(userRepository.getReferenceById(userCheck(username).getId()))
                 .post(post)
                 .build();
 
@@ -259,14 +259,16 @@ public class PostServiceImpl implements PostService {
      * 회원 검증
      * 작성자 : 오예령
      *
-     * @param userId 유저Id
+     * @param username 유저 계정명
      * @return 해당 회원을 반환
      */
-    private User userCheck(Long userId) {
+    private User userCheck(String username) {
 
-        return userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(USER_NOT_EXIST)
-        );
+        try {
+            return userRepository.findByUsername(username);
+        } catch (NullPointerException e) {
+            throw new CustomException(USER_NOT_EXIST);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.dto;
 
 import com.allclear.socialhub.post.domain.Post;
+import com.allclear.socialhub.post.domain.PostType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class PostResponse {
 
     private Long postId;
     private Long userId;
+    private PostType type;
     private String title;
     private String content;
     private List<String> hashtagList;
@@ -31,6 +33,7 @@ public class PostResponse {
         return PostResponse.builder()
                 .postId(post.getId())
                 .userId(post.getUser().getId())
+                .type(post.getType())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .hashtagList(hashtagList)

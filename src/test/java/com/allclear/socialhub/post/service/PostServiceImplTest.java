@@ -371,7 +371,7 @@ class PostServiceImplTest {
         assertEquals(POST_OWNER_MISMATCH, exception.getErrorCode());
 
     }
-    
+  
     @Test
     @DisplayName("게시물 검색 목록을 조회하고 조건에 알맞는 게시물이 조회되는 지 확인합니다.")
     void searchPosts() {
