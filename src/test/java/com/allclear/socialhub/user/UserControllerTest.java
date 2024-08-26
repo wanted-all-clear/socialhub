@@ -89,8 +89,7 @@ public class UserControllerTest {
 
 		String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
 		Claims token = jwtTokenProvider.extractAllClaims(jwtToken);
-		String tokenStr = String.valueOf(token.get("username"));
-		// String[] tokenArray = tokenStr.split(",");
+		String tokenStr = jwtTokenProvider.extractUsername(token);
 
 		assertThat(userLoginRequest.getUsername()).isEqualTo(tokenStr);
 	}
