@@ -15,6 +15,7 @@ import com.allclear.socialhub.user.type.UsernameDupStatus;
 import io.jsonwebtoken.Claims;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -89,11 +90,8 @@ public class UserControllerTest {
         jwt = jwtTokenProvider.createToken(user);
     }
 
-    /**
-     * 로그인 통합 테스트
-     * 작성자 : 김은정
-     */
     @Test
+    @DisplayName("사용자가 로그인할 때 성공적으로 JWT 토큰을 발급받는지 테스트합니다.")
     public void 사용자_로그인_테스트() {
         // 로그인
         UserLoginRequest userLoginRequest = UserLoginRequest.builder()
@@ -114,6 +112,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("회원가입 시 중복된 계정이 있을 경우 예외가 발생하는지 테스트합니다.")
     public void 계정_중복인_경우_테스트() {
         // 계정 중복 확인
         HttpEntity<String> httpEntity = new HttpEntity<>(username);
@@ -124,6 +123,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("회원가입 시 중복된 계정이 없을 경우 성공적으로 처리되는지 테스트합니다.")
     public void 계정_중복이_없는_경우_테스트() {
 
         String username = "user12";
@@ -136,6 +136,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("이메일 인증 코드 전송이 성공적으로 이루어지는지 테스트합니다.")
     void sendEmailVerification_Success() throws Exception {
         // given
         String validJwt = jwtTokenProvider.createToken(user);
@@ -160,6 +161,7 @@ public class UserControllerTest {
 
 
     @Test
+    @DisplayName("이메일 인증 코드 전송 시 실패하는 경우를 테스트합니다.")
     void sendEmailVerification_Failure() throws Exception {
         // given
         user = User.builder()
@@ -183,6 +185,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("이메일 인증 코드 검증 시 실패하는 경우를 테스트합니다.")
     void verifyEmailCode_Failure() {
         // given
         String token = "testToken"; // 테스트용 JWT 토큰
@@ -216,6 +219,7 @@ public class UserControllerTest {
 
 
     @Test
+    @DisplayName("회원가입이 성공적으로 처리되는지 테스트합니다.")
     void joinUser_Success() {
         // given
         UserJoinRequest request = new UserJoinRequest("username", "user@example.com", "password");
@@ -230,6 +234,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("회원가입 시 이메일 중복으로 인해 실패하는 경우를 테스트합니다.")
     void joinUser_Failure() {
         // given
         UserJoinRequest request = new UserJoinRequest("username", "user@example.com", "password");
