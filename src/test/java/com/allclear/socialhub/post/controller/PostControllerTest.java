@@ -1,11 +1,13 @@
 package com.allclear.socialhub.post.controller;
 
+import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.service.PostServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
@@ -21,9 +23,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PostController.class)
+@AutoConfigureMockMvc(addFilters = false) // Spring Security 제외 (추후 유저 검증 로직 구현 후 제거 예정)
 class PostControllerTest {
 
     @Autowired
@@ -69,7 +73,34 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.postList[1].content").value("영화 추천합니다"));
 
         verify(postService).getPosts(any(Pageable.class));
+    }
 
+    @DisplayName("게시물 좋아요를 추가합니다.")
+    @Test
+    void likePost() throws Exception {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        String url = "https://www.facebook.com/likes/facebook";
+
+        PostLikeResponse response = PostLikeResponse.builder()
+                .postId(postId)
+                .likeCnt(10)
+                .url(url)
+                .build();
+
+        when(postService.likePost(postId, userId)).thenReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        post("/api/posts/like/{postId}", postId)
+                                .param("userId", userId.toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.postId").value(postId))
+                .andExpect(jsonPath("$.likeCnt").value(10))
+                .andExpect(jsonPath("$.url").value(url));
     }
 
 }

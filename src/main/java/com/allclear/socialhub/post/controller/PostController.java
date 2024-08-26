@@ -31,10 +31,20 @@ public class PostController {
 
     @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponse> updatePost(@RequestBody PostUpdateRequest updateRequest,
-                                                   @PathVariable Long postId) {
+    public ResponseEntity<PostResponse> updatePost(@Valid @RequestBody PostUpdateRequest updateRequest,
+                                                   @PathVariable("postId") Long postId) {
 
+        // TODO : 추후 유저 토큰 검증 로직으로 수정
         return ResponseEntity.status(200).body(postService.updatePost(1L, postId, updateRequest));
+    }
+
+    @Operation(summary = "게시글 삭제", description = "게시물을 삭제합니다.")
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId) {
+
+        // TODO : 추후 유저 토큰 검증 로직으로 수정
+        postService.deletePost(1L, postId);
+        return ResponseEntity.status(200).body("성공적으로 삭제되었습니다.");
     }
 
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
@@ -54,7 +64,7 @@ public class PostController {
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")
     @PostMapping("/like/{postId}")
-    public ResponseEntity<PostLikeResponse> likePost(@PathVariable Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostLikeResponse> likePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
 
         return ResponseEntity.status(201).body(postService.likePost(postId, userId));
     }

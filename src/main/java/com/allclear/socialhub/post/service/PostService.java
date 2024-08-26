@@ -21,4 +21,6 @@ public interface PostService {
 
     PostDetailResponse getPostDetail(Long postId, Long userId);
 
+    void deletePost(Long userId, Long postId);
+
 }
