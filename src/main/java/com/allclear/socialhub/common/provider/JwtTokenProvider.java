@@ -36,7 +36,6 @@ public class JwtTokenProvider {
 	private SecretKey getSigningKey() {
 
 		byte[] keyBytes = Decoders.BASE64.decode(this.SECRET_KEY);
-		System.out.println(Keys.hmacShaKeyFor(keyBytes));
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 
