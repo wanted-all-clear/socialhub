@@ -107,7 +107,7 @@ public class UserController {
 		User user = userService.userLogin(request);
 		String jwtToken = jwtTokenProvider.createToken(user);
 
-		return ResponseEntity.ok().header("AUTHORIZATION", jwtToken).body("로그인이 완료되었습니다.");
+		return ResponseEntity.ok().header("Authorization", jwtToken).body("로그인이 완료되었습니다.");
 	}
 
 	@Operation(summary = "계정 중복 체크", description = "사용자가 계정 중복 체크를 요청합니다.")
