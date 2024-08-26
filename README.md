@@ -103,6 +103,8 @@
 | ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)       | MySQL 8.0        |
 | ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)    | Redis 6.0        |
 
+<br/>
+
 ### 요구사항 정의서 정리
 
 | 도메인 | 기능명               | Controller & Service method   | 담당자        |
@@ -123,7 +125,11 @@
 | 게시물 | 게시물 공유           | sharePost               | 유리빛나       |
 | 통계   | 통계                  | getStatistics           | 김유현, 김효진 |
 
-### API 명세서
+<br/>
+
+### [API 명세서](https://documenter.getpostman.com/view/20456478/2sAXjGcDg4)
+
+ - 자세한 명세는 API 명세서를 클릭해 확인 해주세요.
 
 | 도메인 | 기능명               | Http Method | API Path                       | 인증 | 담당자        |
 |--------|----------------------|-------------|--------------------------------|------|---------------|
@@ -144,11 +150,35 @@
 | 게시물 | 게시물 공유           | POST        | /api/posts/{postId}/share      | O    | 유리빛나       |
 | 통계   | 통계                  | GET         | /api/statistics                | O    | 김유현, 김효진 |
 
-
+<br>
 
 ### ERD
 
-![img.png](docs/ERD.png)
+<img width="1417" alt="image" src="https://github.com/user-attachments/assets/ac5359a2-566e-4f82-91e6-5d2c615b9a71">
+
+<p></p>
+
+<details>
+  <summary><b>🧐 1. 게시물 조회 테이블의 필요성</b></summary>
+
+>**배경** : 일자별 조회수 통계 API 구현 시, 조회가 발생한 날짜 데이터가 필요합니다.
+
+>**분석** : 게시물 테이블 내에 있는 조회수 컬럼만으로는 언제 조회가 발생한 건지 알 수 없습니다.
+
+>**결과** : 조회가 발생한 날짜를 기록할 수 있는 별도의 조회 테이블이 필요하다고 판단하여 생성하였습니다.
+</details>
+
+<details>
+  <summary> <b>😎 2. 게시물 테이블의 조회수 / 좋아요수 / 공유수 컬럼 </b></summary>
+
+>**배경**: 게시물 목록 API의 정렬 기능에서 조회수 데이터가 필요합니다.
+  
+>**분석**: 별도의 테이블과 Join하여 조회하는 것보다 post 테이블 자체에서 조회하는 것이 성능의 부하를 줄일 수 있다고 판단하였습니다.
+  
+>**결과**: 위와 같은 판단 하에 post 테이블 내에 그대로 두었으나, 더 나은 방향이 있을 시 수정 예정입니다.
+</details>
+
+<br>
 
 ## 트러블 슈팅
 - [💥 **1. JWT 토큰 시크릿 키 보안 오류**](https://github.com/wanted-all-clear/socialhub/blob/docs/%23ALL-94-docs-trouble-shooting-1/readme/trouble/JWT_%ED%86%A0%ED%81%B0_%EC%8B%9C%ED%81%AC%EB%A6%BF_%ED%82%A4_%EB%B3%B4%EC%95%88_%EC%98%A4%EB%A5%98.md)  
