@@ -9,6 +9,7 @@ import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.service.EmailService;
 import com.allclear.socialhub.user.service.UserService;
 import com.allclear.socialhub.user.type.EmailType;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,9 +40,12 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/email-code")
-    public ResponseEntity<String> sendEmailVerification(@RequestHeader("Authorization") String token) throws MessagingException {
+    public ResponseEntity<String> sendEmailVerification(@RequestHeader("Authorization") String token) throws
+            MessagingException {
 
-        String email = jwtTokenProvider.extractEmailFromToken(token);
+        Claims claims = jwtTokenProvider.extractAllClaims(token);
+        String email = jwtTokenProvider.extractEmail(claims);
+
         emailService.sendEmail(email, EmailType.VERIFICATION);
         return ResponseEntity.status(HttpStatus.OK).body("이메일로 인증 코드가 전송되었습니다.");
     }
@@ -54,9 +58,11 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/email-verify")
-    public ResponseEntity<String> verifyEmailCode(@RequestHeader("Authorization") String token, @Valid @RequestBody UserEmailRequest request) {
+    public ResponseEntity<String> verifyEmailCode(@RequestHeader("Authorization") String token,
+                                                  @Valid @RequestBody UserEmailRequest request) {
 
-        String email = jwtTokenProvider.extractEmailFromToken(token);
+        Claims claims = jwtTokenProvider.extractAllClaims(token);
+        String email = jwtTokenProvider.extractEmail(claims);
         String storedCode = emailService.getVerificationToken(email);
 
         if (userService.verifyUser(storedCode, request.getAuthCode(), email)) {
@@ -80,19 +86,41 @@ public class UserController {
 
         try {
             userService.joinUser(request);
+            System.out.println(request.getUsername());
             return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
         } catch (CustomException e) {
             throw e;
         }
     }
 
+    @Operation(summary = "로그인", description = "사용자가 로그인을 요청합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @PostMapping("/login")
     public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request) {
 
         User user = userService.userLogin(request);
         String jwtToken = jwtTokenProvider.createToken(user);
 
-        return ResponseEntity.ok().header("AUTHORIZATION", jwtToken).body("로그인이 완료되었습니다.");
+        return ResponseEntity.ok().header("Authorization", jwtToken).body("로그인이 완료되었습니다.");
+    }
+
+    @Operation(summary = "계정 중복 체크", description = "사용자가 계정 중복 체크를 요청합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "해당 계정은 사용이 가능합니다.",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "해당 계정은 이미 사용중입니다."),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping("/duplicate-check")
+    public ResponseEntity<String> userDuplicateCheck(@RequestBody String username) {
+
+        String message = userService.userDuplicateCheck(username);
+        return ResponseEntity.ok(message);
     }
 
 }

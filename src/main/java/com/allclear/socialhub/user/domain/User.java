@@ -49,6 +49,7 @@ public class User extends Timestamped {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserCertifyStatus certifyStatus;
+    
 
     /**
      * 사용자 인증 상태를 UNAUTHENTICATED에서 AUTHENTICATED로 변경합니다.

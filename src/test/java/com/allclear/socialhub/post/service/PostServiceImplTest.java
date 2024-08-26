@@ -6,6 +6,7 @@ import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
@@ -57,19 +58,16 @@ class PostServiceImplTest {
 
     @Autowired
     private PostRepository postRepository;
+  
     @Autowired
     private PostLikeRepository postLikeRepository;
+  
     @Autowired
     private PostShareRepository postShareRepository;
+  
     @Autowired
     private PostViewRepository postViewRepository;
-
-    @Autowired
-    private PostLikeRepository postLikeRepository;
-
-    @Autowired
-    private PostShareRepository postShareRepository;
-
+  
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
@@ -80,8 +78,6 @@ class PostServiceImplTest {
         postLikeRepository.deleteAllInBatch();
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
-        postLikeRepository.deleteAllInBatch();
-        postShareRepository.deleteAllInBatch();
         postViewRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
@@ -384,7 +380,7 @@ class PostServiceImplTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 게시물 id로 게시물을 수정합니다.")
+    @DisplayName("존재하지 않는 게시물 id로 게시물을 삭제합니다.")
     void deletePostWithNoExistPost() {
         // given
         User user = createUser();
