@@ -13,6 +13,7 @@ import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
+import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
@@ -142,6 +143,19 @@ public class PostServiceImpl implements PostService {
         // 게시물 삭제
         postRepository.delete(post);
 
+    }
+
+    /**
+     * 4. 게시물 검색 조회
+     * 작성자 : 오예령
+     *
+     * @param pageable Pagination 요청 정보 관련 인터페이스
+     * @return 페이징 처리가 된 게시물 검색 결과 목록
+     */
+    @Override
+    public PostPaging searchPosts(Pageable pageable, String username, String hashtag, PostType type, String query, String orderBy, String sort, String searchBy) {
+
+        return new PostPaging(postRepository.searchPosts(pageable, username, hashtag, type, query, orderBy, sort, searchBy));
     }
 
     /**
