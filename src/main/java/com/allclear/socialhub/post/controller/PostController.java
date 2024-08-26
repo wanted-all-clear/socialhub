@@ -44,7 +44,7 @@ public class PostController {
     @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(@Valid @RequestBody PostUpdateRequest updateRequest,
-                                                   @PathVariable Long postId) {
+                                                   @PathVariable("postId") Long postId) {
 
         // TODO : 추후 유저 토큰 검증 로직으로 수정
         return ResponseEntity.status(200).body(postService.updatePost(1L, postId, updateRequest));
