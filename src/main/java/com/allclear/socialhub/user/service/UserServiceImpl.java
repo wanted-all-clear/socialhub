@@ -1,12 +1,12 @@
 package com.allclear.socialhub.user.service;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.allclear.socialhub.common.config.WebSecurityConfig;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.domain.User;
+import com.allclear.socialhub.user.dto.UserInfoUpdateRequest;
+import com.allclear.socialhub.user.dto.UserInfoUpdateResponse;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
@@ -15,8 +15,10 @@ import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
-
+import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
@@ -28,164 +30,166 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-	/**
-	 * 사용자 회원가입
-	 * 작성자: 배서진
-	 *
-	 * @param request 사용자 회원가입 요청 데이터(이메일, 계정명, 비밀번호)
-	 * @throws DuplicateUserInfoException 이메일 또는 계정명 이미 존재하는 경우
-	 * @throws CustomException            비밀번호 규칙에 맞지 않을 경우
-	 */
-	@Override
-	public void joinUser(UserJoinRequest request) {
+    /**
+     * 사용자 회원가입
+     * 작성자: 배서진
+     *
+     * @param request 사용자 회원가입 요청 데이터(이메일, 계정명, 비밀번호)
+     * @throws DuplicateUserInfoException 이메일 또는 계정명 이미 존재하는 경우
+     * @throws CustomException            비밀번호 규칙에 맞지 않을 경우
+     */
+    @Override
+    public void joinUser(UserJoinRequest request) {
 
-		validateUsername(request.getUsername());
-		validatePassword(request.getPassword());
+        validateUsername(request.getUsername());
+        validatePassword(request.getPassword());
 
-		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new DuplicateUserInfoException(ErrorCode.EMAIL_DUPLICATION);
-		}
-		if (userRepository.existsByUsername(request.getUsername())) {
-			throw new DuplicateUserInfoException(ErrorCode.USERNAME_DUPLICATION);
-		}
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateUserInfoException(ErrorCode.EMAIL_DUPLICATION);
+        }
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new DuplicateUserInfoException(ErrorCode.USERNAME_DUPLICATION);
+        }
 
-		String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-		User user = User.builder()
-				.username(request.getUsername())
-				.email(request.getEmail())
-				.password(encodedPassword)
-				.status(UserStatus.ACTIVE)
-				.certifyStatus(UserCertifyStatus.UNAUTHENTICATED)
-				.build();
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .status(UserStatus.ACTIVE)
+                .certifyStatus(UserCertifyStatus.UNAUTHENTICATED)
+                .build();
 
-		userRepository.save(user);
+        userRepository.save(user);
 
-	}
+    }
 
-	/**
-	 * 비밀번호 유효성 검사 메서드
-	 * 작성자: 배서진
-	 *
-	 * @param password 1) 비밀번호 길이 검사
-	 *                 2) 숫자, 문자, 특수문자 중 두 가지 이상 포함 확인
-	 */
-	private void validatePassword(String password) {
+    /**
+     * 비밀번호 유효성 검사 메서드
+     * 작성자: 배서진
+     *
+     * @param password 1) 비밀번호 길이 검사
+     *                 2) 숫자, 문자, 특수문자 중 두 가지 이상 포함 확인
+     */
+    private void validatePassword(String password) {
 
-		if (password.length() < 10 || password.length() > 20) {
-			throw new CustomException(ErrorCode.INVALID_PASSWORD_LENGTH);
-		}
+        if (password.length() < 10 || password.length() > 20) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD_LENGTH);
+        }
 
-		int criteriaMet = 0;
-		if (password.matches(".*[a-zA-Z]+.*")) { // 문자
-			criteriaMet++;
-		}
-		if (password.matches(".*\\d+.*")) { // 숫자
-			criteriaMet++;
-		}
-		if (password.matches(".*[!@#$%^&*()_+=-]+.*")) { // 특수문자
-			criteriaMet++;
-		}
+        int criteriaMet = 0;
+        if (password.matches(".*[a-zA-Z]+.*")) { // 문자
+            criteriaMet++;
+        }
+        if (password.matches(".*\\d+.*")) { // 숫자
+            criteriaMet++;
+        }
+        if (password.matches(".*[!@#$%^&*()_+=-]+.*")) { // 특수문자
+            criteriaMet++;
+        }
 
-		if (criteriaMet < 2) {
-			throw new CustomException(ErrorCode.INVALID_PASSWORD_PATTERN);
-		}
+        if (criteriaMet < 2) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD_PATTERN);
+        }
 
-	}
+    }
 
-	private void validateUsername(String username) {
-		// 계정명 길이 검증
-		if (username.length() < 3 || username.length() > 20) {
-			throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
-		}
-	}
+    private void validateUsername(String username) {
+        // 계정명 길이 검증
+        if (username.length() < 3 || username.length() > 20) {
+            throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
+        }
+    }
 
-	/**
-	 * 사용자가 제공한 인증 코드(requestCode)와 저장된 인증 코드(storedCode)를 검증하는 메서드.
-	 * 인증 코드가 일치할 경우, 인증 코드를 삭제하고 검증 성공을 나타내는 true를 반환합니다.
-	 * 작성자: 배서진
-	 *
-	 * @param storedCode  저장된 인증 코드
-	 * @param requestCode 사용자가 제공한 인증 코드
-	 * @param email       사용자 이메일
-	 * @return 코드가 일치하면 true, 그렇지 않으면 false를 반환
-	 */
-	@Override
-	public boolean verifyUser(String storedCode, String requestCode, String email) {
+    /**
+     * 사용자가 제공한 인증 코드(requestCode)와 저장된 인증 코드(storedCode)를 검증하는 메서드.
+     * 인증 코드가 일치할 경우, 인증 코드를 삭제하고 검증 성공을 나타내는 true를 반환합니다.
+     * 작성자: 배서진
+     *
+     * @param storedCode  저장된 인증 코드
+     * @param requestCode 사용자가 제공한 인증 코드
+     * @param email       사용자 이메일
+     * @return 코드가 일치하면 true, 그렇지 않으면 false를 반환
+     */
+    @Override
+    public boolean verifyUser(String storedCode, String requestCode, String email) {
 
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
 
-		if (storedCode != null && storedCode.equals(requestCode)) {
-			user.authenticateUser(); // 인증 상태로 변경
-			userRepository.save(user);
-			emailRedisRepository.deleteVerificationToken(requestCode);
-			return true;
-		} else {
-			return false;
-		}
-	}
+        if (storedCode != null && storedCode.equals(requestCode)) {
+            user.authenticateUser(); // 인증 상태로 변경
+            userRepository.save(user);
+            emailRedisRepository.deleteVerificationToken(requestCode);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * 로그인
-	 * 작성자 : 김은정
-	 *
-	 * @param request
-	 */
-	public User userLogin(UserLoginRequest request) {
-		User user = getUserByUsername(request.getUsername());
+    /**
+     * 로그인
+     * 작성자 : 김은정
+     *
+     * @param request
+     */
+    public User userLogin(UserLoginRequest request) {
 
-		if (user == null) {
-			throw new CustomException(ErrorCode.USER_NOT_EXIST);
-		}
+        User user = getUserByUsername(request.getUsername());
 
-		checkPassword(user, request.getPassword());
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
+        }
 
-		return user;
-	}
+        checkPassword(user, request.getPassword());
 
-	/**
-	 * 계정 중복 체크
-	 * 작성자 : 김은정
-	 *
-	 * @param username
-	 * @return String usernaame
-	 */
-	public String userDuplicateCheck(String username) {
-		User user = getUserByUsername(username);
+        return user;
+    }
 
-		if (user != null) {
-			throw new CustomException(ErrorCode.USERNAME_DUPLICATION);
-		}
-		return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
-	}
+    /**
+     * 계정 중복 체크
+     * 작성자 : 김은정
+     *
+     * @param username
+     * @return String usernaame
+     */
+    public String userDuplicateCheck(String username) {
 
-	/**
-	 * 아이디 확인
-	 * 작성자 : 김은정
-	 *
-	 * @param username
-	 * @return User user
-	 */
-	public User getUserByUsername(String username) {
+        User user = getUserByUsername(username);
 
-		return userRepository.findByUsername(username);
-	}
+        if (user != null) {
+            throw new CustomException(ErrorCode.USERNAME_DUPLICATION);
+        }
+        return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
+    }
 
-	/**
-	 * 비밀번호 확인
-	 * 작성자 : 김은정
-	 *
-	 * @param user
-	 * @param password
-	 */
-	public void checkPassword(User user, String password) {
+    /**
+     * 아이디 확인
+     * 작성자 : 김은정
+     *
+     * @param username
+     * @return User user
+     */
+    public User getUserByUsername(String username) {
 
-		PasswordEncoder passwordEncoder = securityConfig.passwordEncoder();
-		if (!passwordEncoder.matches(password, user.getPassword())) {
-			throw new CustomException(ErrorCode.PASSWORD_NOT_VALID);
-		}
-	}
+        return userRepository.findByUsername(username);
+    }
+
+    /**
+     * 비밀번호 확인
+     * 작성자 : 김은정
+     *
+     * @param user
+     * @param password
+     */
+    public void checkPassword(User user, String password) {
+
+        PasswordEncoder passwordEncoder = securityConfig.passwordEncoder();
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_VALID);
+        }
+    }
 
     /**
      * @param request 사용자 회원정보 수정한 데이터
@@ -194,12 +198,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserInfoUpdateResponse updateUserInfo(UserInfoUpdateRequest request, String token) {
-        // 1. 토큰에서 이메일과 ID를 추출
-        String email = jwtTokenProvider.extractEmailFromToken(token);
-        Long idFromToken = jwtTokenProvider.extractIdFromToken(token);
+        // 1. 토큰에서 이메일과 계정명을 추출
+        Claims claims = jwtTokenProvider.extractAllClaims(token);
+        String email = jwtTokenProvider.extractEmail(claims);
+        String username = jwtTokenProvider.extractUsername(claims);
 
-        // 2. 이메일과 ID를 사용해 사용자 검색
-        User user = userRepository.findByIdAndEmail(idFromToken, email)
+        // 2. 이메일과 계정명을 사용해 사용자 검색
+        User user = userRepository.findByEmailAndUsername(email, username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
 
         // 3. 사용자 입력 정보 유효성 검사
