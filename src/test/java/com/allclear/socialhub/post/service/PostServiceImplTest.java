@@ -63,12 +63,16 @@ class PostServiceImplTest {
     @Autowired
     private PostViewRepository postViewRepository;
 
+    @Autowired
+    private PostLikeRepository postLikeRepository;
+
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
     @AfterEach
     void tearDown() {
 
+        postLikeRepository.deleteAllInBatch();
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
         postLikeRepository.deleteAllInBatch();
@@ -423,6 +427,37 @@ class PostServiceImplTest {
                         tuple("제목2", "내용2", FACEBOOK, 20, 20, 20),
                         tuple("제목1", "내용1", INSTAGRAM, 10, 10, 10)
                 );
+    }
+
+    @DisplayName("게시물 좋아요를 추가합니다.")
+    @Test
+    void likePost() {
+        // given
+        User user = createUser();
+
+        Post post = createPost(user, "제목1", "내용1", INSTAGRAM, 10, 10, 10);
+        postRepository.save(post);
+
+        // when
+        PostLikeResponse postLikeResponse = postService.likePost(post.getId(), user.getId());
+
+        // then
+        assertThat(postLikeResponse)
+                .extracting("postId", "likeCnt", "url")
+                .contains(1L, 11, "https://www.instagram.com/likes/instagram");
+    }
+
+    @DisplayName("존재하지 않는 게시물 ID로 게시물 좋아요를 추가합니다.")
+    @Test
+    void likePostWithNonExistentPostId() {
+        // given
+        User user = createUser();
+
+        // when // then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.likePost(-1L, user.getId()));
+
+        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }
 
     // 유저 빌더 생성
