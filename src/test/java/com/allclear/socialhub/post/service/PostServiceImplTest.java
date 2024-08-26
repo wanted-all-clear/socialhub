@@ -426,7 +426,6 @@ class PostServiceImplTest {
         postHashtagRepository.save(postHashtag2);
         postHashtagRepository.save(postHashtag3);
 
-
         // when
         PostPaging postPaging = postService.searchPosts(pageable, user.getUsername(), hashtag1.getContent(), INSTAGRAM, "", "viewCnt", "desc", "");
 
@@ -434,9 +433,7 @@ class PostServiceImplTest {
         assertEquals(3, postPaging.getPostCnt());
 
         // 각 게시물에 '#해시태그'가 포함되어 있는지 검증
-        postPaging.getPostList().forEach(post -> {
-            assertTrue(((PostListResponse) post).getHashtagList().contains("#해시태그"));
-        });
+        postPaging.getPostList().forEach(post -> assertTrue(((PostListResponse) post).getHashtagList().contains("#해시태그")));
 
     }
 
