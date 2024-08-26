@@ -4,11 +4,17 @@ import com.allclear.socialhub.common.domain.Timestamped;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "post_like")
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostLike extends Timestamped {
 
     @Id
@@ -22,5 +28,5 @@ public class PostLike extends Timestamped {
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
-    
+
 }

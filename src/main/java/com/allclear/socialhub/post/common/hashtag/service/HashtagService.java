@@ -12,6 +12,8 @@ public interface HashtagService {
 
     List<Hashtag> updateHashtag(Long postId, List<String> hashtagList);
 
+    void deleteByPostId(Long postId);
+
     List<String> removeHashSymbol(List<String> hashtagList);
 
 }
