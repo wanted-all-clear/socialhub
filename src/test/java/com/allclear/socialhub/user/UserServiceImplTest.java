@@ -18,6 +18,8 @@ import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.domain.User;
+import com.allclear.socialhub.user.dto.UserInfoUpdateRequest;
+import com.allclear.socialhub.user.dto.UserInfoUpdateResponse;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
@@ -26,6 +28,22 @@ import com.allclear.socialhub.user.service.UserServiceImpl;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
+import io.jsonwebtoken.Claims;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -181,64 +199,68 @@ public class UserServiceImplTest {
 		verify(userRepository, times(1)).findByUsername(any());
 	}
 
-	// @Test
-	// @DisplayName("회원 정보 수정 성공 테스트")
-	// public void updateUserInfo_Success() {
-	// 	// given
-	// 	String token = "validToken";
-	// 	UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
-	//
-	// 	given(jwtTokenProvider.extractEmailFromToken(token)).willReturn(user.getEmail());
-	// 	given(jwtTokenProvider.extractIdFromToken(token)).willReturn(user.getId());
-	// 	given(userRepository.findByIdAndEmail(user.getId(), user.getEmail())).willReturn(Optional.of(user));
-	// 	given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);
-	// 	given(passwordEncoder.encode(request.getPassword())).willReturn("encodedNewPassword");
-	//
-	// 	// when
-	// 	UserInfoUpdateResponse response = userService.updateUserInfo(request, token);
-	//
-	// 	// then
-	// 	verify(userRepository, times(1)).save(any(User.class));
-	// 	assertThat(response.getUsername()).isEqualTo(request.getUsername());
-	// 	assertThat(response.getMessage()).isEqualTo("회원가입 수정이 완료되었습니다.");
-	// }
+    @Test
+    @DisplayName("회원 정보 수정 성공 테스트")
+    public void updateUserInfo_Success() {
+        // given
+        String token = "validToken";
+        UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
-	// @Test
-	// @DisplayName("회원 정보 수정 실패 테스트 - 기존 비밀번호 재사용")
-	// public void updateUserInfo_Failure_PasswordReused() {
-	// 	// given
-	// 	String token = "validToken";
-	// 	UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
-	//
-	// 	given(jwtTokenProvider.extractEmailFromToken(token)).willReturn(user.getEmail());
-	// 	given(jwtTokenProvider.extractIdFromToken(token)).willReturn(user.getId());
-	// 	given(userRepository.findByIdAndEmail(user.getId(), user.getEmail())).willReturn(Optional.of(user));
-	// 	given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
-	//
-	// 	// when & then
-	// 	CustomException exception = assertThrows(CustomException.class,
-	// 			() -> userService.updateUserInfo(request, token));
-	//
-	// 	assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.PASSWORD_REUSED);
-	// 	verify(userRepository, never()).save(any(User.class));
-	// }
-	//
-	// @Test
-	// @DisplayName("회원 정보 수정 실패 테스트 - 사용자 존재하지 않음")
-	// public void updateUserInfo_Failure_UserNotExist() {
-	// 	// given
-	// 	String token = "validToken";
-	// 	UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
-	//
-	// 	given(jwtTokenProvider.extractEmailFromToken(token)).willReturn(user.getEmail());
-	// 	given(jwtTokenProvider.extractIdFromToken(token)).willReturn(user.getId());
-	// 	given(userRepository.findByIdAndEmail(user.getId(), user.getEmail())).willReturn(Optional.empty());
-	//
-	// 	// when & then
-	// 	CustomException exception = assertThrows(CustomException.class,
-	// 			() -> userService.updateUserInfo(request, token));
-	//
-	// 	assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
-	// 	verify(userRepository, never()).save(any(User.class));
-	// }
+        Claims claims = mock(Claims.class);
+        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+        given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);
+        given(passwordEncoder.encode(request.getPassword())).willReturn("encodedNewPassword");
+
+        // when
+        UserInfoUpdateResponse response = userService.updateUserInfo(request, token);
+
+        // then
+        verify(userRepository, times(1)).save(any(User.class));
+        assertThat(response.getUsername()).isEqualTo(request.getUsername());
+        assertThat(response.getMessage()).isEqualTo("회원가입 수정이 완료되었습니다.");
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정 실패 테스트 - 기존 비밀번호 재사용")
+    public void updateUserInfo_Failure_PasswordReused() {
+        // given
+        String token = "validToken";
+        UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
+
+        Claims claims = mock(Claims.class);
+        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+        given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class, () -> userService.updateUserInfo(request, token));
+
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.PASSWORD_REUSED);
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정 실패 테스트 - 사용자 존재하지 않음")
+    public void updateUserInfo_Failure_UserNotExist() {
+        // given
+        String token = "validToken";
+        UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
+
+        Claims claims = mock(Claims.class);
+        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+        // when & then
+        CustomException exception = assertThrows(CustomException.class, () -> userService.updateUserInfo(request, token));
+
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXIST);
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+
 }

@@ -2,11 +2,8 @@ package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.domain.PostType;
-import com.allclear.socialhub.post.dto.PostCreateRequest;
-import com.allclear.socialhub.post.dto.PostPaging;
-import com.allclear.socialhub.post.dto.PostResponse;
-import com.allclear.socialhub.post.dto.PostUpdateRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,5 +23,9 @@ public interface PostService {
     PostLikeResponse likePost(Long postId, Long userId);
 
     PostShareResponse sharePost(Long postId, Long userId);
+
+    PostDetailResponse getPostDetail(Long postId, Long userId);
+
+    void deletePost(Long userId, Long postId);
 
 }

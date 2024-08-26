@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.domain.User;
+import com.allclear.socialhub.user.dto.UserEmailRequest;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.service.EmailService;
@@ -55,26 +56,27 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body("이메일로 인증 코드가 전송되었습니다.");
 	}
 
-	//    @Operation(summary = "이메일 인증 코드 확인", description = "사용자가 입력한 인증 코드를 확인합니다.")
-	//    @ApiResponses(value = {
-	//            @ApiResponse(responseCode = "200", description = "이메일 인증 성공",
-	//                    content = @Content(mediaType = "application/json")),
-	//            @ApiResponse(responseCode = "400", description = "인증 코드가 일치하지 않거나 만료됨",
-	//                    content = @Content)
-	//    })
-	//	@PostMapping("/email-verify")
-	//	public ResponseEntity<String> verifyEmailCode(@RequestHeader("Authorization") String token,
-	//			@Valid @RequestBody UserEmailRequest request) {
-	//
-	//		String email = jwtTokenProvider.extractEmailFromToken(token);
-	//		String storedCode = emailService.getVerificationToken(email);
-	//
-	//		if (userService.verifyUser(storedCode, request.getAuthCode(), email)) {
-	//			return ResponseEntity.status(HttpStatus.OK).body("이메일 인증이 완료되었습니다.");
-	//		} else {
-	//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증 코드가 일치하지 않거나 만료되었습니다.");
-	//		}
-	//	}
+    @Operation(summary = "이메일 인증 코드 확인", description = "사용자가 입력한 인증 코드를 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이메일 인증 성공",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "인증 코드가 일치하지 않거나 만료됨",
+                    content = @Content)
+    })
+    @PostMapping("/email-verify")
+    public ResponseEntity<String> verifyEmailCode(@RequestHeader("Authorization") String token,
+                                                  @Valid @RequestBody UserEmailRequest request) {
+
+        Claims claims = jwtTokenProvider.extractAllClaims(token);
+        String email = jwtTokenProvider.extractEmail(claims);
+        String storedCode = emailService.getVerificationToken(email);
+
+        if (userService.verifyUser(storedCode, request.getAuthCode(), email)) {
+            return ResponseEntity.status(HttpStatus.OK).body("이메일 인증이 완료되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증 코드가 일치하지 않거나 만료되었습니다.");
+        }
+    }
 
 	@Operation(summary = "회원 가입", description = "사용자가 회원 가입을 요청합니다.")
 	@ApiResponses(value = {
