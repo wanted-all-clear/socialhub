@@ -8,11 +8,13 @@ import com.allclear.socialhub.post.domain.StatisticType;
 import com.allclear.socialhub.post.domain.StatisticValue;
 import com.allclear.socialhub.post.dto.StatisticResponse;
 import com.allclear.socialhub.post.service.StatisticService;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,8 +27,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,6 +51,9 @@ class StatisticControllerTest {
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
+    @Mock
+    private Claims mockClaims;
+
     private String jwt;
 
     @BeforeEach
@@ -60,7 +64,8 @@ class StatisticControllerTest {
                 .build();
 
         jwt = "mockJwtToken"; // 실제 JWT 생성 로직을 대체하는 Mock 값
-        when(jwtTokenProvider.extractAccountFromToken(jwt)).thenReturn("test");
+        when(jwtTokenProvider.extractAllClaims(anyString())).thenReturn(mockClaims);
+        when(jwtTokenProvider.extractUsername(any(Claims.class))).thenReturn("test");
     }
 
     @Nested
