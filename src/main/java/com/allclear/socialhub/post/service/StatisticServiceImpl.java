@@ -60,28 +60,20 @@ public class StatisticServiceImpl implements StatisticService {
 
         // 3. start ~ end 날짜로 일자별 혹은 시간대별 개수를 가져오는 쿼리 날린 결과
         List<StatisticQueryResponse> queryResponses = getQueryResponsesByValue(value, postIds, start, end, queryDateFormatPattern);
-
+        
         // 4. 시간 - 개수 Map으로 변환
-        Map<String, Long> queryResponseMap = queryResponses.stream()
-                .collect(Collectors.toMap(StatisticQueryResponse::getTime, StatisticQueryResponse::getValue, (existing, replacement) -> existing));
+        Map<String, Long> queryResponseMap = convertStatisticQueryResponseToMap(queryResponses);
 
         // 5. 일자별 혹은 시간대별로 리스트 초기화
-        List<StatisticResponse> responses = initializeStatistics(type, start, end);
+        List<StatisticResponse> initializeStatisticsResponses = initializeStatistics(type, start, end);
 
-        // 6. 시간 - 개수 Map에 존재하는 시간이면 개수를 매핑
-        for (StatisticResponse statisticResponse : responses) {
-            String time = statisticResponse.getTime();
-            if (queryResponseMap.containsKey(time)) {
-                statisticResponse.setValue(queryResponseMap.get(time));
-            }
-        }
-
-        return responses;
+        // 6. 5에서 초기화한 리스트에 시간 - 개수 Map에 존재하는 시간이면 개수를 설정
+        return updateStatisticsWithQueryResults(queryResponseMap, initializeStatisticsResponses);
 
     }
 
     /**
-     * 날짜 범위가 유효한지 검증합니다.
+     * 1-0. 날짜 범위가 유효한지 검증합니다.
      * - 작성자 : 김유현
      *
      * @param type  통계 타입 (일자별, 시간대별)
@@ -89,7 +81,7 @@ public class StatisticServiceImpl implements StatisticService {
      * @param end   종료 날짜
      * @throws CustomException 날짜 범위 유효성 검증 실패 시 발생
      */
-    private void validateDateRange(StatisticType type, LocalDate start, LocalDate end) {
+    public void validateDateRange(StatisticType type, LocalDate start, LocalDate end) {
 
         Long diff = DateUtil.getDateDiff(start, end);
         log.info("start ~ end : " + diff);
@@ -114,7 +106,7 @@ public class StatisticServiceImpl implements StatisticService {
 
 
     /**
-     * 통계 값에 따라 쿼리 결과를 가져옵니다.
+     * 1-3. 통계 값에 따라 쿼리 결과를 가져옵니다.
      * 작성자 : 김효진, 김유현
      *
      * @param value                  통계 값 (COUNT, LIKE_COUNT, VIEW_COUNT, SHARE_COUNT)
@@ -124,53 +116,51 @@ public class StatisticServiceImpl implements StatisticService {
      * @param queryDateFormatPattern 날짜 포맷 패턴 (ex. '%Y-%m-%d', '%Y-%m-%d %H:%i')
      * @return List<StatisticQueryResponse> 통계 데이터 리스트
      */
-    private List<StatisticQueryResponse> getQueryResponsesByValue(StatisticValue value, List<Long> postIds, LocalDate start, LocalDate end, String queryDateFormatPattern) {
+    public List<StatisticQueryResponse> getQueryResponsesByValue(StatisticValue value, List<Long> postIds, LocalDate start, LocalDate end, String queryDateFormatPattern) {
 
-        switch (value) {
-            case COUNT -> {
-                return postRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
-            }
-            case LIKE_COUNT -> {
-                return postLikeRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
-
-            }
-            case VIEW_COUNT -> {
-                return postViewRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
-
-            }
-            case SHARE_COUNT -> {
-                return postShareRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
-            }
-            default -> {
-                throw new IllegalArgumentException("잘못된 StatisticValue 입니다. value : " + value);
-            }
-        }
+        return switch (value) {
+            case COUNT -> postRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
+            case LIKE_COUNT -> postLikeRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
+            case VIEW_COUNT -> postViewRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
+            case SHARE_COUNT -> postShareRepository.findStatisticByPostIds(postIds, start, end, queryDateFormatPattern);
+        };
     }
 
     /**
-     * 통계 유형에 따른 날짜 포맷 패턴을 반환합니다.
+     * 1-4. 쿼리를 통해 가져온 결과를 시간 - 개수의 Map 으로 변환합니다.
+     * 작성자 : 김유현
+     *
+     * @param queryResponses 쿼리 결과 (StatisticQueryResponse 객체 List)
+     * @return Map<String, Long> 시간 - 개수 Map
+     */
+    public Map<String, Long> convertStatisticQueryResponseToMap(List<StatisticQueryResponse> queryResponses) {
+
+        return queryResponses.stream()
+                .collect(Collectors.toMap(
+                        StatisticQueryResponse::getTime,
+                        StatisticQueryResponse::getValue,
+                        (existing, replacement) -> existing
+                ));
+    }
+
+
+    /**
+     * 1-1. 통계 유형에 따른 날짜 포맷 패턴을 반환합니다.
      * 작성자 : 김유현
      *
      * @param type 통계 유형 (일자별 또는 시간별)
      * @return String 날짜 포맷 패턴
      */
-    private String getQueryDateFormatPattern(StatisticType type) {
+    public String getQueryDateFormatPattern(StatisticType type) {
 
-        switch (type) {
-            case DATE -> {
-                return "%Y-%m-%d";
-            }
-            case HOUR -> {
-                return "%Y-%m-%d %H:%i";
-            }
-            default -> {
-                throw new IllegalArgumentException("잘못된 StatisticType 입니다. type : " + type);
-            }
-        }
+        return switch (type) {
+            case DATE -> "%Y-%m-%d";
+            case HOUR -> "%Y-%m-%d %H:00";
+        };
     }
 
     /**
-     * 통계 유형에 따라 일자별 또는 시간별 데이터를 초기화합니다.
+     * 1-5. 통계 유형에 따라 일자별 또는 시간별 데이터를 초기화합니다.
      * 작성자 : 김유현
      *
      * @param type  통계 유형 (일자별 또는 시간별)
@@ -178,30 +168,23 @@ public class StatisticServiceImpl implements StatisticService {
      * @param end   종료 날짜
      * @return List<StatisticResponse> 초기화된 통계 데이터 리스트
      */
-    private List<StatisticResponse> initializeStatistics(StatisticType type, LocalDate start, LocalDate end) {
+    public List<StatisticResponse> initializeStatistics(StatisticType type, LocalDate start, LocalDate end) {
 
-        switch (type) {
-            case DATE -> {
-                return initializeDailyStatistics(start, end);
-            }
-            case HOUR -> {
-                return initializeHourlyStatistics(start, end);
-            }
-            default -> {
-                throw new IllegalArgumentException("잘못된 StatisticType 입니다. type : " + type);
-            }
-        }
+        return switch (type) {
+            case DATE -> initializeDailyStatistics(start, end);
+            case HOUR -> initializeHourlyStatistics(start, end);
+        };
     }
 
     /**
-     * 주어진 기간에 대해 일자별 통계를 초기화합니다.
+     * 1-5-1. 주어진 기간에 대해 일자별 통계를 초기화합니다.
      * 작성자 : 김효진
      *
      * @param start 시작 날짜
      * @param end   종료 날짜
      * @return List<StatisticResponse> 초기화된 일자별 통계 데이터 리스트 ex. [{2024-08-24 : 0}, ...]
      */
-    private List<StatisticResponse> initializeDailyStatistics(LocalDate start, LocalDate end) {
+    public List<StatisticResponse> initializeDailyStatistics(LocalDate start, LocalDate end) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -220,7 +203,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     /**
-     * 주어진 기간에 대해 시간별 통계를 초기화합니다.
+     * 1-5-2. 주어진 기간에 대해 시간별 통계를 초기화합니다.
      * 작성자 : 김유현
      *
      * @param start 시작 날짜
@@ -254,5 +237,27 @@ public class StatisticServiceImpl implements StatisticService {
 
         return result;
     }
+
+    /**
+     * 1-6. 쿼리 결과에서 가져온 시간-개수 맵을 사용하여 초기화된 통계 리스트를 업데이트합니다.
+     * 작성자 : 김유현
+     *
+     * @param queryResponseMap              쿼리 결과에서 가져온 시간-개수 맵
+     * @param initializeStatisticsResponses 초기화된 통계 리스트
+     * @return List<StatisticResponse>
+     */
+    public List<StatisticResponse> updateStatisticsWithQueryResults(Map<String, Long> queryResponseMap, List<StatisticResponse> initializeStatisticsResponses) {
+
+        for (StatisticResponse statisticResponse : initializeStatisticsResponses) {
+            String time = statisticResponse.getTime();
+            // 쿼리 결과에 존재하면 개수 설정
+            if (queryResponseMap.containsKey(time)) {
+                statisticResponse.setValue(queryResponseMap.get(time));
+            }
+        }
+
+        return initializeStatisticsResponses;
+    }
+
 
 }

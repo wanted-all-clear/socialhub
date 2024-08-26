@@ -2,10 +2,7 @@ package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
-import com.allclear.socialhub.post.dto.PostCreateRequest;
-import com.allclear.socialhub.post.dto.PostPaging;
-import com.allclear.socialhub.post.dto.PostResponse;
-import com.allclear.socialhub.post.dto.PostUpdateRequest;
+import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,15 +29,6 @@ public class PostController {
         return ResponseEntity.status(201).body(postService.createPost(1L, requestDto));
     }
 
-    @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
-    @GetMapping
-    public ResponseEntity<PostPaging> getPosts(@PageableDefault Pageable pageable) {
-
-        // TODO : 추후 유저 검증 필요
-        return ResponseEntity.status(200).body(postService.getPosts(pageable));
-
-    }
-
     @Operation(summary = "게시물 수정", description = "게시물을 수정합니다.")
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(@Valid @RequestBody PostUpdateRequest updateRequest,
@@ -59,6 +47,36 @@ public class PostController {
         return ResponseEntity.status(200).body("성공적으로 삭제되었습니다.");
     }
 
+    @Operation(summary = "게시물 검색 목록 조회", description = "게시물 검색 목록을 조회합니다.")
+    @GetMapping("/search")
+    public ResponseEntity<PostPaging> searchPosts(
+            @PageableDefault Pageable pageable,
+            @RequestParam(value = "hashtag", required = false) String hashtag,
+            @RequestParam(value = "type", required = false) PostType type,
+            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+            @RequestParam(value = "orderBy", required = false, defaultValue = "created_at") String orderBy,
+            @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
+            @RequestParam(value = "searchBy", required = false, defaultValue = "title") String searchBy) {
+
+        return ResponseEntity.status(200)
+                .body(postService.searchPosts(pageable, "username", hashtag, type, query, orderBy, sort, searchBy));
+    }
+
+    @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
+    @GetMapping
+    public ResponseEntity<PostPaging> getPosts(@PageableDefault Pageable pageable) {
+
+        // TODO : 추후 유저 검증 필요
+        return ResponseEntity.status(200).body(postService.getPosts(pageable));
+    }
+
+    @GetMapping("/{postId}")
+    @Operation(summary = "게시물 상세 조회", description = "게시물 상세를 조회합니다.")
+    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId, Long userId) {
+
+        return ResponseEntity.status(200).body(postService.getPostDetail(postId, userId));
+    }
+
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요를 추가합니다.")
     @PostMapping("/like/{postId}")
     public ResponseEntity<PostLikeResponse> likePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
@@ -68,7 +86,7 @@ public class PostController {
 
     @Operation(summary = "게시물 공유", description = "게시물 공유를 추가합니다.")
     @PostMapping("/share/{postId}")
-    public ResponseEntity<PostShareResponse> sharePost(@PathVariable Long postId, @RequestParam Long userId) {
+    public ResponseEntity<PostShareResponse> sharePost(@PathVariable("postId") Long postId, @RequestParam Long userId) {
 
         // TODO: 추후 유저 검증
         return ResponseEntity.status(201).body(postService.sharePost(postId, userId));

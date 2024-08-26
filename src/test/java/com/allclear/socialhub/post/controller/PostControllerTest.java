@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.dto.PostDetailResponse;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.dto.PostPaging;
 import com.allclear.socialhub.post.dto.PostResponse;
@@ -102,22 +103,7 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.likeCnt").value(response.getLikeCnt()))
                 .andExpect(jsonPath("$.shareCnt").value(response.getShareCnt()));
     }
-
-    // 게시물 상세 응답 빌더 생성
-    private static PostDetailResponse createPostDetailResponse() {
-
-        return PostDetailResponse.builder()
-                .postId(1L)
-                .userId(1L)
-                .type(FACEBOOK)
-                .title("게시물 상세 제목")
-                .content("게시물 상세 내용")
-                .hashtagList(List.of("#해시태그"))
-                .viewCnt(10)
-                .likeCnt(20)
-                .shareCnt(30)
-                .build();
-
+  
     @DisplayName("게시물 좋아요를 추가합니다.")
     @Test
     void likePost() throws Exception {
@@ -144,6 +130,50 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.postId").value(postId))
                 .andExpect(jsonPath("$.likeCnt").value(10))
                 .andExpect(jsonPath("$.url").value(url));
+    }
+
+    @DisplayName("게시물 공유를 추가합니다.")
+    @Test
+    void sharePost() throws Exception {
+        // given
+        Long postId = 1L;
+        Long userId = 1L;
+        String url = "https://www.facebook.com/share/facebook";
+
+        PostShareResponse response = PostShareResponse.builder()
+                .postId(postId)
+                .shareCnt(10)
+                .url(url)
+                .build();
+
+        when(postService.sharePost(postId, userId)).thenReturn(response);
+
+        // when // then
+        mockMvc.perform(
+                        post("/api/posts/share/{postId}", postId)
+                                .param("userId", userId.toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.postId").value(postId))
+                .andExpect(jsonPath("$.shareCnt").value(10))
+                .andExpect(jsonPath("$.url").value(url));
+    }
+
+    // 게시물 상세 응답 빌더 생성
+    private static PostDetailResponse createPostDetailResponse() {
+
+        return PostDetailResponse.builder()
+                .postId(1L)
+                .userId(1L)
+                .type(FACEBOOK)
+                .title("게시물 상세 제목")
+                .content("게시물 상세 내용")
+                .hashtagList(List.of("#해시태그"))
+                .viewCnt(10)
+                .likeCnt(20)
+                .shareCnt(30)
+                .build();
     }
 
 }

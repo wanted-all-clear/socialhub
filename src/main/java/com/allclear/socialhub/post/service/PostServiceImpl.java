@@ -13,10 +13,8 @@ import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
-import com.allclear.socialhub.post.dto.PostCreateRequest;
-import com.allclear.socialhub.post.dto.PostPaging;
-import com.allclear.socialhub.post.dto.PostResponse;
-import com.allclear.socialhub.post.dto.PostUpdateRequest;
+import com.allclear.socialhub.post.dto.*;
+import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.repository.PostRepository;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.repository.UserRepository;
@@ -145,6 +143,26 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
+     * 4. 게시물 검색 목록 조회
+     * 작성자 : 오예령
+     *
+     * @param pageable Pagination 요청 정보 관련 인터페이스
+     * @param username 유저 계정이름
+     * @param hashtag  검색할 hashtag
+     * @param type     게시물 타입 ("INSTAGRAM", "FACEBOOK", "TWITTER", "THREADS" 만 가능)
+     * @param query    검색할 query
+     * @param orderBy  정렬기준
+     * @param sort     순서
+     * @param searchBy 검색 범위 ("TITLE", "CONTENT", "TITLE, CONTENT"만 가능)
+     * @return 페이징 처리가 된 검색 결과에 맞는 목록 반환
+     */
+    @Override
+    public PostPaging searchPosts(Pageable pageable, String username, String hashtag, PostType type, String query, String orderBy, String sort, String searchBy) {
+
+        return new PostPaging(postRepository.searchPosts(pageable, username, hashtag, type, query, orderBy, sort, searchBy));
+    }
+
+    /**
      * 5. 게시물 목록 조회
      * 작성자 : 유리빛나
      *
@@ -154,6 +172,21 @@ public class PostServiceImpl implements PostService {
     public PostPaging getPosts(Pageable pageable) {
 
         return new PostPaging(postRepository.getPosts(pageable));
+    }
+
+    /**
+     * 6. 게시물 상세 조회
+     * 작성자 : 유리빛나
+     *
+     * @param postId 게시물 번호
+     * @param userId 유저 번호
+     * @return 게시물 상세
+     */
+    public PostDetailResponse getPostDetail(Long postId, Long userId) {
+
+        postRepository.findById(postId).orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+
+        return postRepository.getPostDetail(postId, userId);
     }
 
     /**
@@ -218,7 +251,7 @@ public class PostServiceImpl implements PostService {
 
         return PostShareResponse.builder()
                 .postId(postId)
-                .shareCount(postShare.getPost().getShareCnt())
+                .shareCnt(postShare.getPost().getShareCnt())
                 .url(url)
                 .build();
     }

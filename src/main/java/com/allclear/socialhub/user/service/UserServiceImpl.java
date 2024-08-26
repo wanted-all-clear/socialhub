@@ -3,7 +3,10 @@ package com.allclear.socialhub.user.service;
 import com.allclear.socialhub.common.config.WebSecurityConfig;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.domain.User;
+import com.allclear.socialhub.user.dto.UserInfoUpdateRequest;
+import com.allclear.socialhub.user.dto.UserInfoUpdateResponse;
 import com.allclear.socialhub.user.dto.UserJoinRequest;
 import com.allclear.socialhub.user.dto.UserLoginRequest;
 import com.allclear.socialhub.user.exception.DuplicateUserInfoException;
@@ -11,6 +14,8 @@ import com.allclear.socialhub.user.repository.EmailRedisRepository;
 import com.allclear.socialhub.user.repository.UserRepository;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
+import com.allclear.socialhub.user.type.UsernameDupStatus;
+import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final EmailRedisRepository emailRedisRepository;
     private final WebSecurityConfig securityConfig;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 사용자 회원가입
@@ -89,9 +95,8 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    // 계정명 길이 검증
     private void validateUsername(String username) {
-
+        // 계정명 길이 검증
         if (username.length() < 3 || username.length() > 20) {
             throw new CustomException(ErrorCode.INVALID_USERNAME_LENGTH);
         }
@@ -131,14 +136,32 @@ public class UserServiceImpl implements UserService {
      */
     public User userLogin(UserLoginRequest request) {
 
-        try {
-            User user = checkUsername(request.getUsername());
-            checkPassword(user, request.getPassword());
+        User user = getUserByUsername(request.getUsername());
 
-            return user;
-        } catch (RuntimeException ex) {
-            throw new RuntimeException(ex.getMessage());
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
+
+        checkPassword(user, request.getPassword());
+
+        return user;
+    }
+
+    /**
+     * 계정 중복 체크
+     * 작성자 : 김은정
+     *
+     * @param username
+     * @return String usernaame
+     */
+    public String userDuplicateCheck(String username) {
+
+        User user = getUserByUsername(username);
+
+        if (user != null) {
+            throw new CustomException(ErrorCode.USERNAME_DUPLICATION);
+        }
+        return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
     }
 
     /**
@@ -148,15 +171,9 @@ public class UserServiceImpl implements UserService {
      * @param username
      * @return User user
      */
-    public User checkUsername(String username) {
+    public User getUserByUsername(String username) {
 
-        User user = userRepository.findByUsername(username);
-
-        if (user == null) {
-            throw new RuntimeException(ErrorCode.USER_NOT_EXIST.getMessage());
-        }
-
-        return user;
+        return userRepository.findByUsername(username);
     }
 
     /**
@@ -170,7 +187,57 @@ public class UserServiceImpl implements UserService {
 
         PasswordEncoder passwordEncoder = securityConfig.passwordEncoder();
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException(ErrorCode.PASSWORD_NOT_VALID.getMessage());
+            throw new CustomException(ErrorCode.PASSWORD_NOT_VALID);
         }
     }
+
+    /**
+     * @param request 사용자 회원정보 수정한 데이터
+     * @param token   JWT token
+     * @return Response 객체
+     */
+    @Override
+    public UserInfoUpdateResponse updateUserInfo(UserInfoUpdateRequest request, String token) {
+        // 1. 토큰에서 이메일과 계정명을 추출
+        Claims claims = jwtTokenProvider.extractAllClaims(token);
+        String email = jwtTokenProvider.extractEmail(claims);
+        String username = jwtTokenProvider.extractUsername(claims);
+
+        // 2. 이메일과 계정명을 사용해 사용자 검색
+        User user = userRepository.findByEmailAndUsername(email, username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
+
+        // 3. 사용자 입력 정보 유효성 검사
+        validateUsername(request.getUsername());
+        validatePassword(request.getPassword());
+        String newPassword = passwordEncoder.encode(request.getPassword());
+
+
+        // 4. 기존 비밀번호와 새 비밀번호 비교
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_REUSED);
+        }
+
+        // 5. 기존 사용자 객체를 복사하고 필드 업데이트
+        User updatedUser = User.builder()
+                .id(user.getId())  // 기존 ID 유지
+                .username(request.getUsername())
+                .email(user.getEmail())  // 이메일은 변경하지 않음
+                .password(newPassword)
+                .deletedAt(user.getDeletedAt())  // 기존의 삭제 날짜 유지
+                .status(user.getStatus())  // 기존 상태 유지
+                .certifyStatus(user.getCertifyStatus())  // 기존 인증 상태 유지
+                .build();
+
+        // 6. 업데이트된 사용자 정보 저장
+        userRepository.save(updatedUser);
+
+        // 7. Response 객체를 생성하여 반환
+        return UserInfoUpdateResponse.builder()
+                .username(request.getUsername())
+                .message("회원가입 수정이 완료되었습니다.")
+                .build();
+
+    }
+
 }
