@@ -10,20 +10,20 @@ import org.springframework.stereotype.Service;
 @Service
 public interface PostService {
 
-    PostResponse createPost(Long userId, PostCreateRequest requestDto);
+    PostResponse createPost(String username, PostCreateRequest requestDto);
 
-    PostResponse updatePost(Long userId, Long postId, PostUpdateRequest updateRequest);
+    PostResponse updatePost(String username, Long postId, PostUpdateRequest updateRequest);
 
-    void deletePost(Long userId, Long postId);
+    void deletePost(String username, Long postId);
 
     PostPaging searchPosts(Pageable pageable, String username, String hashtag, PostType type, String query, String orderBy, String sort, String searchBy);
 
     PostPaging getPosts(Pageable pageable);
 
-    PostLikeResponse likePost(Long postId, Long userId);
+    PostLikeResponse likePost(Long postId, String username);
 
-    PostShareResponse sharePost(Long postId, Long userId);
+    PostShareResponse sharePost(Long postId, String username);
 
-    PostDetailResponse getPostDetail(Long postId, Long userId);
+    PostDetailResponse getPostDetail(Long postId, String username);
 
 }

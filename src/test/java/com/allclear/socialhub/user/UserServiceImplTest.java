@@ -41,6 +41,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
@@ -65,7 +66,6 @@ public class UserServiceImplTest {
 	public void setUp() {
 
 		loginRequest = new UserLoginRequest("validUser", "password");
-
 		request = new UserJoinRequest();
 		request.setUsername("validUser");
 		request.setEmail("valid@example.com");
@@ -79,7 +79,6 @@ public class UserServiceImplTest {
 				.password("encodedPassword")
 				.build();
 	}
-
 
 	@Test
 	@DisplayName("로그인 시 사용자가 전달한 계정과 일치하는 계정이 있는 경우")
@@ -198,6 +197,46 @@ public class UserServiceImplTest {
 		assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
 		verify(userRepository, times(1)).findByUsername(any());
 	}
+
+  @Test
+  @DisplayName("회원가입 시 사용하고자 하는 계정을 이미 다른 사용자가 사용한 경우를 테스트합니다.")
+  public void duplicateAccountExistsTest() {
+        //given
+        User user = User.builder()
+                .username("username")
+                .email("welfjlkd@gmail.com")
+                .password("padlfjdl")
+                .status(UserStatus.ACTIVE)
+                .certifyStatus(UserCertifyStatus.AUTHENTICATED)
+                .build();
+        given(userRepository.findByUsername(any())).willReturn(user);
+
+
+        // 사용자명으로 이미 사용자가 존재할 때를 시뮬레이션
+        given(userRepository.findByUsername(user.getUsername())).willReturn(user);
+
+        //when & then
+        // userDuplicateCheck 메서드가 호출될 때 CustomException이 발생하는지 확인합니다.
+        // 예외의 메시지가 ErrorCode.USERNAME_DUPLICATION의 메시지를 포함하고 있는지 검증합니다.
+        assertThatThrownBy(() -> userService.userDuplicateCheck(user.getUsername()))
+                .isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.USERNAME_DUPLICATION.getMessage());
+
+        // userRepository의 findByUsername 메서드가 정확히 한 번 호출되었는지 검증합니다.
+        verify(userRepository, times(1)).findByUsername(any());
+
+    }
+
+    @DisplayName("회원가입 시 사용하고자 하는 계정을 다른 사용자가 사용하지 않는 경우를 테스트합니다.")
+    @Test
+    public void duplicateAccountNoExistsTest() {
+        //when
+        String result = userService.userDuplicateCheck(any());
+
+        //then
+        assertThat(result).isEqualTo(UsernameDupStatus.USERNAME_AVAILABLE.getMessage());
+        verify(userRepository, times(1)).findByUsername(any());
+    }
 
     @Test
     @DisplayName("회원 정보 수정 성공 테스트")

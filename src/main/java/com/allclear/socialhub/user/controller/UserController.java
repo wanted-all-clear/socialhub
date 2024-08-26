@@ -127,5 +127,4 @@ public class UserController {
 		String message = userService.userDuplicateCheck(username);
 		return ResponseEntity.ok(message);
 	}
-
 }
