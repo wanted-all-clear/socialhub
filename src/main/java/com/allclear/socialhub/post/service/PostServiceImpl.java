@@ -142,7 +142,6 @@ public class PostServiceImpl implements PostService {
 
     }
 
-    /**
      * 4. 게시물 검색 목록 조회
      * 작성자 : 오예령
      *
