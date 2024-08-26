@@ -13,11 +13,8 @@ import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
+import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.domain.PostType;
-import com.allclear.socialhub.post.dto.PostCreateRequest;
-import com.allclear.socialhub.post.dto.PostPaging;
-import com.allclear.socialhub.post.dto.PostResponse;
-import com.allclear.socialhub.post.dto.PostUpdateRequest;
 import com.allclear.socialhub.post.repository.PostRepository;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.repository.UserRepository;
@@ -178,6 +175,21 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
+     * 6. 게시물 상세 조회
+     * 작성자 : 유리빛나
+     *
+     * @param postId 게시물 번호
+     * @param userId 유저 번호
+     * @return 게시물 상세
+     */
+    public PostDetailResponse getPostDetail(Long postId, Long userId) {
+
+        postRepository.findById(postId).orElseThrow(() -> new CustomException(POST_NOT_FOUND));
+
+        return postRepository.getPostDetail(postId, userId);
+    }
+
+    /**
      * 7. 게시물 좋아요
      * 작성자 : 유리빛나
      *
@@ -239,7 +251,7 @@ public class PostServiceImpl implements PostService {
 
         return PostShareResponse.builder()
                 .postId(postId)
-                .shareCount(postShare.getPost().getShareCnt())
+                .shareCnt(postShare.getPost().getShareCnt())
                 .url(url)
                 .build();
     }
