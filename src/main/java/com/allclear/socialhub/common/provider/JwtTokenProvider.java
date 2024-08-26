@@ -51,7 +51,6 @@ public class JwtTokenProvider {
 		Date expiryDate = Date.from(
 				Instant.now().plus(1, ChronoUnit.HOURS)
 		);
-		String sub = user.getId() + "," + user.getUsername() + "," + user.getEmail();
 
 		return BEARER + Jwts.builder()
 				.claim("username", user.getUsername())
