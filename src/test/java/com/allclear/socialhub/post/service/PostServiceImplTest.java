@@ -13,6 +13,7 @@ import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.PostCreateRequest;
+import com.allclear.socialhub.post.dto.PostDetailResponse;
 import com.allclear.socialhub.post.dto.PostResponse;
 import com.allclear.socialhub.post.dto.PostUpdateRequest;
 import com.allclear.socialhub.post.repository.PostRepository;
@@ -427,6 +428,48 @@ class PostServiceImplTest {
                         tuple("제목2", "내용2", FACEBOOK, 20, 20, 20),
                         tuple("제목1", "내용1", INSTAGRAM, 10, 10, 10)
                 );
+    }
+
+    @DisplayName("게시물 상세를 조회합니다.")
+    @Test
+    void getPostDetail() {
+        // given
+        User user = createUser();
+
+        Post post = createPost(user, "게시물 상세 제목", "게시물 상세 내용", INSTAGRAM, 10, 20, 30);
+        postRepository.save(post);
+
+        Hashtag hashtag = createHashtag("#해시태그");
+        hashtagRepository.save(hashtag);
+
+        PostHashtag postHashtag = createPostHashtag(post, hashtag);
+        postHashtagRepository.save(postHashtag);
+
+        // when
+        PostDetailResponse getDetail = postService.getPostDetail(post.getId(), user.getId());
+
+        // then
+        assertThat(getDetail).isNotNull();
+        assertThat(getDetail.getPostId()).isEqualTo(post.getId());
+        assertThat(getDetail.getTitle()).isEqualTo(post.getTitle());
+        assertThat(getDetail.getContent()).isEqualTo(post.getContent());
+        assertThat(getDetail.getType()).isEqualTo(post.getType());
+        assertThat(getDetail.getViewCnt()).isEqualTo(post.getViewCnt());
+        assertThat(getDetail.getLikeCnt()).isEqualTo(post.getLikeCnt());
+        assertThat(getDetail.getShareCnt()).isEqualTo(post.getShareCnt());
+    }
+
+    @DisplayName("존재하지 않는 게시물 ID로 게시물 상세를 조회합니다.")
+    @Test
+    void getPostDetailWithNonExistentPostId() {
+        // given
+        User user = createUser();
+
+        // when // then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.getPostDetail(-1L, user.getId()));
+
+        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }
   
     @DisplayName("게시물 좋아요를 추가합니다.")
