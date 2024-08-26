@@ -12,10 +12,7 @@ import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
 import com.allclear.socialhub.post.common.view.repository.PostViewRepository;
 import com.allclear.socialhub.post.domain.Post;
 import com.allclear.socialhub.post.domain.PostType;
-import com.allclear.socialhub.post.dto.PostCreateRequest;
-import com.allclear.socialhub.post.dto.PostDetailResponse;
-import com.allclear.socialhub.post.dto.PostResponse;
-import com.allclear.socialhub.post.dto.PostUpdateRequest;
+import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.repository.PostRepository;
 import com.allclear.socialhub.user.domain.User;
 import com.allclear.socialhub.user.repository.UserRepository;
@@ -372,6 +369,45 @@ class PostServiceImplTest {
                 () -> postService.deletePost(anotherUser.getUsername(), post.getId()));
 
         assertEquals(POST_OWNER_MISMATCH, exception.getErrorCode());
+
+    }
+    
+    @Test
+    @DisplayName("게시물 검색 목록을 조회하고 조건에 알맞는 게시물이 조회되는 지 확인합니다.")
+    void searchPosts() {
+        // given
+        Pageable pageable = PageRequest.of(0, 3, Sort.by(Sort.Order.desc("id")));
+
+        User user = createUser();
+        userRepository.save(user);
+
+        Post post1 = createPost(user, "제목1", "내용1", INSTAGRAM, 10, 10, 10);
+        Post post2 = createPost(user, "제목2", "내용2", INSTAGRAM, 20, 20, 20);
+        Post post3 = createPost(user, "제목3", "내용3", INSTAGRAM, 30, 30, 30);
+
+        postRepository.save(post1);
+        postRepository.save(post2);
+        postRepository.save(post3);
+
+        Hashtag hashtag1 = createHashtag("#해시태그");
+
+        hashtagRepository.save(hashtag1);
+
+        PostHashtag postHashtag1 = createPostHashtag(post1, hashtag1);
+        PostHashtag postHashtag2 = createPostHashtag(post2, hashtag1);
+        PostHashtag postHashtag3 = createPostHashtag(post3, hashtag1);
+        postHashtagRepository.save(postHashtag1);
+        postHashtagRepository.save(postHashtag2);
+        postHashtagRepository.save(postHashtag3);
+
+        // when
+        PostPaging postPaging = postService.searchPosts(pageable, user.getUsername(), hashtag1.getContent(), INSTAGRAM, "", "viewCnt", "desc", "");
+
+        // then
+        assertEquals(3, postPaging.getPostCnt());
+
+        // 각 게시물에 '#해시태그'가 포함되어 있는지 검증
+        postPaging.getPostList().forEach(post -> assertTrue(((PostListResponse) post).getHashtagList().contains("#해시태그")));
 
     }
 
