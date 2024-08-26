@@ -1,12 +1,11 @@
 package com.allclear.socialhub.common.exception;
 
-import org.springframework.http.HttpStatus;
-
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
-  
+
 	// USER
 	USER_NOT_EXIST(HttpStatus.NOT_FOUND, "가입되지 않은 아이디입니다."),
 	EMAIL_DUPLICATION(HttpStatus.CONFLICT, "중복된 이메일입니다."),
