@@ -1,6 +1,7 @@
 package com.allclear.socialhub.post.service;
 
 import com.allclear.socialhub.common.exception.CustomException;
+import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.response.StatisticQueryResponse;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
@@ -58,9 +59,11 @@ class StatisticServiceImplTest {
             LocalDate end = LocalDate.of(2024, 1, 1);
 
             // when, then
-            assertThrows(CustomException.class, () -> {
+            CustomException customException = assertThrows(CustomException.class, () -> {
                 statisticService.validateDateRange(type, start, end);
             });
+
+            assertEquals(ErrorCode.STATISTICS_INVALID_DATE_RANGE_START_AFTER_END, customException.getErrorCode());
         }
 
         @Test
@@ -72,9 +75,11 @@ class StatisticServiceImplTest {
             LocalDate end = LocalDate.of(2024, 1, 9);
 
             // when, then
-            assertThrows(CustomException.class, () -> {
+            CustomException customException = assertThrows(CustomException.class, () -> {
                 statisticService.validateDateRange(type, start, end);
             });
+
+            assertEquals(ErrorCode.STATISTICS_INVALID_DATE_RANGE_TOO_LONG_HOUR, customException.getErrorCode());
         }
 
         @Test
@@ -86,9 +91,11 @@ class StatisticServiceImplTest {
             LocalDate end = LocalDate.of(2024, 2, 2);
 
             // when, then
-            assertThrows(CustomException.class, () -> {
+            CustomException customException = assertThrows(CustomException.class, () -> {
                 statisticService.validateDateRange(type, start, end);
             });
+
+            assertEquals(ErrorCode.STATISTICS_INVALID_DATE_RANGE_TOO_LONG_DATE, customException.getErrorCode());
         }
 
     }
