@@ -34,9 +34,7 @@ public class UserServiceImplTest {
 
     private UserLoginRequest loginRequest;
 
-    /**
-     * 각 테스트 전에 실행되며, 테스트에 필요한 기본 데이터를 초기화합니다.
-     */
+
     @BeforeEach
     public void setUp() {
 
@@ -48,10 +46,7 @@ public class UserServiceImplTest {
         request.setPassword("ValidPass123!");
     }
 
-    /**
-     * 로그인 시 사용자가 전달한 계정과 일치하는 계정이 있는 경우
-     * 작성자 : 김은정
-     */
+
     @Test
     @DisplayName("로그인 시 사용자가 전달한 계정과 일치하는 계정이 있는 경우")
     public void checkUsernameSuccessTest() {
@@ -65,10 +60,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findByUsername(loginRequest.getUsername());
     }
 
-    /**
-     * 로그인 시 사용자 전달한 계정과 일치하는 계정이 없는 경우
-     * 작성자 : 김은정
-     */
+
     @Test
     @DisplayName("로그인 시 사용자 전달한 계정과 일치하지 않는 경우를 테스트합니다.")
     public void checkUsernameFailTest() {
@@ -109,14 +101,6 @@ public class UserServiceImplTest {
         verify(userRepository, never()).save(Mockito.any(User.class));
     }
 
-    /**
-     * 회원가입 시 비밀번호 길이가 유효하지 않은 경우를 테스트합니다.
-     * 작성자: 배서진
-     *
-     * @given 비밀번호 길이가 10자 미만이거나 20자를 초과하는 경우
-     * @when joinUser 메서드가 호출될 때
-     * @then CustomException 예외가 발생해야 하며, UserRepository의 save 메서드는 호출되지 않아야 합니다.
-     */
     @Test
     @DisplayName("회원가입 시 비밀번호 길이 유효하지 않은 경우를 테스트합니다.")
     public void testJoinUserInvalidPasswordLength() {
@@ -132,14 +116,7 @@ public class UserServiceImplTest {
         verify(userRepository, never()).save(Mockito.any(User.class));
     }
 
-    /**
-     * 회원가입 시 비밀번호에 숫자, 문자, 특수문자 중 두 가지 이상이 포함되지 않은 경우를 테스트합니다.
-     * 작성자: 배서진
-     *
-     * @given 비밀번호가 숫자, 문자, 특수문자 중 두 가지 이상을 포함하지 않은 경우
-     * @when joinUser 메서드가 호출될 때
-     * @then CustomException 예외가 발생해야 하며, UserRepository의 save 메서드는 호출되지 않아야 합니다.
-     */
+
     @Test
     @DisplayName("회원가입 시 비밀번호 조건에 두 가지 이상이 포함되지 않은 경우를 테스트합니다.")
     public void testJoinUserInvalidPasswordPattern() {
@@ -155,10 +132,6 @@ public class UserServiceImplTest {
         verify(userRepository, never()).save(Mockito.any(User.class));
     }
 
-    /**
-     * 회원가입 시 사용하고자 하는 계정을 이미 다른 사용자가 사용한 경우를 테스트합니다.
-     * 작성자 : 김은정
-     */
     @Test
     @DisplayName("회원가입 시 사용하고자 하는 계정을 이미 다른 사용자가 사용한 경우를 테스트합니다.")
     public void duplicateAccountExistsTest() {
