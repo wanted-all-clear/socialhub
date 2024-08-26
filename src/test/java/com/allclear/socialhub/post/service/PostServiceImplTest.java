@@ -5,6 +5,7 @@ import com.allclear.socialhub.post.common.hashtag.domain.Hashtag;
 import com.allclear.socialhub.post.common.hashtag.domain.PostHashtag;
 import com.allclear.socialhub.post.common.hashtag.repository.HashtagRepository;
 import com.allclear.socialhub.post.common.hashtag.repository.PostHashtagRepository;
+import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.like.repository.PostLikeRepository;
 import com.allclear.socialhub.post.common.share.repository.PostShareRepository;
@@ -57,27 +58,29 @@ class PostServiceImplTest {
 
     @Autowired
     private PostRepository postRepository;
+  
     @Autowired
     private PostLikeRepository postLikeRepository;
+  
     @Autowired
     private PostShareRepository postShareRepository;
+  
     @Autowired
     private PostViewRepository postViewRepository;
-
+  
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
     @AfterEach
     void tearDown() {
 
+        postShareRepository.deleteAllInBatch();
+        postLikeRepository.deleteAllInBatch();
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
-        postLikeRepository.deleteAllInBatch();
-        postShareRepository.deleteAllInBatch();
         postViewRepository.deleteAllInBatch();
         postRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
-
     }
 
     @Test
@@ -425,7 +428,7 @@ class PostServiceImplTest {
                         tuple("제목1", "내용1", INSTAGRAM, 10, 10, 10)
                 );
     }
-
+  
     @DisplayName("게시물 좋아요를 추가합니다.")
     @Test
     void likePost() {
@@ -453,6 +456,37 @@ class PostServiceImplTest {
         // when // then
         CustomException exception = assertThrows(CustomException.class,
                 () -> postService.likePost(-1L, user.getId()));
+
+        assertEquals(POST_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @DisplayName("게시물 공유를 추가합니다.")
+    @Test
+    void sharePost() {
+        // given
+        User user = createUser();
+
+        Post post = createPost(user, "제목1", "내용1", INSTAGRAM, 10, 10, 10);
+        postRepository.save(post);
+
+        // when
+        PostShareResponse postShareResponse = postService.sharePost(post.getId(), user.getId());
+
+        // then
+        assertThat(postShareResponse)
+                .extracting("postId", "shareCnt", "url")
+                .contains(1L, 1L, "https://www.instagram.com/share/instagram");
+    }
+
+    @DisplayName("존재하지 않는 게시물 ID로 게시물 공유를 추가합니다.")
+    @Test
+    void sharePostWithNonExistentPostId() {
+        // given
+        User user = createUser();
+
+        // when // then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> postService.sharePost(-1L, user.getId()));
 
         assertEquals(POST_NOT_FOUND, exception.getErrorCode());
     }

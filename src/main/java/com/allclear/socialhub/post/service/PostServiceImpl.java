@@ -239,7 +239,7 @@ public class PostServiceImpl implements PostService {
 
         return PostShareResponse.builder()
                 .postId(postId)
-                .shareCount(postShare.getPost().getShareCnt())
+                .shareCnt(postShare.getPost().getShareCnt())
                 .url(url)
                 .build();
     }
