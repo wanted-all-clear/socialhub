@@ -8,12 +8,13 @@ import com.allclear.socialhub.user.dto.UserLoginRequest;
 
 public interface UserService {
 
-    void joinUser(UserJoinRequest request);
+	void joinUser(UserJoinRequest request);
+
+	boolean verifyUser(String storedCode, String authCode, String email);
 
     UserInfoUpdateResponse updateUserInfo(UserInfoUpdateRequest request, String token);
 
-    boolean verifyUser(String storedCode, String authCode, String email);
+	User userLogin(UserLoginRequest request);
 
-    User userLogin(UserLoginRequest request);
-
+	String userDuplicateCheck(String username);
 }
