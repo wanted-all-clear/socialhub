@@ -128,7 +128,7 @@ class StatisticServiceImplTest {
             String result = statisticService.getQueryDateFormatPattern(type);
 
             // then
-            assertEquals("%Y-%m-%d %H:%i", result);
+            assertEquals("%Y-%m-%d %H:00", result);
         }
 
     }
