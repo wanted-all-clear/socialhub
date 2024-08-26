@@ -2,6 +2,7 @@ package com.allclear.socialhub.post.controller;
 
 import com.allclear.socialhub.post.common.like.dto.PostLikeResponse;
 import com.allclear.socialhub.post.common.share.dto.PostShareResponse;
+import com.allclear.socialhub.post.domain.PostType;
 import com.allclear.socialhub.post.dto.*;
 import com.allclear.socialhub.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
