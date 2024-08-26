@@ -132,15 +132,15 @@ public class UserServiceImpl implements UserService {
 	 * @param request
 	 */
 	public User userLogin(UserLoginRequest request) {
+		User user = checkUsername(request.getUsername());
 
-		try {
-			User user = checkUsername(request.getUsername());
-			checkPassword(user, request.getPassword());
-
-			return user;
-		} catch (CustomException ex) {
-			throw new CustomException(ErrorCode.LOGIN_FAIL);
+		if (user == null) {
+			throw new CustomException(ErrorCode.USER_NOT_EXIST);
 		}
+
+		checkPassword(user, request.getPassword());
+
+		return user;
 	}
 
 	/**
@@ -151,15 +151,12 @@ public class UserServiceImpl implements UserService {
 	 * @return String usernaame
 	 */
 	public String userDuplicateCheck(String username) {
-		User user;
-		try {
-			user = checkUsername(username);
-		} catch (CustomException cex) {
-			return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
-		}
+		User user = checkUsername(username);
 
-		throw new CustomException(ErrorCode.EMAIL_DUPLICATION);
-		// return UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage();
+		if (user != null) {
+			throw new CustomException(ErrorCode.USERNAME_DUPLICATION);
+		}
+		return UsernameDupStatus.USERNAME_AVAILABLE.getMessage();
 	}
 
 	/**
@@ -172,10 +169,9 @@ public class UserServiceImpl implements UserService {
 	public User checkUsername(String username) {
 
 		User user = userRepository.findByUsername(username);
-
-		if (user == null) {
-			throw new CustomException(ErrorCode.USER_NOT_EXIST);
-		}
+		// if (user == null) {
+		// 	throw new CustomException(ErrorCode.USER_NOT_EXIST);
+		// }
 
 		return user;
 	}

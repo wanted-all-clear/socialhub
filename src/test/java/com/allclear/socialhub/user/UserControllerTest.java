@@ -2,14 +2,12 @@ package com.allclear.socialhub.user;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -18,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
@@ -31,19 +30,20 @@ import com.allclear.socialhub.user.service.UserService;
 import com.allclear.socialhub.user.type.EmailType;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.mail.MessagingException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class UserControllerTest {
 
 	@Autowired
-	private TestRestTemplate testRestTemplate;
+	private TestRestTemplate testRestTemplate = new TestRestTemplate();
 
 	@Autowired
-	@Mock
 	private JwtTokenProvider jwtTokenProvider;
 
 	@Mock
@@ -55,10 +55,20 @@ public class UserControllerTest {
 	@InjectMocks
 	private UserController userController;
 
+	public String username = "popcorn23";
+	public String email = "fkznsha23@gmail.com";
+	public String password = "qlalfqjsghgh23";
+
 	@BeforeEach
 	void setUp() {
+		// MockitoAnnotations.openMocks(this);
 
-		MockitoAnnotations.openMocks(this);
+		// 회원가입
+		UserJoinRequest userJoinRequest = new UserJoinRequest(username, email, password);
+
+		HttpEntity<UserJoinRequest> httpEntityJoin = new HttpEntity<>(userJoinRequest);
+		testRestTemplate.exchange("/api/users", HttpMethod.POST, httpEntityJoin, String.class);
+
 	}
 
 	/**
@@ -67,36 +77,36 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void 사용자_로그인_테스트() {
-
+		// 로그인
 		UserLoginRequest userLoginRequest = UserLoginRequest.builder()
-				.username("user1")
-				.password("abcd1234..").build();
+				.username(username)
+				.password(password).build();
 
 		HttpEntity<UserLoginRequest> httpEntity = new HttpEntity<>(userLoginRequest);
 		ResponseEntity<String> responseEntity = testRestTemplate.exchange("/api/users/login", HttpMethod.POST,
 				httpEntity, String.class);
 
 		String jwtToken = responseEntity.getHeaders().getFirst("AUTHORIZATION");
-		String token = jwtTokenProvider.extractAllClaims(jwtToken).getSubject();
-		String[] tokenArray = token.split(",");
+		Claims token = jwtTokenProvider.extractAllClaims(jwtToken);
+		String tokenStr = token.getSubject();
+		String[] tokenArray = tokenStr.split(",");
 
 		assertThat(userLoginRequest.getUsername()).isEqualTo(tokenArray[1]);
 	}
 
 	@Test
 	public void 계정_중복인_경우_테스트() {
-		String username = "user1";
-
+		// 계정 중복 확인
 		HttpEntity<String> httpEntity = new HttpEntity<>(username);
 		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,
 				httpEntity, String.class);
 
-		assertThat(result.getBody()).isEqualTo(UsernameDupStatus.USERNAME_ALREADY_TAKEN.getMessage());
+		assertThat(result.getStatusCode()).isEqualTo(ErrorCode.USERNAME_DUPLICATION.getHttpStatus());
 	}
 
 	@Test
 	public void 계정_중복이_없는_경우_테스트() {
-		String username = "user1234";
+		String username = "user12";
 
 		HttpEntity<String> httpEntity = new HttpEntity<>(username);
 		ResponseEntity<String> result = testRestTemplate.exchange("/api/users/duplicate-check", HttpMethod.POST,

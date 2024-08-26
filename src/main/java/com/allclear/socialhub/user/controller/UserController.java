@@ -85,9 +85,9 @@ public class UserController {
 	})
 	@PostMapping("")
 	public ResponseEntity<String> joinUser(@Valid @RequestBody UserJoinRequest request) {
-
 		try {
 			userService.joinUser(request);
+			System.out.println(request.getUsername());
 			return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
 		} catch (CustomException e) {
 			throw e;
