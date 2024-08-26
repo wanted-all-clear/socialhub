@@ -14,6 +14,7 @@ import com.allclear.socialhub.user.service.UserServiceImpl;
 import com.allclear.socialhub.user.type.UserCertifyStatus;
 import com.allclear.socialhub.user.type.UserStatus;
 import com.allclear.socialhub.user.type.UsernameDupStatus;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -191,9 +192,11 @@ public class UserServiceImplTest {
         String token = "validToken";
         UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
-        given(jwtTokenProvider.extractEmailFromToken(token)).willReturn(user.getEmail());
-        given(jwtTokenProvider.extractIdFromToken(token)).willReturn(user.getId());
-        given(userRepository.findByIdAndEmail(user.getId(), user.getEmail())).willReturn(Optional.of(user));
+        Claims claims = mock(Claims.class);
+        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+        given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);
         given(passwordEncoder.encode(request.getPassword())).willReturn("encodedNewPassword");
 
@@ -213,9 +216,11 @@ public class UserServiceImplTest {
         String token = "validToken";
         UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
-        given(jwtTokenProvider.extractEmailFromToken(token)).willReturn(user.getEmail());
-        given(jwtTokenProvider.extractIdFromToken(token)).willReturn(user.getId());
-        given(userRepository.findByIdAndEmail(user.getId(), user.getEmail())).willReturn(Optional.of(user));
+        Claims claims = mock(Claims.class);
+        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
+        given(userRepository.findByEmailAndUsername(user.getEmail(), user.getUsername())).willReturn(Optional.of(user));
         given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
 
         // when & then
@@ -232,10 +237,10 @@ public class UserServiceImplTest {
         String token = "validToken";
         UserInfoUpdateRequest request = new UserInfoUpdateRequest("newUsername", "NewValidPass123!");
 
-        given(jwtTokenProvider.extractEmailFromToken(token)).willReturn(user.getEmail());
-        given(jwtTokenProvider.extractIdFromToken(token)).willReturn(user.getId());
-        given(userRepository.findByIdAndEmail(user.getId(), user.getEmail())).willReturn(Optional.empty());
-
+        Claims claims = mock(Claims.class);
+        given(jwtTokenProvider.extractAllClaims(token)).willReturn(claims);
+        given(jwtTokenProvider.extractEmail(claims)).willReturn(user.getEmail());
+        given(jwtTokenProvider.extractUsername(claims)).willReturn(user.getUsername());
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> userService.updateUserInfo(request, token));
 
