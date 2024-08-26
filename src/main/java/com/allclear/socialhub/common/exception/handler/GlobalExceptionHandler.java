@@ -3,6 +3,7 @@ package com.allclear.socialhub.common.exception.handler;
 import com.allclear.socialhub.common.exception.CustomException;
 import com.allclear.socialhub.common.exception.ErrorCode;
 import com.allclear.socialhub.common.exception.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -109,6 +110,20 @@ public class GlobalExceptionHandler {
                 = ErrorResponse.create()
                 .httpStatus(ErrorCode.POST_TYPE_NOT_FOUND.getHttpStatus())
                 .message(ErrorCode.POST_TYPE_NOT_FOUND.getMessage());
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    protected ResponseEntity<ErrorResponse> handleExpiredJwtException(
+            ExpiredJwtException ex) {
+
+        log.error("handleExpiredJwtException", ex);
+
+        ErrorResponse response
+                = ErrorResponse.create()
+                .httpStatus(ErrorCode.EXPIRED_JWT_TOKEN.getHttpStatus())
+                .message(ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
 
         return ResponseEntity.badRequest().body(response);
     }
