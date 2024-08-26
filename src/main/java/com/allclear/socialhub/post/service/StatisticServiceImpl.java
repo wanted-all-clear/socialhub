@@ -60,7 +60,7 @@ public class StatisticServiceImpl implements StatisticService {
 
         // 3. start ~ end 날짜로 일자별 혹은 시간대별 개수를 가져오는 쿼리 날린 결과
         List<StatisticQueryResponse> queryResponses = getQueryResponsesByValue(value, postIds, start, end, queryDateFormatPattern);
-
+        
         // 4. 시간 - 개수 Map으로 변환
         Map<String, Long> queryResponseMap = convertStatisticQueryResponseToMap(queryResponses);
 
@@ -155,7 +155,7 @@ public class StatisticServiceImpl implements StatisticService {
 
         return switch (type) {
             case DATE -> "%Y-%m-%d";
-            case HOUR -> "%Y-%m-%d %H:%i";
+            case HOUR -> "%Y-%m-%d %H:00";
         };
     }
 
