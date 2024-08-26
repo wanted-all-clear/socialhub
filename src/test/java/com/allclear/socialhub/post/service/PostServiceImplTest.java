@@ -62,16 +62,12 @@ class PostServiceImplTest {
     @Autowired
     private PostViewRepository postViewRepository;
 
-    @Autowired
-    private PostLikeRepository postLikeRepository;
-
     static
     List<String> hashtagList = Arrays.asList("#테스트", "#자바", "#스프링");
 
     @AfterEach
     void tearDown() {
 
-        postLikeRepository.deleteAllInBatch();
         postHashtagRepository.deleteAllInBatch();
         hashtagRepository.deleteAllInBatch();
         postLikeRepository.deleteAllInBatch();
@@ -379,7 +375,7 @@ class PostServiceImplTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 게시물 id로 게시물을 수정합니다.")
+    @DisplayName("존재하지 않는 게시물 id로 게시물을 삭제합니다.")
     void deletePostWithNoExistPost() {
         // given
         User user = createUser();
