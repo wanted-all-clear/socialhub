@@ -87,23 +87,10 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserInfoUpdateResponse> updateUserInfo(@Valid @RequestBody UserInfoUpdateRequest request) {
-        /* TODO: Parameter 추가 예정 - @RequestHeader("Authorization") String token
+    public ResponseEntity<UserInfoUpdateResponse> updateUserInfo(@Valid @RequestBody UserInfoUpdateRequest request,
+                                                                 @RequestHeader("Authorization") String token) {
 
-           // 1. JWT 토큰에서 "Bearer " 접두어 제거
-           String jwtToken = token.substring(7);
-
-           // 2. 토큰에서 이메일 추출 및 예외 처리
-           String email;
-           try {
-               email = jwtService.getEmailFromToken(jwtToken);
-           } catch (ExpiredJwtException e) {
-               throw new CustomException(ErrorCode.TOKEN_EXPIRED);
-           } catch (JwtException | IllegalArgumentException e) {
-               throw new CustomException(ErrorCode.TOKEN_INVALID);
-           }
-         */
-        String email = "wpdls879@gmail.com";
+        String email = jwtTokenProvider.extractEmailFromToken(token);
 
         UserInfoUpdateResponse response = userService.updateUserInfo(request, email);
 
