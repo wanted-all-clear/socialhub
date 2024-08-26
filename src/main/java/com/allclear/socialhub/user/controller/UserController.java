@@ -1,14 +1,18 @@
 package com.allclear.socialhub.user.controller;
 
 import com.allclear.socialhub.common.exception.CustomException;
-import com.allclear.socialhub.user.dto.UserInfoUpdateRequest;
-import com.allclear.socialhub.user.dto.UserInfoUpdateResponse;
 import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.user.domain.User;
-import com.allclear.socialhub.user.dto.UserEmailRequest;
-import com.allclear.socialhub.user.dto.UserJoinRequest;
+import com.allclear.socialhub.user.dto.*;
+import com.allclear.socialhub.user.service.EmailService;
 import com.allclear.socialhub.user.service.UserService;
+import com.allclear.socialhub.user.type.EmailType;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
