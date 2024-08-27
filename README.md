@@ -59,7 +59,7 @@
 
 <br>
 
-### 🗣️ 협업 및 커뮤니케이션
+### 협업 및 커뮤니케이션 🗣️ 
 
 <details>
 <summary>문서화 작업</summary>
@@ -74,7 +74,7 @@
 
 <br/>
 
-### 🏃‍♀️‍➡️ Github Issue & Jira 를 통한 Task 트래킹 관리 (WBS) 
+### Github Issue & Jira 를 통한 Task 트래킹 관리 (WBS) 🏃‍♀️‍➡️ 
 
 <details>
 <summary>개발일정 관리</summary>
@@ -92,7 +92,7 @@
 
 <br/>
 
-### 🤖 Discord을 활용한 소통 및 PR 알림 봇
+### Discord을 활용한 소통 및 PR 알림 봇 🤖 
 
 <details>
 <summary>소통 및 PR 알림 확인</summary>
