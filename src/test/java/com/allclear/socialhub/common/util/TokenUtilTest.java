@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.allclear.socialhub.auth.util.TokenUtil;
+
 class TokenUtilTest {
 
     @Test
