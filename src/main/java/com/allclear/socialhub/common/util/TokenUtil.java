@@ -1,4 +1,4 @@
-package com.allclear.socialhub.auth.util;
+package com.allclear.socialhub.common.util;
 
 public class TokenUtil {
 
