@@ -4,14 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.allclear.socialhub.auth.dto.UserDetailsImpl;
-import com.allclear.socialhub.auth.util.AccessTokenUtil;
+import com.allclear.socialhub.common.provider.JwtTokenProvider;
 import com.allclear.socialhub.post.domain.StatisticType;
 import com.allclear.socialhub.post.domain.StatisticValue;
 import com.allclear.socialhub.post.dto.StatisticRequestParam;
@@ -36,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class StatisticController {
 
 	private final StatisticService statisticService;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Operation(summary = "통계 조회", description = "일자별, 시간별 통계를 조회합니다.")
 	@ApiResponses(value = {
@@ -52,12 +51,13 @@ public class StatisticController {
 	})
 	@GetMapping
 	public ResponseEntity<List<StatisticResponse>> getStatistics(
-			@AuthenticationPrincipal UserDetailsImpl userDetails,
+			@RequestHeader("Authorization") String authorizationHeader,
 			@Valid StatisticRequestParam statisticRequest
 	) {
 
 		// JWT 토큰 추출
-		String username = userDetails.getUsername();
+		Claims token = jwtTokenProvider.extractAllClaims(authorizationHeader);
+		String username = jwtTokenProvider.extractUsername(token);
 		// hashtag가 없으면 JWT 토큰에서 추출한 사용자 이름 설정
 		if (statisticRequest.getHashtag() == null) {
 			statisticRequest.setHashtag(username);
